@@ -1,3 +1,5 @@
+import Foundation
+
 //	client
 struct LRest {
 	struct content {
@@ -58,7 +60,7 @@ class LRestClient<T: LFModel> {
 		}
 	}
 	func init_request() -> NSMutableURLRequest? {
-		var url = NSURL(string: FF.api_root + api)!
+		var url = NSURL(string: root + api)!
 		var request = NSMutableURLRequest(URL: url)
 		request.HTTPMethod = method
 		request.addValue(content_type, forHTTPHeaderField:"Content-Type")
