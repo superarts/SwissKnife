@@ -93,3 +93,50 @@ extension UITextField {
 		}
 	}
 }
+
+extension UIScrollView {
+	@IBInspectable var content_width: CGFloat {
+		get {
+			return content_w
+		}
+		set (f) {
+			content_w = f
+		}
+	}
+	@IBInspectable var content_height: CGFloat {
+		get {
+			return content_h
+		}
+		set (f) {
+			content_h = f
+		}
+	}
+}
+
+class LFAlertSegue: UIStoryboardSegue {
+    override func perform() {
+        let source = sourceViewController as UIViewController
+        if let navigation = source.navigationController {
+			let alert = UIAlertController(title: "Message", message: identifier, preferredStyle: .Alert)
+			alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: {
+				(action: UIAlertAction!) -> Void in
+			}))
+			navigation.presentViewController(alert, animated: true, completion: nil)
+            //navigation.pushViewController(destinationViewController as UIViewController, animated: false)
+        }
+    }
+}
+
+class LFActionSheetSegue: UIStoryboardSegue {
+    override func perform() {
+        let source = sourceViewController as UIViewController
+        if let navigation = source.navigationController {
+			let alert = UIAlertController(title: "Message", message: identifier, preferredStyle: .ActionSheet)
+			alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: {
+				(action: UIAlertAction!) -> Void in
+			}))
+			navigation.presentViewController(alert, animated: true, completion: nil)
+            //navigation.pushViewController(destinationViewController as UIViewController, animated: false)
+        }
+    }
+}

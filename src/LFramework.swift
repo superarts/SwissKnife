@@ -375,6 +375,7 @@ extension UIView {
 }
 
 //	TODO: dependency
+/*
 extension MBProgressHUD {
 	class func show(title: String, view: UIView, duration: Float? = nil) {
 		let hud = MBProgressHUD.showHUDAddedTo(view, animated: true) 
@@ -388,6 +389,7 @@ extension MBProgressHUD {
 		}
 	}
 }
+*/
 
 /*
 features
@@ -415,14 +417,13 @@ properties: containers, followed up with
 }
 class LFViewController: UIViewController, LFViewControllerDelegate {
 */
-class LFViewController: UIViewController {
-    var containers: Dictionary<String, UIViewController> = [:]
-    
+
+extension UIViewController {
     @IBAction func lf_actionPop() {
-        navigationController?.popViewControllerAnimated(true);
+        navigationController?.popViewControllerAnimated(true)
     }
     @IBAction func lf_actionPopToRoot() {
-        navigationController?.popToRootViewControllerAnimated(true);
+        navigationController?.popToRootViewControllerAnimated(true)
     }
     @IBAction func lf_actionDismiss() {
         dismissViewControllerAnimated(true, completion: nil)
@@ -436,7 +437,11 @@ class LFViewController: UIViewController {
 		navigationController?.pushViewController(controller, animated: animated)
 		return controller
 	}
+}
 
+class LFViewController: UIViewController {
+    var containers: Dictionary<String, UIViewController> = [:]
+    
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("lf_keyboardWillShow:"), name:UIKeyboardWillShowNotification, object: nil);
@@ -652,6 +657,14 @@ class LFTableController: LFViewController {
 	@IBAction func lf_actionReload() {
         table.reloadData()
 	}
+
+	//	DELETEME
+	/*
+	override func viewWillAppear(animated: Bool) {
+		table.estimatedRowHeight = 65.0
+		table.rowHeight = UITableViewAutomaticDimension
+	}
+	*/
 }
 
 class LFTableDataSource: NSObject, UITableViewDelegate, UITableViewDataSource {
