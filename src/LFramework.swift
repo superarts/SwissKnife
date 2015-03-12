@@ -4,6 +4,7 @@ typealias LTDictStrObj = Dictionary<String, AnyObject>
 typealias LTDictStrStr = Dictionary<String, String>
 typealias LTArrayObj = Array<AnyObject>
 typealias LTArrayInt = Array<Int>
+typealias LTArrayStr = Array<String>
 typealias LTBlockVoid = (() -> Void)
 typealias LTBlockVoidError = ((NSError?) -> Void)
 typealias LTBlockVoidObjError = ((AnyObject?, NSError?) -> Void)
