@@ -135,6 +135,12 @@ extension String {
 			return countElements(self)
 		}
 	}
+	var word_count: Int {
+		get {
+			let words = self.componentsSeparatedByCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
+			return words.count
+		}
+	}
 	func sub_range(head: Int, _ tail: Int) -> String {
 		return self.substringWithRange(Range<String.Index>(start: advance(self.startIndex, head), end: advance(self.endIndex, tail)))
 	}
@@ -193,6 +199,15 @@ extension NSUserDefaults {
 			NSUserDefaults.standardUserDefaults().synchronize()
 		} else {
 			return NSUserDefaults.standardUserDefaults().boolForKey(key)
+		}
+		return v
+	}
+	class func string(key: String, _ v: String? = nil) -> String? {
+		if let obj: String = v {
+			NSUserDefaults.standardUserDefaults().setObject(obj, forKey: key)
+			NSUserDefaults.standardUserDefaults().synchronize()
+		} else {
+			return NSUserDefaults.standardUserDefaults().stringForKey(key)
 		}
 		return v
 	}
