@@ -184,12 +184,23 @@ extension Int {
 }
 
 extension NSUserDefaults {
+	/*
 	class func object<T: AnyObject>(key: String, _ v: T? = nil) -> T? {
 		if let obj: T = v {
 			NSUserDefaults.standardUserDefaults().setObject(obj, forKey: key)
 			NSUserDefaults.standardUserDefaults().synchronize()
 		} else {
 			return NSUserDefaults.standardUserDefaults().objectForKey(key) as T?
+		}
+		return v
+	}
+	*/
+	class func object(key: String, _ v: AnyObject? = nil) -> AnyObject? {
+		if let obj: AnyObject = v {
+			NSUserDefaults.standardUserDefaults().setObject(obj, forKey: key)
+			NSUserDefaults.standardUserDefaults().synchronize()
+		} else {
+			return NSUserDefaults.standardUserDefaults().objectForKey(key)
 		}
 		return v
 	}
