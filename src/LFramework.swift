@@ -67,12 +67,14 @@ extension UIView {
             view.removeFromSuperview()
         }
     }
-	func lf_enableBorder(width border_width: CGFloat = -1, color: UIColor? = nil, radius: CGFloat = -1) {
+	func lf_enableBorder(width border_width: CGFloat = -1, color: UIColor? = nil, radius: CGFloat = -1, is_circle: Bool = false) {
 		var f = radius
-		if f < 0 {
+		if is_circle {
 			f = (w < h ? w : h) / 2
 		}
-		layer.cornerRadius = f
+		if f >= 0 {
+			layer.cornerRadius = f
+		}
 		if border_width >= 0 {
 			layer.borderWidth = border_width
 		}
@@ -299,6 +301,27 @@ extension UIImageView {
     }
 }
 
+extension UIImage {
+
+	//	TODO: efficiency?
+	convenience init?(color: UIColor) {
+        self.init(data: UIImagePNGRepresentation(UIImage.imageWithColor(color)))
+	}
+	class func imageWithColor(color: UIColor) -> UIImage {
+		let rect = CGRectMake(0, 0, 1, 1)
+		UIGraphicsBeginImageContext(rect.size)
+		let context = UIGraphicsGetCurrentContext()
+
+		CGContextSetFillColorWithColor(context, color.CGColor)
+		CGContextFillRect(context, rect)
+
+		let image = UIGraphicsGetImageFromCurrentImageContext()
+		UIGraphicsEndImageContext()
+
+		return image
+	}
+}
+
 extension UIScreen {
     class var w: CGFloat {
         get {
@@ -360,6 +383,49 @@ extension UIScrollView {
         get {
             return contentSize.height
         }
+	}
+
+	//	TODO: replace with category property when swift supports it
+	private struct AssociatedKeys {
+		static var page = "lf-key-scroll-page"
+	}
+    var pageControl: UIPageControl? {
+        get {
+            return objc_getAssociatedObject(self, &AssociatedKeys.page) as? UIPageControl
+        }
+        set {
+            if let newValue = newValue {
+                objc_setAssociatedObject(
+                    self,
+                    &AssociatedKeys.page,
+                    newValue as UIPageControl?,
+                    UInt(OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+                )
+				page_reload()
+				//	TODO: casting failed
+				//self.delegate = self as? UIScrollViewDelegate
+            } else {
+				LF.log("WARNING: setting pageControl failed", newValue)
+			}
+        }
+    }
+	func page_reload() {
+		if let page = pageControl {
+			page.numberOfPages = Int(self.contentSize.width / self.frame.size.width)
+			page.currentPage = Int(self.contentOffset.x / self.frame.size.width)
+			page.hidesForSinglePage = false
+			page.addTarget(self, action:"page_changed:", forControlEvents:.ValueChanged)
+		} else {
+			LF.log("WARNING: pageControl not found")
+		}
+	}
+	func page_changed(page: UIPageControl) {
+		UIView.animateWithDuration(0.3) {
+			self.contentOffset = CGPointMake(self.frame.size.width * CGFloat(page.currentPage), 0)
+		}
+	}
+	func scrollViewDidScroll(scroll: UIScrollView) {
+		page_reload()
 	}
 }
 

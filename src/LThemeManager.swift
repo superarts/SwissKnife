@@ -47,7 +47,7 @@ extension UIView {
 		}
 		set (enabled) {
 			if Bool(enabled) == true {
-				lf_enableBorder()
+				lf_enableBorder(is_circle: true)
 			} else {
 				layer.cornerRadius = 0
 			}
@@ -109,6 +109,70 @@ extension UIScrollView {
 		}
 		set (f) {
 			content_h = f
+		}
+	}
+}
+
+extension UIButton {
+	@IBInspectable var title_align_center: Bool {
+		get {
+			if let label = titleLabel {
+				return label.textAlignment == .Center
+			}
+			return false
+		}
+		set (f) {
+			if let label = titleLabel {
+				label.textAlignment = .Center
+			}
+		}
+	}
+	@IBInspectable var highlighted_background_color: UIColor {
+		get {
+			return UIColor.blackColor()		//	TODO
+		}
+		set (color) {
+			//let image = UIImage(CIImage: CIImage(color: CIColor(color: color)))	//why not working?
+			let image = UIImage(color: color)
+			setBackgroundImage(image, forState: .Highlighted)
+		}
+	}
+	@IBInspectable var selected_background_color: UIColor {
+		get {
+			return UIColor.blackColor()		//	TODO
+		}
+		set (color) {
+			let image = UIImage(color: color)
+			setBackgroundImage(image, forState: .Selected)
+		}
+	}
+	@IBInspectable var disabled_background_color: UIColor {
+		get {
+			return UIColor.blackColor()		//	TODO
+		}
+		set (color) {
+			let image = UIImage(color: color)
+			setBackgroundImage(image, forState: .Disabled)
+		}
+	}
+}
+
+extension UITextView {
+	@IBInspectable var align_middle_vertical: Bool {
+		get {
+			return false	//	TODO
+		}
+		set (f) {
+			self.addObserver(self, forKeyPath:"contentSize", options:.New, context:nil)
+		}
+	}
+	override public func observeValueForKeyPath(keyPath: String, ofObject object: AnyObject, change: [NSObject:AnyObject], context: UnsafeMutablePointer<Void>) {
+		if let textView = object as? UITextView {
+			var y: CGFloat = (textView.bounds.size.height - textView.contentSize.height * textView.zoomScale)/2.0;
+			if y < 0 {
+				y = 0
+			}
+			textView.content_y = -y
 		}
 	}
 }
