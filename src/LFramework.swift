@@ -866,6 +866,11 @@ class LFTableDataSource: NSObject, UITableViewDelegate, UITableViewDataSource {
 		}
 		return
 	}
+	/*
+	func tableView(tableView: UITableView, willDisplayCell cell: UITableViewCell, forRowAtIndexPath indexPath: NSIndexPath) {
+		cell.backgroundColor = UIColor.clearColor()
+	}
+	*/
 }
 
 //	TODO: refactor for better naming
