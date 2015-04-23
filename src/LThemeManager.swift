@@ -163,9 +163,20 @@ extension UITextView {
 			return false	//	TODO
 		}
 		set (f) {
+			self.addObserver(self, forKeyPath:"frame", options:.New, context:nil)
 			self.addObserver(self, forKeyPath:"contentSize", options:.New, context:nil)
 		}
 	}
+	/*
+	@IBInspectable var placeholder: String {
+		get {
+            return associated(&LF.keys.text_placeholder) as String
+		}
+		set (s) {
+			associate(&LF.keys.text_placeholder, object:s)
+		}
+	}
+	*/
 	override public func observeValueForKeyPath(keyPath: String, ofObject object: AnyObject, change: [NSObject:AnyObject], context: UnsafeMutablePointer<Void>) {
 		if let textView = object as? UITextView {
 			var y: CGFloat = (textView.bounds.size.height - textView.contentSize.height * textView.zoomScale)/2.0;

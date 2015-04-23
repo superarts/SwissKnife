@@ -59,6 +59,21 @@ struct LF {
 		}
 		return b
 	}
+
+	//	TODO: replace with category property when swift supports it
+	struct keys {
+		static var scroll_page = "lf-key-scroll-page"
+		static var text_placeholder = "lf-key-text-placeholder"
+	}
+}
+
+extension NSObject {
+	func associated(p: UnsafePointer<Void>) -> AnyObject {
+		return objc_getAssociatedObject(self, p)
+	}
+	func associate(p: UnsafePointer<Void>, object: AnyObject) {
+		objc_setAssociatedObject(self, p, object, UInt(OBJC_ASSOCIATION_RETAIN_NONATOMIC))
+	}
 }
 
 extension UIView {
@@ -385,22 +400,14 @@ extension UIScrollView {
         }
 	}
 
-	//	TODO: replace with category property when swift supports it
-	private struct AssociatedKeys {
-		static var page = "lf-key-scroll-page"
-	}
     var pageControl: UIPageControl? {
         get {
-            return objc_getAssociatedObject(self, &AssociatedKeys.page) as? UIPageControl
+            //return objc_getAssociatedObject(self, &LF.keys.page) as? UIPageControl
+            return associated(&LF.keys.scroll_page) as? UIPageControl
         }
         set {
             if let newValue = newValue {
-                objc_setAssociatedObject(
-                    self,
-                    &AssociatedKeys.page,
-                    newValue as UIPageControl?,
-                    UInt(OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-                )
+				associate(&LF.keys.scroll_page, object:newValue)
 				page_reload()
 				//	TODO: casting failed
 				//self.delegate = self as? UIScrollViewDelegate
