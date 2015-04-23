@@ -21,8 +21,9 @@ class LRestClient<T: LFModel> {
 	var root: String!
 	var api: String!
 	var parameters: LTDictStrObj?
-	var func_array: ((Array<T>?, NSError?) -> Void)?
-	var func_model: ((T?, NSError?) -> Void)?
+	var func_model: ((T?, NSError?) -> Void)?				//	parse to model
+	var func_array: ((Array<T>?, NSError?) -> Void)?		//	parse to array
+	var func_dict: ((LTDictStrObj?, NSError?) -> Void)?		//	raw dictionary
 
 	init(api url: String, parameters param: LTDictStrObj? = nil) {
 		api = url
@@ -74,11 +75,14 @@ class LRestClient<T: LFModel> {
 				if show_error == true {
 					error_show(error_ret!)
 				}
+				if func_model != nil {
+					func_model!(nil, error_ret)
+				}
 				if func_array != nil {
 					func_array!(nil, error_ret)
 				}
-				if func_model != nil {
-					func_model!(nil, error_ret)
+				if func_dict != nil {
+					func_dict!(nil, error_ret)
 				}
 				return nil
 			}
@@ -135,6 +139,12 @@ class LRestClient<T: LFModel> {
 							self.func_array!(array_obj, error_ret)
 						}
 					}
+					if self.func_dict != nil {
+						let dict = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &error_ret) as LTDictStrObj
+						if error_ret == nil {
+							self.func_dict!(dict, error_ret)
+						}
+					}
 				}
 				if error_ret != nil {
 					if self.show_error == true {
@@ -145,6 +155,9 @@ class LRestClient<T: LFModel> {
 					}
 					if self.func_array != nil {
 						self.func_array!(nil, error_ret)
+					}
+					if self.func_dict != nil {
+						self.func_dict!(nil, error_ret)
 					}
 				}
 			})
