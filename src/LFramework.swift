@@ -165,6 +165,15 @@ extension String {
 		}
         return false
     }
+	func decode_html() -> String {
+		var s = self
+		s = s.stringByReplacingOccurrencesOfString("&amp;", withString:"&")
+		s = s.stringByReplacingOccurrencesOfString("&quot;", withString:"\"")
+		s = s.stringByReplacingOccurrencesOfString("&#039;", withString:"'")
+		s = s.stringByReplacingOccurrencesOfString("&lt;", withString:"<")
+		s = s.stringByReplacingOccurrencesOfString("&gt;", withString:">")
+		return s
+	}
 }
 
 extension Int {
@@ -739,17 +748,56 @@ class LFLabeledScrollController: UIViewController {
 }
 
 
-class LFTableController: LFViewController {
-	@IBOutlet var table: UITableView!
-	var source: LFTableDataSource!
+class LFMultipleTableController: LFViewController {
+	var sources: [LFTableDataSource] = []
+	var tables: [UITableView]! {
+		set(array) {
+			sources.removeAll()
+			_tables.removeAll()
+			for table in array {
+				let source = LFTableDataSource(table: table)
+				sources.append(source)
+				_tables.append(table)
+			}
+		}
+		get {
+			return _tables
+		}
+	}
+	private var _tables: [UITableView] = []
 	
     override func viewDidLoad() {
         super.viewDidLoad()
-		source = LFTableDataSource(table: table)
 	}
+	@IBAction func lf_actionReload() {
+		for table in tables {
+			table.reloadData()
+		}
+	}
+}
+
+class LFTableController: LFMultipleTableController {
+	@IBOutlet var table: UITableView!
+	var source: LFTableDataSource! {
+		get {
+			return sources[0]
+		}
+		set(obj) {
+			sources = [obj]
+		}
+	}
+	//var source: LFTableDataSource!
+	
+    override func viewDidLoad() {
+        super.viewDidLoad()
+		tables = [table]
+		//source = LFTableDataSource(table: table)
+	}
+	/*
 	@IBAction func lf_actionReload() {
         table.reloadData()
 	}
+	*/
 
 	//	DELETEME
 	/*
@@ -771,6 +819,8 @@ class LFTableDataSource: NSObject, UITableViewDelegate, UITableViewDataSource {
 	var func_height: ((NSIndexPath) -> CGFloat)? = nil
 	var func_select: ((NSIndexPath) -> Void)? = nil
 	var func_deselect: ((NSIndexPath) -> Void)? = nil
+	var func_select_source: ((NSIndexPath, LFTableDataSource) -> Void)? = nil		//	these 2 will not be called if aboves are not nil
+	var func_deselect_source: ((NSIndexPath, LFTableDataSource) -> Void)? = nil
 
 	init(table: UITableView) {
 		super.init()
@@ -857,12 +907,16 @@ class LFTableDataSource: NSObject, UITableViewDelegate, UITableViewDataSource {
     func tableView(tableView: UITableView, didSelectRowAtIndexPath path: NSIndexPath) {
 		if func_select != nil {
 			func_select!(path)
+		} else if func_select_source != nil {
+			func_select_source!(path, self)
 		}
 		return
 	}
     func tableView(tableView: UITableView, didDeselectRowAtIndexPath path: NSIndexPath) {
 		if func_deselect != nil {
 			func_deselect!(path)
+		} else if func_deselect_source != nil {
+			func_deselect_source!(path, self)
 		}
 		return
 	}

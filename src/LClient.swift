@@ -140,6 +140,7 @@ class LRestClient<T: LFModel> {
 						}
 					}
 					if self.func_dict != nil {
+						//let dict = NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments, error: &error_ret) as LTDictStrObj
 						let dict = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &error_ret) as LTDictStrObj
 						if error_ret == nil {
 							self.func_dict!(dict, error_ret)
