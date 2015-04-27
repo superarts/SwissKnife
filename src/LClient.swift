@@ -2,6 +2,11 @@ import Foundation
 
 //	client
 struct LRest {
+	static let domain = "LRestKit"
+	struct error {
+		static let invalid_parameter = 10000001
+		static let empty_response = 10000002
+	}
 	struct content {
 		static let json = "application/json"
 	}
@@ -25,6 +30,7 @@ class LRestClient<T: LFModel>: NSObject, NSURLConnectionDelegate, NSURLConnectio
 	var func_array: ((Array<T>?, NSError?) -> Void)?		//	parse to array
 	var func_dict: ((LTDictStrObj?, NSError?) -> Void)?		//	raw dictionary
 	var response: NSHTTPURLResponse?
+	var credential: NSURLCredential?
 
 	init(api url: String, parameters param: LTDictStrObj? = nil) {
 		api = url
@@ -74,7 +80,7 @@ class LRestClient<T: LFModel>: NSObject, NSURLConnectionDelegate, NSURLConnectio
 			var error_ret: NSError?
 			let body = NSJSONSerialization.dataWithJSONObject(parameters!, options: nil, error: &error_ret)
 			if error_ret != nil {
-                error_ret = NSError(domain: LF.domain, code: 10000001, userInfo:[NSLocalizedDescriptionKey: "LRestKit: invalid parameters"])
+                error_ret = NSError(domain: LRest.domain, code: LRest.error.invalid_parameter, userInfo:[NSLocalizedDescriptionKey: "LRestKit: invalid parameters"])
 				if show_error == true {
 					error_show(error_ret!)
 				}
@@ -117,17 +123,16 @@ class LRestClient<T: LFModel>: NSObject, NSURLConnectionDelegate, NSURLConnectio
 					//	LF.log("CLIENT error", error)
 				} else if resp == nil {
 					//	LF.log("url empty response", data)
-					error_ret = NSError(domain: LF.domain, code: 10000002, userInfo:[NSLocalizedDescriptionKey: "LRestKit: empty response"])
+					error_ret = NSError(domain: LRest.domain, code: LRest.error.empty_response, userInfo:[NSLocalizedDescriptionKey: "LRestKit: empty response"])
 				} else if resp!.statusCode < 200 || resp!.statusCode >= 300 {
 					//	LF.log("url failed", response)
 					let code = resp!.statusCode
-					error_ret = NSError(domain: LF.domain, code: code, userInfo:[NSLocalizedDescriptionKey: NSHTTPURLResponse.localizedStringForStatusCode(code)])
+					error_ret = NSError(domain: LRest.domain, code: code, userInfo:[NSLocalizedDescriptionKey: NSHTTPURLResponse.localizedStringForStatusCode(code)])
 				} else {
 					error_ret = nil
 					let s = NSString(data: data, encoding: NSUTF8StringEncoding)
 					let cls = T.self
 					if self.func_model != nil {
-						LF.log("data", NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &error_ret))
 						let dict = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &error_ret) as LTDictStrObj?
 						if error_ret == nil {
 							let obj = cls(dict: dict)
@@ -169,6 +174,7 @@ class LRestClient<T: LFModel>: NSObject, NSURLConnectionDelegate, NSURLConnectio
 				}
 			}
 			let delegate = LRestConnectionDelegate()
+			delegate.credential = credential
 			delegate.func_done = func_done
 			connection = NSURLConnection(request:request, delegate:delegate, startImmediately:true)
 			//LF.log("CONNECTION started", connection!)
@@ -184,16 +190,17 @@ class LRestClient<T: LFModel>: NSObject, NSURLConnectionDelegate, NSURLConnectio
 class LRestConnectionDelegate: NSObject {
 
 	var func_done: ((NSURLResponse?, NSData!, NSError!) -> Void)?
+	var credential: NSURLCredential?
 	var response: NSURLResponse?
 	var data: NSMutableData = NSMutableData()
 
 	func connection(connection: NSURLConnection, willSendRequestForAuthenticationChallenge challenge: NSURLAuthenticationChallenge) {
-		LF.log("CONNECTION will challenge", challenge)
 		if challenge.previousFailureCount > 0 {
 			challenge.sender.cancelAuthenticationChallenge(challenge)
-		} else {
-			let credential = NSURLCredential(user:"icomplain_api", password:"password", persistence:.ForSession)
+		} else if let credential = credential {
 			challenge.sender.useCredential(credential, forAuthenticationChallenge:challenge)
+		} else {
+			LF.log("REST connection will challenge", connection)
 		}
 	}
 	func connection(connection: NSURLConnection, didReceiveResponse a_response: NSURLResponse) {
