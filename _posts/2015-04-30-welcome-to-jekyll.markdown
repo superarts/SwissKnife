@@ -5,12 +5,10 @@ date:   2015-04-30 16:59:06
 categories: lswift intro
 ---
 
-TBD
----
-I'll write something here later.
+I decided to write something for LSwift as I keep writing new codes. One thing comes to me though, is where I should write to, and it actually caught me for a while. (TBD)
 
 About Jekyll
----
+===
 You’ll find this post in your `_posts` directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run `jekyll serve --watch`, which launches a web server and auto-regenerates your site when a file is updated.
 
 To add new posts, simply add a file in the `_posts` directory that follows the convention `YYYY-MM-DD-name-of-post.ext` and includes the necessary front matter. Take a look at the source for this post to get an idea about how it works.
