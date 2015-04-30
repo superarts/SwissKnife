@@ -18,7 +18,8 @@ struct LRest {
 	}
 }
 
-class LRestClient<T: LFModel>: NSObject, NSURLConnectionDelegate, NSURLConnectionDataDelegate {
+class LRestClient<T: LFModel> {
+	var path: String?										//	to support results like ["user": [], "succuss" = 1]
 	var text: String?
 	var show_error = false
 	var content_type = LRest.content.json
@@ -133,7 +134,13 @@ class LRestClient<T: LFModel>: NSObject, NSURLConnectionDelegate, NSURLConnectio
 					let s = NSString(data: data, encoding: NSUTF8StringEncoding)
 					let cls = T.self
 					if self.func_model != nil {
-						let dict = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &error_ret) as LTDictStrObj?
+						var dict = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &error_ret) as LTDictStrObj?
+						//	TODO: support multi-layer path
+						if let path = self.path {
+							if var dict_tmp = dict?[path] as? LTDictStrObj {
+								dict = dict_tmp
+							}
+						}
 						if error_ret == nil {
 							let obj = cls(dict: dict)
 							self.func_model!(obj, error_ret)
@@ -180,6 +187,11 @@ class LRestClient<T: LFModel>: NSObject, NSURLConnectionDelegate, NSURLConnectio
 			//LF.log("CONNECTION started", connection!)
 		} else {
 			LF.log("WARNING LClient", "empty request")
+		}
+	}
+	func cancel() {
+		if let connection = connection {
+			connection.cancel()
 		}
 	}
     deinit {
@@ -254,7 +266,8 @@ class LFModel: NSObject {
 					//	TODO: not working for Int? and Int! in 6.0 GM
 					if respondsToSelector(NSSelectorFromString(key)) {
 						setValue(value, forKey:key)
-					}
+					} 
+					//else { LF.log("no selector", key) }
 				}
 			}
 		} else {
@@ -341,6 +354,9 @@ class LFModel: NSObject {
         s = NSString(format: "%@ (%p): [\r", s, self)
 		LFModel.prototype.indent++
         for (key, value) in dictionary {
+			if key == "raw" {
+				continue
+			}
 			s = append_indent(s)
 			if let array = value as? Array<AnyObject> {
 				s = s.stringByAppendingFormat("%@: [\r", key)

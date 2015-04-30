@@ -817,6 +817,7 @@ class LFTableController: LFMultipleTableController {
 
 class LFTableDataSource: NSObject, UITableViewDelegate, UITableViewDataSource {
 
+	var table: UITableView!
 	var counts: Array<Int> = []
 	var headers: Array<String> = []
 	var header_height: CGFloat = 20
@@ -829,10 +830,11 @@ class LFTableDataSource: NSObject, UITableViewDelegate, UITableViewDataSource {
 	var func_select_source: ((NSIndexPath, LFTableDataSource) -> Void)? = nil		//	these 2 will not be called if aboves are not nil
 	var func_deselect_source: ((NSIndexPath, LFTableDataSource) -> Void)? = nil
 
-	init(table: UITableView) {
+	init(table a_table: UITableView) {
 		super.init()
-		table.dataSource = self
-		table.delegate = self
+		a_table.dataSource = self
+		a_table.delegate = self
+		table = a_table
 	}
 
 	func index_alphabet(array: Array<String>) -> Array<Array<String>> {
