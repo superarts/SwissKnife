@@ -5,7 +5,7 @@ description: > # this means to ignore newlines until "baseurl:"
   LSwift is a swift library that contains various extensions and classes, 
   including a refelection model, a REST client, etc. L stands for lib.
 baseurl: "" # the subpath of your site, e.g. /blog/
-url: "http://superarts.github.com/lswift/" # the base hostname & protocol for your site
+url: "http://superarts.github.com/LSwift/" # the base hostname & protocol for your site
 twitter_username: superarts_org
 github_username:  superarts
 
