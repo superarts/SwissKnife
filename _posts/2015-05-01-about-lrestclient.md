@@ -2,14 +2,14 @@
 layout: post
 title:  "About LClient and LRestClient"
 date:   2015-05-01 17:45:00
-categories: LSwift LRestClient Gossip
+categories: LSwift LRestClient Gossip Modelling RESTful
 ---
 
 I asked a question regarding `NSURLConnection` on [stackoverflow][stackoverflow] about why `NSURLConnectionDelegate` and `NSURLConnectionDataDelegate` don't work for generic classes. Someone asked me why I would like to use generic class in the first place. I think one of the reasons he asked was that generic is a newly introduced feature in `Swift` and it's may make things more complicated than they should be. I briefly answered it in [the original question][stackoverflow], but I'd like to write more about `LRestClient`. I'll start with an example about getting notifications from an API call, and will explain the idea behind it later.
 
 Before I start, I need to point out that the following contents may sort of look like what `CloudKit` is offering, but I came up with the design in the early 2014, which was before CloudKit was released. The reason why I'm still working on this instead of switching to CloudKit is that I still need to program with our own REST servers, and even if I don't, I would still choose cross platform solutions like `Parse` because they are... Cross platform. Anyway let's start.
 
-Firstly, let's assume that we have an app with namespace `FF`, and we're trying to get a bunch of notifications from an API called `FF.api.notification_list`. It has nothing to do with `LSwift` itself but such code looks pretty compact in `Swift`.
+Firstly, let's assume that we have an app with a random namespace `FF`, and we're trying to get a bunch of notifications from an API called `FF.api.notification_list`. It has nothing to do with `LSwift` itself but such code looks pretty compact in `Swift`.
 
 	struct FF {
 		struct api {
@@ -18,7 +18,7 @@ Firstly, let's assume that we have an app with namespace `FF`, and we're trying 
 		}
 	}
 
-The format we're expecting is a `JSON` array with objects with keys `content`, `is_read`, and a `message_type`. So let's started from a subclass of `LFModel`:
+The format we're expecting is a `JSON` array with objects with keys `content`, `is_read`, and a `message_type`. So let's start from a subclass of `LFModel`:
 
 	class FFModelNotification: LFModel {
 		var content: String?
