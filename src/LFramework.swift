@@ -124,6 +124,27 @@ extension UIView {
 
 //  private extensions: not following naming convension
 
+extension Array {
+	/*
+	mutating func append_unique(item: AnyObject) {
+		if contains(self, item) {
+			self.append(item)
+		}
+	}
+	*/
+	mutating func remove<U: Equatable>(object: U) -> Bool {
+		for (idx, objectToCompare) in enumerate(self) {
+			if let to = objectToCompare as? U {
+				if object == to {
+					self.removeAtIndex(idx)
+						return true
+				}
+			}
+		}
+		return false
+	}
+}
+
 extension String {
 //	TODO: not working?
 /*
@@ -185,6 +206,7 @@ extension String {
 		s = s.stringByReplacingOccurrencesOfString("&amp;", withString:"&")
 		s = s.stringByReplacingOccurrencesOfString("&quot;", withString:"\"")
 		s = s.stringByReplacingOccurrencesOfString("&#039;", withString:"'")
+		s = s.stringByReplacingOccurrencesOfString("&#39;", withString:"'")
 		s = s.stringByReplacingOccurrencesOfString("&lt;", withString:"<")
 		s = s.stringByReplacingOccurrencesOfString("&gt;", withString:">")
 		return s
@@ -929,7 +951,8 @@ class LFTableDataSource: NSObject, UITableViewDelegate, UITableViewDataSource {
 	}
 	/*
 	func tableView(tableView: UITableView, willDisplayCell cell: UITableViewCell, forRowAtIndexPath indexPath: NSIndexPath) {
-		cell.backgroundColor = UIColor.clearColor()
+		cell.layoutIfNeeded()
+		//cell.backgroundColor = UIColor.clearColor()
 	}
 	*/
 }
