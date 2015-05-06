@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "About LClient and LRestClient"
+title:  "About LModel and LRestClient"
 date:   2015-05-01 17:45:00
 categories: LSwift LRestClient Gossip Modelling RESTful
 ---
