@@ -10,15 +10,22 @@ struct LRest {
 	struct content {
 		static let json = "application/json"
 	}
+	enum HTTPMethod: String {
+		case Get = "GET"
+		case Put = "PUT"
+		case Post = "POST"
+		case Delete = "DELETE"
+	}
 	struct method {
-		static let get = "GET"
-		static let put = "PUT"
-		static let post = "POST"
-		static let delete = "DELETE"
+		static let get = HTTPMethod.Get
+		static let put = HTTPMethod.Put
+		static let post = HTTPMethod.Post
+		static let delete = HTTPMethod.Delete
 	}
 }
 
-class LRestClient<T: LFModel>: NSObject, NSURLConnectionDelegate, NSURLConnectionDataDelegate {
+class LRestClient<T: LFModel> {
+	var path: String?										//	to support results like ["user": [], "succuss" = 1]
 	var text: String?
 	var show_error = false
 	var content_type = LRest.content.json
@@ -51,7 +58,7 @@ class LRestClient<T: LFModel>: NSObject, NSURLConnectionDelegate, NSURLConnectio
 		//	override mes
 	}
 	func reload_api() {
-		if method == "GET" && parameters != nil {
+		if method.rawValue == "GET" && parameters != nil {
 			api = api + "?"
 
 			//	TODO: encoding
@@ -71,7 +78,7 @@ class LRestClient<T: LFModel>: NSObject, NSURLConnectionDelegate, NSURLConnectio
 	func init_request() -> NSMutableURLRequest? {
 		var url = NSURL(string: root + api)!
 		var request = NSMutableURLRequest(URL: url)
-		request.HTTPMethod = method
+		request.HTTPMethod = method.rawValue
 		request.addValue(content_type, forHTTPHeaderField:"Content-Type")
 		request.addValue(content_type, forHTTPHeaderField:"Accept")
 
@@ -133,7 +140,13 @@ class LRestClient<T: LFModel>: NSObject, NSURLConnectionDelegate, NSURLConnectio
 					let s = NSString(data: data, encoding: NSUTF8StringEncoding)
 					let cls = T.self
 					if self.func_model != nil {
-						let dict = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &error_ret) as LTDictStrObj?
+						var dict = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &error_ret) as LTDictStrObj?
+						//	TODO: support multi-layer path
+						if let path = self.path {
+							if var dict_tmp = dict?[path] as? LTDictStrObj {
+								dict = dict_tmp
+							}
+						}
 						if error_ret == nil {
 							let obj = cls(dict: dict)
 							self.func_model!(obj, error_ret)
@@ -182,6 +195,11 @@ class LRestClient<T: LFModel>: NSObject, NSURLConnectionDelegate, NSURLConnectio
 			LF.log("WARNING LClient", "empty request")
 		}
 	}
+	func cancel() {
+		if let connection = connection {
+			connection.cancel()
+		}
+	}
     deinit {
         //LF.log("CLIENT deinit", self)
     }
@@ -198,6 +216,7 @@ class LRestConnectionDelegate: NSObject {
 		if challenge.previousFailureCount > 0 {
 			challenge.sender.cancelAuthenticationChallenge(challenge)
 		} else if let credential = credential {
+			//LF.log("challenge added")
 			challenge.sender.useCredential(credential, forAuthenticationChallenge:challenge)
 		} else {
 			LF.log("REST connection will challenge", connection)
@@ -239,7 +258,11 @@ class LFModel: NSObject {
 	struct prototype {
 		static var indent: Int = 0
 	}
- 
+
+	//	override this function to disable this log. TODO: find a better way.
+	func log_description_not_found(value: AnyObject) {
+		LF.log("WARNING name 'description' is a reserved word", value)
+	}
     required init(dict: Dictionary<String, AnyObject>?) {
         super.init()
 		raw = dict
@@ -247,14 +270,17 @@ class LFModel: NSObject {
 			for (key, value) in dict! {
 				//	LF.log(key, value)
 				if key == "description" {
-					LF.log("WARNING name 'description' is a reserved word", value)
+					log_description_not_found(value)
 				} else if value is NSNull {
 					//LF.log("WARNING null value", key)
 				} else {
 					//	TODO: not working for Int? and Int! in 6.0 GM
 					if respondsToSelector(NSSelectorFromString(key)) {
 						setValue(value, forKey:key)
+					} else {
+    					LF.log("WARNING model ignored '" + key + "' in", self)
 					}
+					//else { LF.log("no selector", key) }
 				}
 			}
 		} else {
@@ -308,12 +334,11 @@ class LFModel: NSObject {
 			let prop: UnsafeMutablePointer<objc_property_t> = class_copyPropertyList(c, &ct)
 			for var i = 0; i < Int(ct); i++ {
                 if let key = NSString(CString: property_getName(prop[i]), encoding: NSUTF8StringEncoding)? {
-    				//	TODO: this condition is not ideal
     				if key == "dictionary" {
+    					//LF.log("WARNING model: this condition is not ideal")
     					break loop
     				}
     				if let value: AnyObject? = valueForKey(key) {
-    					//LF.log(key, value)
     					dict[key] = value
     				}
                 }
@@ -341,6 +366,9 @@ class LFModel: NSObject {
         s = NSString(format: "%@ (%p): [\r", s, self)
 		LFModel.prototype.indent++
         for (key, value) in dictionary {
+			if key == "raw" {
+				continue
+			}
 			s = append_indent(s)
 			if let array = value as? Array<AnyObject> {
 				s = s.stringByAppendingFormat("%@: [\r", key)
