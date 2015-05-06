@@ -20,7 +20,7 @@ Firstly, let's assume that we have an app with a random namespace `FF`, and we'r
 
 The format we're expecting is a `JSON` array with objects with keys `content`, `is_read`, and a `message_type`. So let's start from a subclass of `LFModel`:
 
-	class FFModelNotification: LFModel {
+	class FFNotificationModel: LFModel {
 		var content: String?
 		var is_read: Int = 0
 		var message_type: String?
@@ -39,8 +39,8 @@ We also need a subclass of LRestClient. In this example we don't have authentica
 The recommended approach here is wrapping up our REST client. Here is where generic class kicks in, and it makes the code looks really simple:
 
 	class FFClients {
-		class func notification_list(block: ((Array<FFModelNotification>?, NSError?) -> Void)? = nil) {
-			let client = FFRestClient<FFModelNotification>(api: FF.api.notification_list)
+		class func notification_list(block: ((Array<FFNotificationModel>?, NSError?) -> Void)? = nil) {
+			let client = FFRestClient<FFNotificationModel>(api: FF.api.notification_list)
 			client.func_array = block
 			client.execute()
 		}
@@ -50,7 +50,7 @@ The following code is from an actual app that handles the notifications. Basical
 
 	func notification_reload() {
 		FFClients.notification_list(block: {
-			(array: Array<FFModelNotification>?, error: NSError?) -> Void in
+			(array: Array<FFNotificationModel>?, error: NSError?) -> Void in
 			if error != nil {
 				LF.log("NOTIFICATION error", error)
 			} else {
@@ -86,7 +86,15 @@ And in our apps, usually we would use:
 
 Although sometimes we convert JSON to native classes using `NSJSONSerialization` directly, it is generally a bad idea because you'll need to write error handling code again and again. It becomes better if you write some class to handle it, which feels like using SDKs like `Parse`. However, it is still not recommended to use the results in the form of (`Array` of) `Dictionary` or `PFObject` directly, because generally it makes more sense to put some model related logic inside the models themselves instead of out of them, for example some computed properties.
 
-In this case, it appears nature to have your own modelling objects, and a client to manipulate them. I'm not using `Core Data` because I think it's designed for more generic usages, and is overcomplicated in `REST` because we're only dealing with JSON objects. In my philosophy, flexibility sometimes comes with the trade off of simplicity, and if something doesn't have to be there, I don't want it to be there. Lucky me! I really didn't like XML when I read about it in the early 2000s, and no one uses it for now unless those enterprise IT professionals who earn big bulk of money by create more problems then solving them (this is sore sarcasm, I do want to make money in that way sometimes, maybe my next life).
+In this case, it appears nature to have your own modelling objects, and a client to manipulate them. To use them from the app, we may use different approaches, for example:
+
+- Writing different clients e.g. `FFUserClient`, `FFNotificationClient`, etc. to perform different sorts of tasks
+- Writing an aggregated interface, e.g. `FFClients` in our example
+- Appending task related methods like "list" in models, e.g. `FFNotificationModel.list(...)`
+
+As long as there are no duplicated codes, I would say it's the right usage.
+
+A side note: I'm not using `Core Data` because I think it's designed for more generic usages, and is overcomplicated in `REST` because we're only dealing with JSON objects. In my philosophy, flexibility sometimes comes with the trade off of simplicity, and if something doesn't have to be there, I don't want it to be there. Lucky me! I really didn't like XML when I read about it in the early 2000s, and no one uses it for now unless those enterprise IT professionals who earn big bulk of money by create more problems then solving them (this is sore sarcasm, I do want to make money in that way sometimes, maybe my next life).
 
 Anyway, `LModel` allows you to define your models based on JSON objects. I'm still working on it and will write more detailed posts for it, but here's a brief list for the features supported:
 
