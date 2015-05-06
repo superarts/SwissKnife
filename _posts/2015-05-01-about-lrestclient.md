@@ -11,60 +11,70 @@ Before I start, I need to point out that the following contents may sort of look
 
 Firstly, let's assume that we have an app with a random namespace `FF`, and we're trying to get a bunch of notifications from an API called `FF.api.notification_list`. It has nothing to do with `LSwift` itself but such code looks pretty compact in `Swift`.
 
-	struct FF {
-		struct api {
-			static let root = "http://api.superarts.org/"
-			static let notification_list = "users/notification_list"
-		}
+{% highlight swift %}
+struct FF {
+	struct api {
+		static let root = "http://api.superarts.org/"
+		static let notification_list = "users/notification_list"
 	}
+}
+{% endhighlight %}
 
 The format we're expecting is a `JSON` array with objects with keys `content`, `is_read`, and a `message_type`. So let's start from a subclass of `LFModel`:
 
-	class FFNotificationModel: LFModel {
-		var content: String?
-		var is_read: Int = 0
-		var message_type: String?
-	}
+{% highlight swift %}
+class FFNotificationModel: LFModel {
+	var content: String?
+	var is_read: Int = 0
+	var message_type: String?
+}
+{% endhighlight %}
 
 We also need a subclass of LRestClient. In this example we don't have authentication, so it's just about putting our API root in:
 
-	class FFRestClient<T: LFModel>: LRestClient<T> {
-		override init(api url: String, parameters param: LTDictStrObj? = nil) {
-			super.init(api: url, parameters: param)
-			api = url
-			root = FF.api.root
-		}
+{% highlight swift %}
+class FFRestClient<T: LFModel>: LRestClient<T> {
+	override init(api url: String, parameters param: LTDictStrObj? = nil) {
+		super.init(api: url, parameters: param)
+		api = url
+		root = FF.api.root
 	}
+}
+{% endhighlight %}
 
 The recommended approach here is wrapping up our REST client. Here is where generic class kicks in, and it makes the code looks really simple:
 
-	class FFClients {
-		class func notification_list(block: ((Array<FFNotificationModel>?, NSError?) -> Void)? = nil) {
-			let client = FFRestClient<FFNotificationModel>(api: FF.api.notification_list)
-			client.func_array = block
-			client.execute()
-		}
+{% highlight swift %}
+class FFClients {
+	class func notification_list(block: ((Array<FFNotificationModel>?, NSError?) -> Void)? = nil) {
+		let client = FFRestClient<FFNotificationModel>(api: FF.api.notification_list)
+		client.func_array = block
+		client.execute()
 	}
+}
+{% endhighlight %}
 
 The following code is from an actual app that handles the notifications. Basically you just call `FFClients.notification_list`, and then you'll be free to deal with the notifications you get (or the error of course).
 
-	func notification_reload() {
-		FFClients.notification_list(block: {
-			(array: Array<FFNotificationModel>?, error: NSError?) -> Void in
-			if error != nil {
-				LF.log("NOTIFICATION error", error)
-			} else {
-				FF.unread_notifications.removeAll()
-				for notification in array! {
-					if notification.message_type == "WINNER" && notification.is_read == 0 {
-						LF.log("We got a winner!")
-					}
-					FF.unread_notifications.append(notification.uid)
+{% highlight swift %}
+func notification_reload() {
+	FFClients.notification_list(block: {
+		(array: Array<FFNotificationModel>?, error: NSError?) -> Void in
+		if error != nil {
+			LF.log("NOTIFICATION error", error)
+		} else {
+			FF.unread_notifications.removeAll()
+			for notification in array! {
+				if notification.message_type == "WINNER" && notification.is_read == 0 {
+					LF.log("We got a winner!")
 				}
-				LF.log("NOTIFICATION uid list", FF.unread_notifications)
+				FF.unread_notifications.append(notification.uid)
 			}
-		})
-	}
+			LF.log("NOTIFICATION uid list", FF.unread_notifications)
+		}
+	})
+}
+{% endhighlight %}
 
 OK, now base on the code above, I'll explain why I designed `LModel` and `LRestClient` in this way. The 1st topic is about data modelling. When we try to get data from API calls via HTTP/HTTPS protocol, we'll be having some meta-data in the header, and a well formatted string as body. The format of the string can be:
 
