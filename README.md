@@ -1,3 +1,7 @@
+Blog
+====
+A lot of design concepts are discussed in [the LSwift Blog][blog]. Please have a look
+
 LSwift
 ====
 
@@ -21,3 +25,5 @@ LExtension depends on some projects I've been using, e.g. `MBProgressHUD` and al
 Version history
 ====
 0.1: under development
+
+[blog]:		http://superarts.github.io/LSwift/

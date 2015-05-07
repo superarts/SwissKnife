@@ -82,10 +82,13 @@ class LRestClient<T: LFModel> {
 		request.addValue(content_type, forHTTPHeaderField:"Content-Type")
 		request.addValue(content_type, forHTTPHeaderField:"Accept")
 
+		//LF.log("REST method", method.rawValue)
+		//LF.log("REST param", parameters)
 		if method != LRest.method.get && parameters != nil {
 
 			var error_ret: NSError?
 			let body = NSJSONSerialization.dataWithJSONObject(parameters!, options: nil, error: &error_ret)
+			//	LF.log("REST body", NSString(data: body!, encoding: NSUTF8StringEncoding))
 			if error_ret != nil {
                 error_ret = NSError(domain: LRest.domain, code: LRest.error.invalid_parameter, userInfo:[NSLocalizedDescriptionKey: "LRestKit: invalid parameters"])
 				if show_error == true {
@@ -103,7 +106,6 @@ class LRestClient<T: LFModel> {
 				return nil
 			}
 			request.HTTPBody = body
-			//	LF.log("body", NSString(data: body!, encoding: NSUTF8StringEncoding))
 		}
 		return request
 	}
@@ -223,7 +225,7 @@ class LRestConnectionDelegate: NSObject {
 		}
 	}
 	func connection(connection: NSURLConnection, didReceiveResponse a_response: NSURLResponse) {
-		//LF.log("CONNECTION response", response)
+		LF.log("CONNECTION response", response)
 		response = a_response
 	}
 	func connection(connection: NSURLConnection, didReceiveData data_received: NSData) {
@@ -237,7 +239,7 @@ class LRestConnectionDelegate: NSObject {
 		}
 	}
 	func connection(connection: NSURLConnection, didFailWithError error: NSError) {
-		//LF.log("CONNECTION failed", error)
+		LF.log("CONNECTION failed", error)
 		if let func_done = func_done {
 			func_done(response, nil, error)
 		}
