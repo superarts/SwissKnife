@@ -22,6 +22,12 @@ struct LRest {
 		static let post = HTTPMethod.Post
 		static let delete = HTTPMethod.Delete
 	}
+	struct cache {
+		enum Policy {
+			case Disabled
+			case CacheThenNetwork
+		}
+	}
 }
 
 class LRestClient<T: LFModel> {
@@ -38,6 +44,7 @@ class LRestClient<T: LFModel> {
 	var func_dict: ((LTDictStrObj?, NSError?) -> Void)?		//	raw dictionary
 	var response: NSHTTPURLResponse?
 	var credential: NSURLCredential?
+	var cache_policy = LRest.cache.Policy.Disabled
 
 	init(api url: String, parameters param: LTDictStrObj? = nil) {
 		api = url
@@ -112,6 +119,13 @@ class LRestClient<T: LFModel> {
 	var connection: NSURLConnection?
 	func execute() {
 		reload_api()
+		if self.cache_policy == .CacheThenNetwork {
+			let filename = self.get_filename()
+			if let data = NSData(contentsOfFile:filename) {
+				LF.log("CACHE loaded")
+				//LF.dispatch() { self.execute_data(data) }
+			}
+		}
 		if let request = init_request() {
 
 			var error_ret: NSError?
@@ -120,7 +134,8 @@ class LRestClient<T: LFModel> {
 			}
 			//	TODO: change data and error to optional
 			var func_done = {
-				(response: NSURLResponse?, data: NSData!, error: NSError!) -> Void in
+				(response: NSURLResponse?, data: NSData?, error: NSError!) -> Void in
+
 				var error_ret: NSError? = error
 				if self.text != nil {
 					self.text_hide()
@@ -138,11 +153,18 @@ class LRestClient<T: LFModel> {
 					let code = resp!.statusCode
 					error_ret = NSError(domain: LRest.domain, code: code, userInfo:[NSLocalizedDescriptionKey: NSHTTPURLResponse.localizedStringForStatusCode(code)])
 				} else {
+					if self.cache_policy != .Disabled {
+						let filename = self.get_filename()
+						data?.writeToFile(filename, atomically:true)
+						LF.log("CACHE saved")
+					}
+					self.execute_data(data!)
+					/*
 					error_ret = nil
-					let s = NSString(data: data, encoding: NSUTF8StringEncoding)
+					let s = NSString(data: data!, encoding: NSUTF8StringEncoding)
 					let cls = T.self
 					if self.func_model != nil {
-						var dict = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &error_ret) as LTDictStrObj?
+						var dict = NSJSONSerialization.JSONObjectWithData(data!, options: nil, error: &error_ret) as LTDictStrObj?
 						//	TODO: support multi-layer path
 						if let path = self.path {
 							if var dict_tmp = dict?[path] as? LTDictStrObj {
@@ -155,7 +177,7 @@ class LRestClient<T: LFModel> {
 						}
 					}
 					if self.func_array != nil {
-						let array = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &error_ret) as Array<LTDictStrObj>
+						let array = NSJSONSerialization.JSONObjectWithData(data!, options: nil, error: &error_ret) as Array<LTDictStrObj>
 						if error_ret == nil {
 							var array_obj: Array<T> = []
 							for dict in array { 
@@ -166,12 +188,13 @@ class LRestClient<T: LFModel> {
 						}
 					}
 					if self.func_dict != nil {
-						//let dict = NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments, error: &error_ret) as LTDictStrObj
-						let dict = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &error_ret) as LTDictStrObj
+						//let dict = NSJSONSerialization.JSONObjectWithData(data!, options: .AllowFragments, error: &error_ret) as LTDictStrObj
+						let dict = NSJSONSerialization.JSONObjectWithData(data!, options: nil, error: &error_ret) as LTDictStrObj
 						if error_ret == nil {
 							self.func_dict!(dict, error_ret)
 						}
 					}
+					*/
 				}
 				if error_ret != nil {
 					if self.show_error == true {
@@ -205,11 +228,58 @@ class LRestClient<T: LFModel> {
     deinit {
         //LF.log("CLIENT deinit", self)
     }
+
+	func get_filename() -> String {
+		var param_hash = self.parameters?.description.hash
+		if param_hash == nil {
+			param_hash = 0
+		}
+		let filename = String(format:"%@-%@-%i.xml", 
+			self.root.to_filename(), self.api.to_filename(), param_hash!)
+		return filename.to_filename(directory: .CachesDirectory)
+	}
+	func execute_data(data: NSData!) {
+
+		var error: NSError?
+		let s = NSString(data: data, encoding: NSUTF8StringEncoding)
+		let cls = T.self
+		if self.func_model != nil {
+			var dict = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &error) as LTDictStrObj?
+			//	TODO: support multi-layer path
+			if let path = self.path {
+				if var dict_tmp = dict?[path] as? LTDictStrObj {
+					dict = dict_tmp
+				}
+			}
+			if error == nil {
+				let obj = cls(dict: dict)
+				self.func_model!(obj, error)
+			}
+		}
+		if self.func_array != nil {
+			let array = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &error) as Array<LTDictStrObj>
+			if error == nil {
+				var array_obj: Array<T> = []
+				for dict in array { 
+					let obj = cls(dict: dict)
+					array_obj.append(obj)
+				}
+				self.func_array!(array_obj, error)
+			}
+		}
+		if self.func_dict != nil {
+			//let dict = NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments, error: &error) as LTDictStrObj
+			let dict = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &error) as LTDictStrObj
+			if error == nil {
+				self.func_dict!(dict, error)
+			}
+		}
+	}
 }
 
 class LRestConnectionDelegate: NSObject {
 
-	var func_done: ((NSURLResponse?, NSData!, NSError!) -> Void)?
+	var func_done: ((NSURLResponse?, NSData?, NSError!) -> Void)?
 	var credential: NSURLCredential?
 	var response: NSURLResponse?
 	var data: NSMutableData = NSMutableData()
@@ -225,7 +295,7 @@ class LRestConnectionDelegate: NSObject {
 		}
 	}
 	func connection(connection: NSURLConnection, didReceiveResponse a_response: NSURLResponse) {
-		LF.log("CONNECTION response", response)
+		//LF.log("CONNECTION response", response)
 		response = a_response
 	}
 	func connection(connection: NSURLConnection, didReceiveData data_received: NSData) {
@@ -239,7 +309,7 @@ class LRestConnectionDelegate: NSObject {
 		}
 	}
 	func connection(connection: NSURLConnection, didFailWithError error: NSError) {
-		LF.log("CONNECTION failed", error)
+		//LF.log("CONNECTION failed", error)
 		if let func_done = func_done {
 			func_done(response, nil, error)
 		}

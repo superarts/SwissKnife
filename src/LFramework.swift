@@ -196,6 +196,13 @@ extension String {
 			return self
 		}
 	}
+	func to_filename() -> String {
+		if let ret = self.stringByAddingPercentEncodingWithAllowedCharacters(.lowercaseLetterCharacterSet()) {
+			return ret
+		} else {
+			return self
+		}
+	}
 }
 
 extension Int {
@@ -309,20 +316,17 @@ extension UIColor {
 //  TODO: make a script to create wrapper classes as above
 extension NSString {
     func filename_doc(_ namespace: String? = nil) -> String {
-		var filename = self
-		if namespace != nil {
-			filename = namespace! + "-" + self
-		}
-        let paths = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)
-        let dir = paths[0] as String
-        return dir.stringByAppendingPathComponent(filename)
+		return self.to_filename(namespace, directory:.DocumentDirectory)
     }
     func filename_lib(_ namespace: String? = nil) -> String {
+		return self.to_filename(namespace, directory:.LibraryDirectory)
+	}
+    func to_filename(_ namespace: String? = nil, directory: NSSearchPathDirectory) -> String {
 		var filename = self
 		if namespace != nil {
 			filename = namespace! + "-" + self
 		}
-        let paths = NSSearchPathForDirectoriesInDomains(.LibraryDirectory, .UserDomainMask, true)
+        let paths = NSSearchPathForDirectoriesInDomains(directory, .UserDomainMask, true)
         let dir = paths[0] as String
         return dir.stringByAppendingPathComponent(filename)
     }
@@ -396,6 +400,18 @@ extension UIScreen {
             return UIScreen.mainScreen().bounds.height
         }
     }
+}
+
+extension UIFont {
+	class func print_all() {
+		let fontFamilyNames = UIFont.familyNames()
+		for familyName in fontFamilyNames {
+			println("------------------------------")
+			println("Font Family Name = [\(familyName)]")
+			let names = UIFont.fontNamesForFamilyName(familyName as String)
+			println("Font Names = [\(names)]")
+		}
+	}
 }
 
 extension UIScrollView {

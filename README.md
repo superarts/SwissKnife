@@ -1,6 +1,6 @@
-Blog
+About LSwift Blog
 ====
-A lot of design concepts are discussed in [the LSwift Blog][blog]. Please have a look
+A lot of design concepts are discussed in [the LSwift Blog][blog]. Please have a look.
 
 LSwift
 ====

@@ -1,7 +1,195 @@
 import UIKit
 
-//	UIKit + Interface Builder: define various UIView properties in IB
+//	current you'll have to have UIApplicationMain(C_ARGC, C_ARGV, nil, NSStringFromClass(AppDelegate)) to successfully init the localized strings in storyboard
+struct LTheme {
+	struct localization {
+		enum Language: String {
+			case ChineseSimplified		= "zh-Hans"
+			case ChineseTraditional		= "zh-Hant"
+			case English				= "en"
+			case EnglishAustralia		= "en-AU"
+			case EnglishUnitedKingdom	= "en-UK"
+			case EnglishUnitedStates	= "en-US"
+			case French					= "fr"
+			case Spanish				= "es"
+			case SpanishMexico			= "es-MX"
+		}
+		static var language = Language(rawValue: NSLocale.preferredLanguages()[0] as String)
+		static func language_reload() {
+			language = Language(rawValue: NSLocale.preferredLanguages()[0] as String)
+		}
+		static var language_default: Language? = Language.English
+		static var languages = [
+			Language.English,
+			Language.ChineseSimplified,
+			Language.SpanishMexico,
+		]
+		static var languages_alias = [
+			Language.EnglishAustralia.rawValue:			Language.English,
+			Language.EnglishUnitedStates.rawValue:		Language.English,
+			Language.EnglishUnitedKingdom.rawValue:		Language.English,
+			Language.ChineseTraditional.rawValue:		Language.ChineseSimplified,
+			Language.Spanish.rawValue:					Language.SpanishMexico,
+		]
+		static var languages_default = "en"
+		static var strings: [String:[String]] = [
+			"yes": [
+				"Yes",
+				"是",
+				"Sí",
+			],
+			"no": [
+				"No",
+				"否",
+				"No",
+			],
+		]
+		class StringPack {
+			var dictionary: [String:[String]] = [:]
+			var auto_first_language: Bool = false
+			init(auto: Bool = false) {
+				//super.init()
+				auto_first_language = auto
+			}
+			func append(key:String, _ value:String) {
+				if var array = strings[key] {
+					array.append(value)
+					strings[key] = array
+				} else {
+					if auto_first_language {
+						strings[key] = [key, value]
+					} else {
+						strings[key] = [value]
+					}
+				}
+			}
+		}
+		static func strings_append(dict: [String:[String]]) {
+			for (key, value) in dict {
+				strings[key] = value
+			}
+		}
+		static func string(key:String, index: Int? = nil) -> String {
+			var i = index
+			if i == nil {
+				//	if system language is not supported, default language is used
+				var lang: Language! = language
+				if lang == nil {
+					lang = language_default
+				}
+				if lang == nil {
+					return key
+				}
+				i = find(languages, lang)
 
+				//	if language is not supported directly, check alias
+				if i == nil {
+					if let lang = languages_alias[lang.rawValue] {
+						i = find(languages, lang)
+					}
+				}
+			}
+			if i == nil {
+				if language_default != nil {
+					i = 0
+				} else {
+					return key
+				}
+			}
+			if let array = strings[key] {
+				if i < array.count {
+					return array[i!]
+				}
+			}
+			return key
+		}
+
+		static func test() {
+			//	default language from system settings
+			LF.log("language", LTheme.localization.language?.rawValue)
+			LF.log("test 1", LTheme.localization.string("yes"))
+			LF.log("test 2", LTheme.localization.string("na"))
+
+			//	set language to a supported language
+			LTheme.localization.language = .SpanishMexico
+			LF.log("")
+			LF.log("test 1", LTheme.localization.string("yes"))
+			LF.log("test 2", LTheme.localization.string("na"))
+
+			//	set language to a language that is not supported (default language is english)
+			LTheme.localization.language = .French
+			LF.log("")
+			LF.log("test 1", LTheme.localization.string("yes"))
+			LF.log("test 2", LTheme.localization.string("na"))
+
+			//	no default language - use default language as fallback
+			LTheme.localization.language = nil
+			LF.log("")
+			LF.log("test 1", LTheme.localization.string("yes"))
+			LF.log("test 2", LTheme.localization.string("na"))
+
+			//	disable default language - keys are used instead
+			LTheme.localization.language_default = nil
+			LF.log("")
+			LF.log("test 1", LTheme.localization.string("yes"))
+			LF.log("test 2", LTheme.localization.string("na"))
+
+			//	set language index manually
+			LF.log("")
+			LF.log("test 1", LTheme.localization.string("yes", index:2))
+			LF.log("test 2", LTheme.localization.string("na", index:999))
+
+			//	define a new string pack manually
+			var set0 = [
+				"good": [
+					"Good",
+					"好",
+					"Bien",
+				],
+				"bad": [
+					"Bad",
+					"坏",
+					"Mal",
+				],
+			]
+			//	or use helper class
+
+			//	split by meanings, good for translators who know different languages
+			var set1 = LTheme.localization.StringPack()
+			set1.append("big", "Big")
+			set1.append("big", "大")
+			set1.append("big", "Grande")
+			set1.append("small", "Small")
+			set1.append("small", "小")
+			set1.append("small", "Pequeño")
+
+			//	split by languages, good for translators to work separately
+			var set2 = LTheme.localization.StringPack()
+			set2.append("new", "New")
+			set2.append("old", "Old")
+			set2.append("new", "新")
+			set2.append("old", "旧")
+			set2.append("new", "Nuevo")
+			set2.append("old", "Viejo")
+
+			//	load new string sets
+			LTheme.localization.strings_append(set0)
+			LTheme.localization.strings_append(set1.dictionary)
+			LTheme.localization.strings_append(set2.dictionary)
+			LTheme.localization.language_reload()
+			LF.log("")
+			LF.log("test 1", LTheme.localization.string("good"))
+			LF.log("test 2", LTheme.localization.string("bad"))
+			LF.log("test 3", LTheme.localization.string("big"))
+			LF.log("test 4", LTheme.localization.string("small"))
+			LF.log("test 5", LTheme.localization.string("new"))
+			LF.log("test 6", LTheme.localization.string("old"))
+			LF.log("test x", LTheme.localization.string("wow"))
+		}
+	}
+}
+
+//	UIKit + Interface Builder: define various UIView properties in IB
 
 //	TODO: add getters when extension property is added - having problem with associating in swift (key cannot be a string variable)
 extension UIView {
@@ -109,6 +297,29 @@ extension UIScrollView {
 		}
 		set (f) {
 			content_h = f
+		}
+	}
+}
+
+extension UIBarItem {
+	@IBInspectable var title_localized: String? {
+		get {
+			return self.title
+		}
+		set (s) {
+			self.title = LTheme.localization.string(s!)
+		}
+	}
+	@IBInspectable var auto_localized: Bool {
+		get {
+			return false
+		}
+		set (b) {
+			if b {
+				if let title = self.title {
+					self.title = LTheme.localization.string(title)
+				}
+			}
 		}
 	}
 }
