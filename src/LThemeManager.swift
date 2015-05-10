@@ -189,6 +189,113 @@ struct LTheme {
 	}
 }
 
+struct LColor {
+	//	win8: sidebar-bg, highlighted-bg, main-bg, tile-bg - from http://www.creepyed.com/2012/09/windows-8-colors-hex-code/
+	static let win8start: [[UIColor]] = [
+		[
+			UIColor(rgb:0x2E1700),
+			UIColor(rgb:0x632F00),
+			UIColor(rgb:0x261300),
+			UIColor(rgb:0x543A24),
+		], [
+			UIColor(rgb:0x2E1700),
+			UIColor(rgb:0x632F00),
+			UIColor(rgb:0x261300),
+			UIColor(rgb:0x543A24),
+		], [
+			UIColor(rgb:0x4E0000),
+			UIColor(rgb:0xB01E00),
+			UIColor(rgb:0x380000),
+			UIColor(rgb:0x61292B),
+		], [
+			UIColor(rgb:0x4E0038),
+			UIColor(rgb:0xC1004F),
+			UIColor(rgb:0x40002E),
+			UIColor(rgb:0x662C58),
+		], [
+			UIColor(rgb:0x2D004E),
+			UIColor(rgb:0x7200AC),
+			UIColor(rgb:0x250040),
+			UIColor(rgb:0x4C2C66),
+		], [
+			UIColor(rgb:0x1F0068),
+			UIColor(rgb:0x4617B4),
+			UIColor(rgb:0x180052),
+			UIColor(rgb:0x423173),
+		], [
+			UIColor(rgb:0x001E4E),
+			UIColor(rgb:0x006AC1),
+			UIColor(rgb:0x001940),
+			UIColor(rgb:0x2C4566),
+		], [
+			UIColor(rgb:0x004D60),
+			UIColor(rgb:0x008287),
+			UIColor(rgb:0x004050),
+			UIColor(rgb:0x306772),
+		], [
+			UIColor(rgb:0x004A00),
+			UIColor(rgb:0x199900),
+			UIColor(rgb:0x003E00),
+			UIColor(rgb:0x2D652B),
+		], [
+			UIColor(rgb:0x15992A),
+			UIColor(rgb:0x00C13F),
+			UIColor(rgb:0x128425),
+			UIColor(rgb:0x3A9548),
+		], [
+			UIColor(rgb:0xE56C19),
+			UIColor(rgb:0xFF981D),
+			UIColor(rgb:0xC35D15),
+			UIColor(rgb:0xC27D4F),
+		], [
+			UIColor(rgb:0xB81B1B),
+			UIColor(rgb:0xFF2E12),
+			UIColor(rgb:0x9E1716),
+			UIColor(rgb:0xAA4344),
+		], [
+			UIColor(rgb:0xB81B6C),
+			UIColor(rgb:0xFF1D77),
+			UIColor(rgb:0x9E165B),
+			UIColor(rgb:0xAA4379),
+		], [
+			UIColor(rgb:0x691BB8),
+			UIColor(rgb:0xAA40FF),
+			UIColor(rgb:0x57169A),
+			UIColor(rgb:0x7F6E94),
+		], [
+			UIColor(rgb:0x1B58B8),
+			UIColor(rgb:0x1FAEFF),
+			UIColor(rgb:0x16499A),
+			UIColor(rgb:0x6E7E94),
+		], [
+			UIColor(rgb:0x569CE3),
+			UIColor(rgb:0x56C5FF),
+			UIColor(rgb:0x4294DE),
+			UIColor(rgb:0x6BA5E7),
+		], [
+			UIColor(rgb:0x00AAAA),
+			UIColor(rgb:0x00D8CC),
+			UIColor(rgb:0x008E8E),
+			UIColor(rgb:0x439D9A),
+		], [
+			UIColor(rgb:0x83BA1F),
+			UIColor(rgb:0x91D100),
+			UIColor(rgb:0x7BAD18),
+			UIColor(rgb:0x94BD4A),
+		], [
+			UIColor(rgb:0xD39D09),
+			UIColor(rgb:0xE1B700),
+			UIColor(rgb:0xC69408),
+			UIColor(rgb:0xCEA539),
+		], [
+			UIColor(rgb:0xE064B7),
+			UIColor(rgb:0xFF76BC),
+			UIColor(rgb:0xDE4AAD),
+			UIColor(rgb:0xE773BD),
+		], 
+	]
+}
+
 //	UIKit + Interface Builder: define various UIView properties in IB
 
 //	TODO: add getters when extension property is added - having problem with associating in swift (key cannot be a string variable)
