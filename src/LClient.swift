@@ -123,7 +123,8 @@ class LRestClient<T: LFModel> {
 			let filename = self.get_filename()
 			if let data = NSData(contentsOfFile:filename) {
 				LF.log("CACHE loaded")
-				//LF.dispatch() { self.execute_data(data) }
+				//LF.dispatch() { }
+				self.execute_data(data)
 			}
 		}
 		if let request = init_request() {

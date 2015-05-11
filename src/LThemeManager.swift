@@ -96,8 +96,6 @@ struct LTheme {
 					return key
 				}
 			}
-			LF.log("x1", key)
-			LF.log("x2", i)
 			if let array = strings[key] {
 				if i < array.count {
 					return array[i!]
