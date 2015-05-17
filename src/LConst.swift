@@ -2,7 +2,7 @@ import UIKit
 
 struct LConst {
 	static let rgb: [String:UInt] = [
-		//	from http://www.creepyed.com/2012/11/windows-phone-8-theme-colors-hex-rgb/
+		//	from: http://www.creepyed.com/2012/11/windows-phone-8-theme-colors-hex-rgb/
 		"wp8-lime":		0xA4C400,
 		"wp8-green":	0x60A917,
 		"wp8-emerald":	0x008A00,
@@ -23,6 +23,7 @@ struct LConst {
 		"wp8-steel":	0x647687,
 		"wp8-mauve":	0x76608A,
 		"wp8-taupe":	0x87794E,
+		//	from: http://www.creepyed.com/2012/09/windows-8-colors-hex-code/
 		"win8start-bg-0-1":	0xE064B7,
 		"win8start-bg-0-2":	0xFF76BC,
 		"win8start-bg-0-3":	0xDE4AAD,

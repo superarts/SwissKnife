@@ -71,9 +71,9 @@ class LRestClient<T: LFModel> {
 			//	TODO: encoding
 			for (key, value) in parameters! {
 				if value is String {
-					api = api + key + "=" + String(value as String) + "&"
+					api = api + key + "=" + String(value as! String) + "&"
 				} else if value is Int {
-					api = api + key + "=" + String(value as Int) + "&"
+					api = api + key + "=" + String(value as! Int) + "&"
 				} else {
 					LF.log("WARNING unknown parameter type", value)
 				}
@@ -142,7 +142,7 @@ class LRestClient<T: LFModel> {
 					self.text_hide()
 				}
 
-				var resp = response as NSHTTPURLResponse?
+				var resp = response as! NSHTTPURLResponse?
 				self.response = resp
 				if error != nil {
 					//	LF.log("CLIENT error", error)
@@ -245,7 +245,7 @@ class LRestClient<T: LFModel> {
 		let s = NSString(data: data, encoding: NSUTF8StringEncoding)
 		let cls = T.self
 		if self.func_model != nil {
-			var dict = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &error) as LTDictStrObj?
+			var dict = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &error) as! LTDictStrObj?
 			//	TODO: support multi-layer path
 			if let path = self.path {
 				if var dict_tmp = dict?[path] as? LTDictStrObj {
@@ -258,7 +258,7 @@ class LRestClient<T: LFModel> {
 			}
 		}
 		if self.func_array != nil {
-			let array = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &error) as Array<LTDictStrObj>
+			let array = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &error) as! Array<LTDictStrObj>
 			if error == nil {
 				var array_obj: Array<T> = []
 				for dict in array { 
@@ -270,7 +270,7 @@ class LRestClient<T: LFModel> {
 		}
 		if self.func_dict != nil {
 			//let dict = NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments, error: &error) as LTDictStrObj
-			let dict = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &error) as LTDictStrObj
+			let dict = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &error) as! LTDictStrObj
 			if error == nil {
 				self.func_dict!(dict, error)
 			}
@@ -373,7 +373,7 @@ class LFModel: NSObject {
 		for (a_key, value) in dictionary {
 			if let dict_parameter = value as? Dictionary<String, AnyObject> {
 				if a_key == key {
-					let a_class = NSClassFromString(type) as LFModel.Type
+					let a_class = NSClassFromString(type) as! LFModel.Type
 					let obj = a_class(dict: dict_parameter)
 					setValue(obj, forKey:key)
 				}
@@ -383,7 +383,7 @@ class LFModel: NSObject {
 					for obj in array_parameter {
 						if let dict_parameter = obj as? Dictionary<String, AnyObject> {
 							//LF.log(key, obj: dict_parameter)
-							let a_class = NSClassFromString(type) as LFModel.Type
+							let a_class = NSClassFromString(type) as! LFModel.Type
 							let obj_new = a_class(dict: dict_parameter)
 							//LF.log(key, obj: obj_new)
 							array_new.append(obj_new)
@@ -406,13 +406,13 @@ class LFModel: NSObject {
 			var ct: CUnsignedInt = 0
 			let prop: UnsafeMutablePointer<objc_property_t> = class_copyPropertyList(c, &ct)
 			for var i = 0; i < Int(ct); i++ {
-                if let key = NSString(CString: property_getName(prop[i]), encoding: NSUTF8StringEncoding)? {
+                if let key = NSString(CString: property_getName(prop[i]), encoding: NSUTF8StringEncoding) {
     				if key == "dictionary" {
     					//LF.log("WARNING model: this condition is not ideal")
     					break loop
     				}
-    				if let value: AnyObject? = valueForKey(key) {
-    					dict[key] = value
+    				if let value: AnyObject? = valueForKey(key as String) {
+    					dict[key as String] = value
     				}
                 }
 			}
@@ -436,7 +436,7 @@ class LFModel: NSObject {
    
     override var description: String {
         var s = NSStringFromClass(self.dynamicType)
-        s = NSString(format: "%@ (%p): [\r", s, self)
+        s = NSString(format: "%@ (%p): [\r", s, self) as String
 		LFModel.prototype.indent++
         for (key, value) in dictionary {
 			if key == "raw" {
