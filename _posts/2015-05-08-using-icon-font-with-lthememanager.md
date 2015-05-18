@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Using Icon Font with LThemeManager"
-date:   2015-05-06 15:40:00
+date:   2015-05-08 15:40:00
 categories: LSwift LThemeManager IBInspectable font icon
 ---
 

@@ -7,7 +7,7 @@ permalink: /resume/
 Profile
 ---
 
-- 6 years iPhone / iPad development experience since June 2008, and 2.5 years Android development experience since September, 2010. Totally 10 years Senior Software Engineer experience since July 2004.
+- 7 years iPhone / iPad development experience since June 2008, and 2.5 years Android development experience since September, 2010. Totally 10 years Senior Software Engineer experience since July 2004.
 - iOS Projects involved include: FitFox, Music Charts Player, Flipevent, Citibank Singapore, Citibank Australia, PAssionCard, Pingan Bank, and various independent apps including Melbourne Directory, Super File Viewer, Wiki Quiz HD, Unofficial Google Mate, aGun, etc.
 - Created various commercial Android apps including Android Antivirus & Security, etc.
 Proficient with UIKit, CoreLocations, MapKit, StoreKit, MediaPlayer, MessageUI, and AddressBook Frameworks. Familiar with OpenGLES, AudioToolbox, AVFoundation, CoreGraphics, QuartzCore, OpenAL Frameworks, Git, and Android SDK.
@@ -15,7 +15,7 @@ Proficient with UIKit, CoreLocations, MapKit, StoreKit, MediaPlayer, MessageUI, 
 - Good at UI and function design, implementation, and testing. Familiar with App Store and Android Market publishing process, affiliate marketing analyze, iDP / Google account, development environment setup, version control, etc.
 - Agile development experience. Responsible and good at learning. Teamwork spirit.
 
-Recent activities highlights
+Recent Activities Highlights
 ---
 
 - FitFox
@@ -25,8 +25,8 @@ Recent activities highlights
   - From tasks like porting a REST-to-native reflection model from Objective-C to Swift, I have gained deep understanding of some of the advanced feature of the Swift language. 
 - LSwift
   - An open source Swift library provides various features like class extension, a HTTP client, JSON to native class reflection, etc.
-  - Github: https://github.com/superarts/LSwift
-This project implements some features of https://github.com/superarts/LFramework since I’m moving from Objective-C to Swift, and includes some new features like a HTTP client as well. 
+  - [Blog](http://superarts.github.io/LSwift/) and [Source](https://github.com/superarts/LSwift)
+  - This project implements some features of https://github.com/superarts/LFramework since I’m moving from Objective-C to Swift, and includes some new features like a HTTP client as well. 
   - The downside is that currently it’s released as source code instead of a pod, since I can’t move to cocoapods 0.36 with framework support yet due to some limitations it currently has.
 - Community Activities
   - I’m not that active in open source and Q&A communities but wouldn’t mind contributing some of my time to help others. 
@@ -68,6 +68,12 @@ Various iOS projects
 - My personal apps: http://itunes.apple.com/au/artist/super-art-software/id289071545
 - iTunes is needed to open the links above. Replace “au” with “us” or other strings based on your local App Store.
 - Website: www.superarts.org
+
+Android Projects
+===
+
+- I have built multiple Android apps in Mpire Media, including Android Antivirus & Security, My Life 365, some cocos-2dx based games etc. Unfortunately they are not under marketing anymore.
+- I also wrote some scripts to help automate the process of releasing android apps, including [android-manifest](https://github.com/superarts/script/master/android-manifest.php) etc.
 
 Experience
 ---
@@ -184,11 +190,11 @@ OS X, Windows, Linux, iOS, Android, Embedded Systems (SigmaTel 35xx, Action, Xwa
 
 Standards / Frameworks
 ===
-POSIX, Cocoa, UIKit, X11, GNU, PHP Extension, Google Engine, OpenGL ES, Microsoft .NET
+POSIX, Cocoa, UIKit, Parse, cocos-2dx, X11, GNU, PHP Extension, Google Engine, OpenGL ES, Microsoft .NET
 
 Version Control / Project Management
 ===
-GIT, Jira, Subversion (as administrator), VSS, StarTeam, SFEE
+GIT, Jira, Lighthouse, Subversion (as administrator and user), VSS, Microsoft Project, StarTeam, SFEE
 
 Others
 ===
