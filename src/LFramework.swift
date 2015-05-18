@@ -17,7 +17,7 @@ struct LF {
 	static let domain = "LFramework"
 	static var version: String? {
 		get {
-			return NSBundle.mainBundle().infoDictionary?["CFBundleVersion"] as String?
+			return NSBundle.mainBundle().infoDictionary?["CFBundleVersion"] as! String?
 		}
 	}
 
@@ -148,7 +148,7 @@ extension String {
 
 	var length: Int {
 		get {
-			return countElements(self)
+			return count(self)
 		}
 	}
 	var word_count: Int {
@@ -174,10 +174,8 @@ extension String {
         //println("validate calendar: \(self)")
         let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}"
         var emailTest = NSPredicate(format:"SELF MATCHES %@", emailRegEx)
-		if let predicate = emailTest {
-			return predicate.evaluateWithObject(self)
-		}
-        return false
+		let predicate = emailTest
+        return predicate.evaluateWithObject(self)
     }
 	func decode_html() -> String {
 		var s = self
@@ -324,11 +322,11 @@ extension NSString {
     func to_filename(_ namespace: String? = nil, directory: NSSearchPathDirectory) -> String {
 		var filename = self
 		if namespace != nil {
-			filename = namespace! + "-" + self
+			filename = namespace! + "-" + (self as String)
 		}
         let paths = NSSearchPathForDirectoriesInDomains(directory, .UserDomainMask, true)
-        let dir = paths[0] as String
-        return dir.stringByAppendingPathComponent(filename)
+        let dir = paths[0] as! String
+        return dir.stringByAppendingPathComponent(filename as! String)
     }
     func file_exists_doc(namespace: String? = nil) -> Bool {
         let manager = NSFileManager.defaultManager()
@@ -421,7 +419,7 @@ extension UIFont {
 		for familyName in fontFamilyNames {
 			println("------------------------------")
 			println("Font Family Name = [\(familyName)]")
-			let names = UIFont.fontNamesForFamilyName(familyName as String)
+			let names = UIFont.fontNamesForFamilyName(familyName as! String)
 			println("Font Names = [\(names)]")
 		}
 	}
@@ -613,7 +611,7 @@ extension UIViewController {
 		return push_identifier(controllerIdentifier, animated:animated)
 	}
 	func push_identifier(controllerIdentifier: String, animated: Bool = true) -> UIViewController {
-		let controller = storyboard?.instantiateViewControllerWithIdentifier(controllerIdentifier) as UIViewController
+		let controller = storyboard?.instantiateViewControllerWithIdentifier(controllerIdentifier) as! UIViewController
 		navigationController?.pushViewController(controller, animated: animated)
 		return controller
 	}
@@ -673,7 +671,7 @@ class LFViewController: UIViewController {
 
 	func lf_keyboardWillShow(notification: NSNotification) {
 		if let info: NSDictionary = notification.userInfo {
-			let value: NSValue = info.valueForKey(UIKeyboardFrameEndUserInfoKey) as NSValue
+			let value: NSValue = info.valueForKey(UIKeyboardFrameEndUserInfoKey) as! NSValue
 			let rect: CGRect = value.CGRectValue()
 			lf_keyboardHeightChanged(rect.height)
 		}
@@ -971,11 +969,11 @@ class LFTableDataSource: NSObject, UITableViewDelegate, UITableViewDataSource {
 		return tableView.rowHeight
     }
 	//	header and index
-	func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String {
+	func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
 		if headers.count > section {
 			return headers[section]
 		} else {
-			return ""
+			return nil
 		}
 	}
 	/*

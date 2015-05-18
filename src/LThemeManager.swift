@@ -14,9 +14,9 @@ struct LTheme {
 			case Spanish				= "es"
 			case SpanishMexico			= "es-MX"
 		}
-		static var language = Language(rawValue: NSLocale.preferredLanguages()[0] as String)
+		static var language = Language(rawValue: NSLocale.preferredLanguages()[0] as! String)
 		static func language_reload() {
-			language = Language(rawValue: NSLocale.preferredLanguages()[0] as String)
+			language = Language(rawValue: NSLocale.preferredLanguages()[0] as! String)
 		}
 		static var language_default: Language? = Language.English
 		static var languages = [
@@ -113,32 +113,32 @@ extension UIView {
 	@IBInspectable var font_name: String? {
 		get {
 			if self is UILabel {
-				let label = self as UILabel
+				let label = self as! UILabel
 				return label.font.fontName
 			} else if self is UITextField {
-				let field = self as UITextField
+				let field = self as! UITextField
 				return field.font.fontName
 			} else if self is UITextView {
-				let text = self as UITextView
+				let text = self as! UITextView
 				return text.font.fontName
 			} else if self is UIButton {
-				let button = self as UIButton
+				let button = self as! UIButton
 				return button.titleLabel!.font.fontName
 			}
 			return nil
 		}
 		set (name) {
 			if self is UILabel {
-				let label = self as UILabel
+				let label = self as! UILabel
 				label.font = UIFont(name: name!, size: label.font.pointSize)
 			} else if self is UITextField {
-				let field = self as UITextField
+				let field = self as! UITextField
 				field.font = UIFont(name: name!, size: field.font.pointSize)
 			} else if self is UITextView {
-				let text = self as UITextView
+				let text = self as! UITextView
 				text.font = UIFont(name: name!, size: text.font.pointSize)
 			} else if self is UIButton {
-				let button = self as UIButton
+				let button = self as! UIButton
 				button.titleLabel!.font = UIFont(name: name!, size: button.titleLabel!.font.pointSize)
 			} else {
 				LF.log("WARNING unknown type for font_name in Interface Builder", self)
@@ -349,7 +349,7 @@ extension UITextView {
 
 class LFAlertSegue: UIStoryboardSegue {
     override func perform() {
-        let source = sourceViewController as UIViewController
+        let source = sourceViewController as! UIViewController
         if let navigation = source.navigationController {
 			let alert = UIAlertController(title: "Message", message: identifier, preferredStyle: .Alert)
 			alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: {
@@ -363,7 +363,7 @@ class LFAlertSegue: UIStoryboardSegue {
 
 class LFActionSheetSegue: UIStoryboardSegue {
     override func perform() {
-        let source = sourceViewController as UIViewController
+        let source = sourceViewController as! UIViewController
         if let navigation = source.navigationController {
 			let alert = UIAlertController(title: "Message", message: identifier, preferredStyle: .ActionSheet)
 			alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: {
