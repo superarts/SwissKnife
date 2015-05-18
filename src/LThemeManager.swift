@@ -299,7 +299,7 @@ extension UITextView {
 	}
 	@IBInspectable var placeholder: String {
 		get {
-            return associated(&LF.keys.text_placeholder) as String
+            return associated(&LF.keys.text_placeholder) as! String     //  TODO: make sure it's nil.. for now
 		}
 		set (s) {
 			associate(&LF.keys.text_placeholder, object:s)

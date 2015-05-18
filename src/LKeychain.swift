@@ -28,7 +28,7 @@ let kSecMatchLimitOneValue = NSString(format:kSecMatchLimitOne)
 
 class LKeychain: NSObject {
 
-  class func save(key: NSString, _ data: NSString) {
+  class func save(key: String, _ data: NSString) {
     var dataFromString: NSData = data.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)!
 
     // Instantiate a new default keychain query
@@ -41,7 +41,7 @@ class LKeychain: NSObject {
     var status: OSStatus = SecItemAdd(keychainQuery as CFDictionaryRef, nil)
   }
 
-  class func load(key: NSString) -> NSString? {
+  class func load(key: String) -> String? {
     // Instantiate a new default keychain query
     // Tell the query to return a result
     // Limit our results to one item
@@ -65,6 +65,6 @@ class LKeychain: NSObject {
       println("Nothing was retrieved from the keychain. Status code \(status)")
     }
 
-    return contentsOfKeychain
+    return contentsOfKeychain as? String
   }
 }

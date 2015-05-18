@@ -368,7 +368,7 @@ extension UIImageView {
 
 extension NSData {
 	func to_string(encoding:UInt = NSUTF8StringEncoding) -> String? {
-		return NSString(data:self, encoding:encoding)
+		return NSString(data:self, encoding:encoding) as? String
 	}
 }
 
