@@ -9,6 +9,7 @@ struct LRest {
 	}
 	struct content {
 		static let json = "application/json"
+		static let form = "multipart/form-data"
 	}
 	enum HTTPMethod: String {
 		case Get = "GET"
@@ -45,6 +46,8 @@ class LRestClient<T: LFModel> {
 	var response: NSHTTPURLResponse?
 	var credential: NSURLCredential?
 	var cache_policy = LRest.cache.Policy.Disabled
+	var form_data: [NSData]?
+	var form_keys = ["file", "file1", "file2"]
 
 	init(api url: String, parameters param: LTDictStrObj? = nil) {
 		api = url
@@ -86,33 +89,42 @@ class LRestClient<T: LFModel> {
 		var url = NSURL(string: root + api)!
 		var request = NSMutableURLRequest(URL: url)
 		request.HTTPMethod = method.rawValue
-		request.addValue(content_type, forHTTPHeaderField:"Content-Type")
-		request.addValue(content_type, forHTTPHeaderField:"Accept")
+		if content_type == LRest.content.form {
+			let boundary = generateBoundaryString()
+			request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+			request.HTTPBody = createBodyWithParameters(parameters, array_data:form_data, boundary: boundary)
+			LF.log("body", request.HTTPBody?.to_string())
+		} else if content_type == LRest.content.json {
+			request.addValue(content_type, forHTTPHeaderField:"Content-Type")
+			request.addValue(content_type, forHTTPHeaderField:"Accept")
 
-		//LF.log("REST method", method.rawValue)
-		//LF.log("REST param", parameters)
-		if method != LRest.method.get && parameters != nil {
+			//LF.log("REST method", method.rawValue)
+			//LF.log("REST param", parameters)
+			if method != LRest.method.get && parameters != nil {
 
-			var error_ret: NSError?
-			let body = NSJSONSerialization.dataWithJSONObject(parameters!, options: nil, error: &error_ret)
-			//	LF.log("REST body", NSString(data: body!, encoding: NSUTF8StringEncoding))
-			if error_ret != nil {
-                error_ret = NSError(domain: LRest.domain, code: LRest.error.invalid_parameter, userInfo:[NSLocalizedDescriptionKey: "LRestKit: invalid parameters"])
-				if show_error == true {
-					error_show(error_ret!)
+				var error_ret: NSError?
+				let body = NSJSONSerialization.dataWithJSONObject(parameters!, options: nil, error: &error_ret)
+				//	LF.log("REST body", NSString(data: body!, encoding: NSUTF8StringEncoding))
+				if error_ret != nil {
+					error_ret = NSError(domain: LRest.domain, code: LRest.error.invalid_parameter, userInfo:[NSLocalizedDescriptionKey: "LRestKit: invalid parameters"])
+					if show_error == true {
+						error_show(error_ret!)
+					}
+					if func_model != nil {
+						func_model!(nil, error_ret)
+					}
+					if func_array != nil {
+						func_array!(nil, error_ret)
+					}
+					if func_dict != nil {
+						func_dict!(nil, error_ret)
+					}
+					return nil
 				}
-				if func_model != nil {
-					func_model!(nil, error_ret)
-				}
-				if func_array != nil {
-					func_array!(nil, error_ret)
-				}
-				if func_dict != nil {
-					func_dict!(nil, error_ret)
-				}
-				return nil
+				request.HTTPBody = body
 			}
-			request.HTTPBody = body
+		} else {
+			LF.log("WARNING unknown content type", content_type)
 		}
 		return request
 	}
@@ -160,42 +172,6 @@ class LRestClient<T: LFModel> {
 						LF.log("CACHE saved")
 					}
 					self.execute_data(data!)
-					/*
-					error_ret = nil
-					let s = NSString(data: data!, encoding: NSUTF8StringEncoding)
-					let cls = T.self
-					if self.func_model != nil {
-						var dict = NSJSONSerialization.JSONObjectWithData(data!, options: nil, error: &error_ret) as LTDictStrObj?
-						//	TODO: support multi-layer path
-						if let path = self.path {
-							if var dict_tmp = dict?[path] as? LTDictStrObj {
-								dict = dict_tmp
-							}
-						}
-						if error_ret == nil {
-							let obj = cls(dict: dict)
-							self.func_model!(obj, error_ret)
-						}
-					}
-					if self.func_array != nil {
-						let array = NSJSONSerialization.JSONObjectWithData(data!, options: nil, error: &error_ret) as Array<LTDictStrObj>
-						if error_ret == nil {
-							var array_obj: Array<T> = []
-							for dict in array { 
-								let obj = cls(dict: dict)
-								array_obj.append(obj)
-							}
-							self.func_array!(array_obj, error_ret)
-						}
-					}
-					if self.func_dict != nil {
-						//let dict = NSJSONSerialization.JSONObjectWithData(data!, options: .AllowFragments, error: &error_ret) as LTDictStrObj
-						let dict = NSJSONSerialization.JSONObjectWithData(data!, options: nil, error: &error_ret) as LTDictStrObj
-						if error_ret == nil {
-							self.func_dict!(dict, error_ret)
-						}
-					}
-					*/
 				}
 				if error_ret != nil {
 					if self.show_error == true {
@@ -276,6 +252,117 @@ class LRestClient<T: LFModel> {
 			}
 		}
 	}
+
+	/// Create request
+	///
+	/// :param: userid   The userid to be passed to web service
+	/// :param: password The password to be passed to web service
+	/// :param: email    The email address to be passed to web service
+	///
+	/// :returns:         The NSURLRequest that was created
+
+	/*
+	func createRequest (#userid: String, password: String, email: String) -> NSURLRequest {
+		let param = [
+			"user_id"  : userid,
+			"email"    : email,
+			"password" : password]  // build your dictionary however appropriate
+
+		let boundary = generateBoundaryString()
+
+		let url = NSURL(string: "https://example.com/imageupload.php")
+		let request = NSMutableURLRequest(URL: url)
+		request.HTTPMethod = "POST"
+		request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+
+		let path1 = NSBundle.mainBundle().pathForResource("image1", ofType: "png") as String!
+		let path2 = NSBundle.mainBundle().pathForResource("image2", ofType: "jpg") as String!
+		request.HTTPBody = createBodyWithParameters(param, filePathKey: "file", paths: [path1, path2], boundary: boundary)
+
+		return request
+	}
+	*/
+
+	/// Create body of the multipart/form-data request
+	///
+	/// :param: parameters   The optional dictionary containing keys and values to be passed to web service
+	/// :param: filePathKey  The optional field name to be used when uploading files. If you supply paths, you must supply filePathKey, too.
+	/// :param: paths        The optional array of file paths of the files to be uploaded
+	/// :param: boundary     The multipart/form-data boundary
+	///
+	/// :returns:            The NSData of the body of the request
+
+	//func createBodyWithParameters(parameters: [String: AnyObject]?, filePathKey: String?, paths: [String]?, boundary: String) -> NSData {
+	func createBodyWithParameters(parameters: [String: AnyObject]?, array_data: [NSData]?, boundary: String) -> NSData {
+		let body = NSMutableData()
+
+		LF.log("xx1", parameters)
+		if let param = parameters {
+			for (key, value) in param {
+				let desc = value.description
+				body.append_string("--\(boundary)\r\n")
+				body.append_string("Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n")
+				body.append_string("\(desc)\r\n")
+				LF.log(key, value.description)
+			}
+		}
+
+		if let array = array_data {
+			var index = 0
+			for data in array {
+				/*
+				let filename = path.lastPathComponent
+				let data = NSData(contentsOfFile: path)
+				let mimetype = mimeTypeForPath(path)
+				*/
+				//let filePathKey = "file" + String(index)
+				let filePathKey = form_keys[index]
+				let filename = "image" + String(index) + ".jpg"
+				let mimetype = "image/jpeg"
+
+				body.append_string("--\(boundary)\r\n")
+				body.append_string("Content-Disposition: form-data; name=\"\(filePathKey)\"; filename=\"\(filename)\"\r\n")
+				body.append_string("Content-Type: \(mimetype)\r\n\r\n")
+				body.appendData(data)
+				body.append_string("\r\n")
+				index++
+			}
+		}
+
+		body.append_string("--\(boundary)--\r\n")
+				LF.log("xx2", body.to_string())
+		return body
+	}
+
+	/// Create boundary string for multipart/form-data request
+	///
+	/// :returns:            The boundary string that consists of "Boundary-" followed by a UUID string.
+
+	func generateBoundaryString() -> String {
+		//return "Boundary-\(NSUUID().UUID().UUIDString)"
+		return "---------------------------14737809831466499882746641449"
+	}
+
+	/// Determine mime type on the basis of extension of a file.
+	///
+	/// This requires MobileCoreServices framework.
+	///
+	/// :param: path         The path of the file for which we are going to determine the mime type.
+	///
+	/// :returns:            Returns the mime type if successful. Returns application/octet-stream if unable to determine mime type.
+
+	/*
+	func mimeTypeForPath(path: String) -> String {
+		let pathExtension = path.pathExtension
+
+		if let uti = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, pathExtension as NSString, nil)?.takeRetainedValue() {
+			if let mimetype = UTTypeCopyPreferredTagWithClass(uti, kUTTagClassMIMEType)?.takeRetainedValue() {
+				return mimetype as NSString
+			}
+		}
+		return "application/octet-stream";
+	}
+	*/
 }
 
 class LRestConnectionDelegate: NSObject {

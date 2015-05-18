@@ -290,28 +290,59 @@ extension UITextView {
 		get {
 			return false	//	TODO
 		}
-		set (f) {
-			self.addObserver(self, forKeyPath:"frame", options:.New, context:nil)
-			self.addObserver(self, forKeyPath:"contentSize", options:.New, context:nil)
+		set (b) {
+			if b {
+				self.addObserver(self, forKeyPath:"frame", options:.New, context:nil)
+				self.addObserver(self, forKeyPath:"contentSize", options:.New, context:nil)
+			}
 		}
 	}
-	/*
 	@IBInspectable var placeholder: String {
 		get {
             return associated(&LF.keys.text_placeholder) as String
 		}
 		set (s) {
 			associate(&LF.keys.text_placeholder, object:s)
+			self.text = s
+			//NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("lf_text_changed:"), name:UITextViewTextDidChangeNotification, object: nil);
+			NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("lf_text_edit_began:"), name:UITextViewTextDidBeginEditingNotification, object: nil);
+			NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("lf_text_edit_ended:"), name:UITextViewTextDidEndEditingNotification, object: nil);
 		}
 	}
-	*/
+
+	//	observers should be removed manually. TODO: find a better solution
+	func remove_observer_alignment() {
+		//NSNotificationCenter.defaultCenter().removeObserver(self)
+		self.removeObserver(self, forKeyPath:"frame")
+		self.removeObserver(self, forKeyPath:"contentSize")
+	}
+	func remove_observer_placeholder() {
+		//NSNotificationCenter.defaultCenter().removeObserver(self, name:UITextViewTextDidChangeNotification, object: nil);
+		NSNotificationCenter.defaultCenter().removeObserver(self, name:UITextViewTextDidBeginEditingNotification, object: nil);
+		NSNotificationCenter.defaultCenter().removeObserver(self, name:UITextViewTextDidEndEditingNotification, object: nil);
+	}
+
 	override public func observeValueForKeyPath(keyPath: String, ofObject object: AnyObject, change: [NSObject:AnyObject], context: UnsafeMutablePointer<Void>) {
 		if let textView = object as? UITextView {
-			var y: CGFloat = (textView.bounds.size.height - textView.contentSize.height * textView.zoomScale)/2.0;
-			if y < 0 {
-				y = 0
-			}
-			textView.content_y = -y
+			lf_reload_align_middle_vertical()
+		}
+	}
+	func lf_reload_align_middle_vertical() {
+		var y: CGFloat = (self.bounds.size.height - self.contentSize.height * self.zoomScale)/2.0;
+		if y < 0 {
+			y = 0
+		}
+		self.content_y = -y
+	}
+	//func lf_text_changed(notification: NSNotification) { }
+	func lf_text_edit_began(notification: NSNotification) {
+		if self.text == self.placeholder {
+			self.text = ""
+		}
+	}
+	func lf_text_edit_ended(notification: NSNotification) {
+		if self.text == "" {
+			self.text = self.placeholder
 		}
 	}
 }

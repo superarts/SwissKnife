@@ -118,22 +118,22 @@ extension NSDate {
         return NSDate() - 1.days
     }
     
-    func toS(let format:String) -> String? {
+    func to_string(let format:String) -> String? {
         var formatter:NSDateFormatter = NSDateFormatter()
         formatter.locale = NSLocale(localeIdentifier: "en_US_POSIX")
         formatter.timeZone = NSTimeZone()
         formatter.dateFormat = format
-        
+       
         return formatter.stringFromDate(self)
     }
 }
 
-var test7 = NSDate.yesterday().toS("MM/dd")
+var test7 = NSDate.yesterday().to_string("MM/dd")
 
 extension String {
    
 	//	the original one - we're not going to use it
-    func toDate(let format:String = "dd/MM/yyyy") -> NSDate? {
+    func to_date(let format:String = "dd/MM/yyyy") -> NSDate? {
         var formatter:NSDateFormatter = NSDateFormatter()
         formatter.locale = NSLocale(localeIdentifier: "en_US_POSIX")
         formatter.timeZone = NSTimeZone()
@@ -153,6 +153,6 @@ extension String {
 	}
 }
 
-var test8 = "12/01/2014".toDate(format: "MM/dd/yyyy")
-var test9 = "12/01/2014".toDate()
+var test8 = "12/01/2014".to_date(format: "MM/dd/yyyy")
+var test9 = "12/01/2014".to_date()
 

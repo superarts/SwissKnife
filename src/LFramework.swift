@@ -368,6 +368,19 @@ extension UIImageView {
     }
 }
 
+extension NSData {
+	func to_string(encoding:UInt = NSUTF8StringEncoding) -> String? {
+		return NSString(data:self, encoding:encoding)
+	}
+}
+
+extension NSMutableData {
+    func append_string(string: String) {
+        let data = string.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: true)
+        appendData(data!)
+    }
+}
+
 extension UIImage {
 
 	//	TODO: efficiency?
@@ -606,16 +619,44 @@ extension UIViewController {
 	}
 }
 
+extension UISearchBar {
+	func set_text_image(text: NSString, icon:UISearchBarIcon, attribute:LTDictStrObj? = nil, state:UIControlState = .Normal) {
+		var textColor: UIColor = UIColor.whiteColor()
+		var textFont: UIFont = UIFont(name: "FontAwesome", size: 15)!
+		UIGraphicsBeginImageContext(CGSizeMake(15, 15))
+		var attr = attribute
+		if attr == nil {
+			attr = [
+				NSFontAttributeName: textFont,
+				NSForegroundColorAttributeName: textColor,
+			]
+		}
+		text.drawInRect(CGRectMake(0, 0, 15, 15), withAttributes: attr)
+		var image: UIImage = UIGraphicsGetImageFromCurrentImageContext()
+		UIGraphicsEndImageContext()
+
+		self.setImage(image, forSearchBarIcon:icon, state:state)
+	}
+}
+
 class LFViewController: UIViewController {
     var containers: Dictionary<String, UIViewController> = [:]
     
-	override func viewDidLoad() {
-		super.viewDidLoad()
+	//override func viewDidLoad() {
+	//	super.viewDidLoad()
+	override func viewWillAppear(animated:Bool) {
+		super.viewWillAppear(animated)
+		NSNotificationCenter.defaultCenter().removeObserver(self, name:UIKeyboardWillShowNotification, object: nil);
+		NSNotificationCenter.defaultCenter().removeObserver(self, name:UIKeyboardWillHideNotification, object: nil);
 		NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("lf_keyboardWillShow:"), name:UIKeyboardWillShowNotification, object: nil);
 		NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("lf_keyboardWillHide:"), name:UIKeyboardWillHideNotification, object: nil);
 	}
-	deinit {
-		NSNotificationCenter.defaultCenter().removeObserver(self)
+	//deinit {
+	override func viewWillDisappear(animated:Bool) {
+		super.viewWillDisappear(animated)
+		//NSNotificationCenter.defaultCenter().removeObserver(self)
+		NSNotificationCenter.defaultCenter().removeObserver(self, name:UIKeyboardWillShowNotification, object: nil);
+		NSNotificationCenter.defaultCenter().removeObserver(self, name:UIKeyboardWillHideNotification, object: nil);
 	}
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject!) {
         super.prepareForSegue(segue, sender:sender)
