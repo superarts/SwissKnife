@@ -374,8 +374,10 @@ extension NSData {
 
 extension NSMutableData {
     func append_string(string: String) {
-        let data = string.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: true)
-        appendData(data!)
+        //let data = string.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)
+		if let data = (string as NSString).dataUsingEncoding(NSUTF8StringEncoding) {
+			appendData(data)
+		}
     }
 }
 

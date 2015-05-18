@@ -90,10 +90,17 @@ class LRestClient<T: LFModel> {
 		var request = NSMutableURLRequest(URL: url)
 		request.HTTPMethod = method.rawValue
 		if content_type == LRest.content.form {
-			let boundary = generateBoundaryString()
+			let boundary = form_boundary()
+			request.HTTPBody = createBodyWithParameters(parameters, array_data:form_data)
+			request.setValue(LRest.content.json, forHTTPHeaderField:"Accept")
 			request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-			request.HTTPBody = createBodyWithParameters(parameters, array_data:form_data, boundary: boundary)
-			LF.log("body", request.HTTPBody?.to_string())
+			if let data = request.HTTPBody {
+				request.setValue(String(data.length), forHTTPHeaderField: "Content-Length")
+			}
+			LF.log("body length", request.HTTPBody?.length)
+			//LF.log("request", request)
+			//LF.log("headers", request.allHTTPHeaderFields)
+			//LF.log("method", request.HTTPMethod)
 		} else if content_type == LRest.content.json {
 			request.addValue(content_type, forHTTPHeaderField:"Content-Type")
 			request.addValue(content_type, forHTTPHeaderField:"Accept")
@@ -193,6 +200,7 @@ class LRestClient<T: LFModel> {
 			delegate.func_done = func_done
 			connection = NSURLConnection(request:request, delegate:delegate, startImmediately:true)
 			//LF.log("CONNECTION started", connection!)
+			//LF.log("REQUEST headers", request.allHTTPHeaderFields)
 		} else {
 			LF.log("WARNING LClient", "empty request")
 		}
@@ -268,7 +276,7 @@ class LRestClient<T: LFModel> {
 			"email"    : email,
 			"password" : password]  // build your dictionary however appropriate
 
-		let boundary = generateBoundaryString()
+		let boundary = form_boundary()
 
 		let url = NSURL(string: "https://example.com/imageupload.php")
 		let request = NSMutableURLRequest(URL: url)
@@ -292,17 +300,27 @@ class LRestClient<T: LFModel> {
 	///
 	/// :returns:            The NSData of the body of the request
 
+	func form_append(body: NSMutableData, key: String, value: String) {
+		let boundary = form_boundary()
+		body.append_string("--\(boundary)\r\n")
+		body.append_string("Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n")
+		body.append_string("\(value)\r\n")
+	}
 	//func createBodyWithParameters(parameters: [String: AnyObject]?, filePathKey: String?, paths: [String]?, boundary: String) -> NSData {
-	func createBodyWithParameters(parameters: [String: AnyObject]?, array_data: [NSData]?, boundary: String) -> NSData {
+	func createBodyWithParameters(parameters: [String: AnyObject]?, array_data: [NSData]?) -> NSData {
+		let boundary = form_boundary()
 		let body = NSMutableData()
 
-		LF.log("xx1", parameters)
+		//body.append_string("\r\ntag_ids[]=134&tag_ids[]=4\r\n")
 		if let param = parameters {
 			for (key, value) in param {
-				let desc = value.description
-				body.append_string("--\(boundary)\r\n")
-				body.append_string("Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n")
-				body.append_string("\(desc)\r\n")
+				if let array = value as? Array<AnyObject> {
+					for item in array {
+						form_append(body, key:key + "[]", value:item.description)
+					}
+				} else {
+					form_append(body, key:key, value:value.description)
+				}
 				LF.log(key, value.description)
 			}
 		}
@@ -310,17 +328,11 @@ class LRestClient<T: LFModel> {
 		if let array = array_data {
 			var index = 0
 			for data in array {
-				/*
-				let filename = path.lastPathComponent
-				let data = NSData(contentsOfFile: path)
-				let mimetype = mimeTypeForPath(path)
-				*/
-				//let filePathKey = "file" + String(index)
 				let filePathKey = form_keys[index]
 				let filename = "image" + String(index) + ".jpg"
 				let mimetype = "image/jpeg"
 
-				body.append_string("--\(boundary)\r\n")
+				body.append_string("\r\n--\(boundary)\r\n")
 				body.append_string("Content-Disposition: form-data; name=\"\(filePathKey)\"; filename=\"\(filename)\"\r\n")
 				body.append_string("Content-Type: \(mimetype)\r\n\r\n")
 				body.appendData(data)
@@ -330,7 +342,7 @@ class LRestClient<T: LFModel> {
 		}
 
 		body.append_string("--\(boundary)--\r\n")
-				LF.log("xx2", body.to_string())
+		LF.log("body", body.to_string())
 		return body
 	}
 
@@ -338,7 +350,7 @@ class LRestClient<T: LFModel> {
 	///
 	/// :returns:            The boundary string that consists of "Boundary-" followed by a UUID string.
 
-	func generateBoundaryString() -> String {
+	func form_boundary() -> String {
 		//return "Boundary-\(NSUUID().UUID().UUIDString)"
 		return "---------------------------14737809831466499882746641449"
 	}
@@ -510,14 +522,13 @@ class LFModel: NSObject {
 			c = class_getSuperclass(c)
 		}
 
-		/*
         for var i = 0; i < Int(count); i++ {
-            let key: NSString = NSString(CString: property_getName(properties[i]), encoding: NSUTF8StringEncoding)
-            if let value: AnyObject? = valueForKey(key) {
-                dict[key] = value
-            }
+            if let key = NSString(CString: property_getName(properties[i]), encoding: NSUTF8StringEncoding) as? String {
+				if let value: AnyObject? = valueForKey(key) {
+					dict[key] = value
+				}
+			}
         }
-		*/
         return dict
     }
    
