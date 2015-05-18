@@ -48,6 +48,7 @@ class LRestClient<T: LFModel> {
 	var cache_policy = LRest.cache.Policy.Disabled
 	var form_data: [NSData]?
 	var form_keys = ["file", "file1", "file2"]
+	var form_boundary = "---------------------------14737809831466499882746641449"		//"Boundary-\(NSUUID().UUID().UUIDString)"
 
 	init(api url: String, parameters param: LTDictStrObj? = nil) {
 		api = url
@@ -90,8 +91,8 @@ class LRestClient<T: LFModel> {
 		var request = NSMutableURLRequest(URL: url)
 		request.HTTPMethod = method.rawValue
 		if content_type == LRest.content.form {
-			let boundary = form_boundary()
-			request.HTTPBody = createBodyWithParameters(parameters, array_data:form_data)
+			let boundary = form_boundary
+			request.HTTPBody = form_body(parameters, array_data:form_data)
 			request.setValue(LRest.content.json, forHTTPHeaderField:"Accept")
 			request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
 			if let data = request.HTTPBody {
@@ -261,54 +262,14 @@ class LRestClient<T: LFModel> {
 		}
 	}
 
-	/// Create request
-	///
-	/// :param: userid   The userid to be passed to web service
-	/// :param: password The password to be passed to web service
-	/// :param: email    The email address to be passed to web service
-	///
-	/// :returns:         The NSURLRequest that was created
-
-	/*
-	func createRequest (#userid: String, password: String, email: String) -> NSURLRequest {
-		let param = [
-			"user_id"  : userid,
-			"email"    : email,
-			"password" : password]  // build your dictionary however appropriate
-
-		let boundary = form_boundary()
-
-		let url = NSURL(string: "https://example.com/imageupload.php")
-		let request = NSMutableURLRequest(URL: url)
-		request.HTTPMethod = "POST"
-		request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-
-		let path1 = NSBundle.mainBundle().pathForResource("image1", ofType: "png") as String!
-		let path2 = NSBundle.mainBundle().pathForResource("image2", ofType: "jpg") as String!
-		request.HTTPBody = createBodyWithParameters(param, filePathKey: "file", paths: [path1, path2], boundary: boundary)
-
-		return request
-	}
-	*/
-
-	/// Create body of the multipart/form-data request
-	///
-	/// :param: parameters   The optional dictionary containing keys and values to be passed to web service
-	/// :param: filePathKey  The optional field name to be used when uploading files. If you supply paths, you must supply filePathKey, too.
-	/// :param: paths        The optional array of file paths of the files to be uploaded
-	/// :param: boundary     The multipart/form-data boundary
-	///
-	/// :returns:            The NSData of the body of the request
-
 	func form_append(body: NSMutableData, key: String, value: String) {
-		let boundary = form_boundary()
+		let boundary = form_boundary
 		body.append_string("--\(boundary)\r\n")
 		body.append_string("Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n")
 		body.append_string("\(value)\r\n")
 	}
-	//func createBodyWithParameters(parameters: [String: AnyObject]?, filePathKey: String?, paths: [String]?, boundary: String) -> NSData {
-	func createBodyWithParameters(parameters: [String: AnyObject]?, array_data: [NSData]?) -> NSData {
-		let boundary = form_boundary()
+	func form_body(parameters: [String: AnyObject]?, array_data: [NSData]?) -> NSData {
+		let boundary = form_boundary
 		let body = NSMutableData()
 
 		//body.append_string("\r\ntag_ids[]=134&tag_ids[]=4\r\n")
@@ -345,36 +306,6 @@ class LRestClient<T: LFModel> {
 		LF.log("body", body.to_string())
 		return body
 	}
-
-	/// Create boundary string for multipart/form-data request
-	///
-	/// :returns:            The boundary string that consists of "Boundary-" followed by a UUID string.
-
-	func form_boundary() -> String {
-		//return "Boundary-\(NSUUID().UUID().UUIDString)"
-		return "---------------------------14737809831466499882746641449"
-	}
-
-	/// Determine mime type on the basis of extension of a file.
-	///
-	/// This requires MobileCoreServices framework.
-	///
-	/// :param: path         The path of the file for which we are going to determine the mime type.
-	///
-	/// :returns:            Returns the mime type if successful. Returns application/octet-stream if unable to determine mime type.
-
-	/*
-	func mimeTypeForPath(path: String) -> String {
-		let pathExtension = path.pathExtension
-
-		if let uti = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, pathExtension as NSString, nil)?.takeRetainedValue() {
-			if let mimetype = UTTypeCopyPreferredTagWithClass(uti, kUTTagClassMIMEType)?.takeRetainedValue() {
-				return mimetype as NSString
-			}
-		}
-		return "application/octet-stream";
-	}
-	*/
 }
 
 class LRestConnectionDelegate: NSObject {
