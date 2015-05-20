@@ -25,7 +25,7 @@ struct LRest {
 	}
 	struct cache {
 		enum Policy {
-			case Disabled
+			case None
 			case CacheThenNetwork
 		}
 	}
@@ -45,7 +45,7 @@ class LRestClient<T: LFModel> {
 	var func_dict: ((LTDictStrObj?, NSError?) -> Void)?		//	raw dictionary
 	var response: NSHTTPURLResponse?
 	var credential: NSURLCredential?
-	var cache_policy = LRest.cache.Policy.Disabled
+	var cache_policy = LRest.cache.Policy.None
 	var form_data: [NSData]?
 	var form_keys = ["file", "file1", "file2"]
 	var form_boundary = "---------------------------14737809831466499882746641449"		//"Boundary-\(NSUUID().UUID().UUIDString)"
@@ -174,7 +174,7 @@ class LRestClient<T: LFModel> {
 					let code = resp!.statusCode
 					error_ret = NSError(domain: LRest.domain, code: code, userInfo:[NSLocalizedDescriptionKey: NSHTTPURLResponse.localizedStringForStatusCode(code)])
 				} else {
-					if self.cache_policy != .Disabled {
+					if self.cache_policy != .None {
 						let filename = self.get_filename()
 						data?.writeToFile(filename, atomically:true)
 						LF.log("CACHE saved")
