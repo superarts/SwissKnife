@@ -1,6 +1,12 @@
 import UIKit
 
 struct LConst {
+	func color(name: String) -> UIColor {
+		if let rgb = LConst.rgb[name] {
+			return UIColor(rgb: rgb)
+		}
+		return .clearColor()
+	}
 	static let rgb: [String:UInt] = [
 		//	from: http://www.creepyed.com/2012/11/windows-phone-8-theme-colors-hex-rgb/
 		"wp8-lime":		0xA4C400,

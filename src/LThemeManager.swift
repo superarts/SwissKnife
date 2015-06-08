@@ -108,6 +108,17 @@ struct LTheme {
 
 //	UIKit + Interface Builder: define various UIView properties in IB
 
+extension UITabBarController {
+	@IBInspectable var selected_index: Int {
+		get {
+			return selectedIndex
+		}
+		set(index) {
+			selectedIndex = index
+		}
+	}
+}
+
 //	TODO: add getters when extension property is added - having problem with associating in swift (key cannot be a string variable)
 extension UIView {
 	@IBInspectable var font_name: String? {
@@ -169,7 +180,7 @@ extension UIView {
 	}
 	@IBInspectable var border_width: CGFloat {
 		get {
-			LF.log("WARNING no getter for UIView.mask_border")
+			LF.log("WARNING no getter for UIView.border_width")
 			return 0
 		}
 		set (f) {
@@ -178,11 +189,22 @@ extension UIView {
 	}
 	@IBInspectable var border_color: UIColor? {
 		get {
-			LF.log("WARNING no getter for UIView.mask_color")
+			LF.log("WARNING no getter for UIView.border_color")
 			return nil
 		}
 		set (c) {
 			lf_enableBorder(color: c)
+		}
+	}
+	@IBInspectable var gradient_top: UIColor? {
+		get {
+			LF.log("WARNING no getter for UIView.border_color")
+			return nil
+		}
+		set (c) {
+			insert_gradient([c, backgroundColor], 
+					point1:CGPointMake(0, 0),
+					point2:CGPointMake(0, 1))
 		}
 	}
 }

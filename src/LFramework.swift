@@ -80,9 +80,11 @@ extension UIView {
 	func lf_enableBorder(width border_width: CGFloat = -1, color: UIColor? = nil, radius: CGFloat = -1, is_circle: Bool = false) {
 		enable_border(width:border_width, color:color, radius:radius, is_circle:is_circle)
 	}
+	/*
 	func lf_insertGradient(color1: UIColor = .clearColor(), color2: UIColor = .clearColor(), head: CGPoint = CGPointMake(0, 0), tail: CGPoint = CGPointMake(0, 0)) {
 		insert_gradient(color1:color1, color2:color2, head:head, tail:tail)
 	}
+	*/
 }
 
 /*
@@ -121,14 +123,23 @@ extension Array {
 		}
 		return false
 	}
+    /*
+    mutating func replace_or_append<T>(object: T, at index: Int) {
+        if self.count > index {
+            self[index] = object
+        } else {
+            self.append(object)
+        }
+    }
+    */
 }
 
 extension String {
 //	TODO: not working?
-/*
 	subscript (i: Int) -> String {
 		return String(Array(self)[i])
 	}
+/*
 	subscript (r: Range<Int>) -> String {
 		var start = advance(startIndex, r.startIndex)
 		var end = advance(startIndex, r.endIndex)
@@ -256,6 +267,15 @@ extension NSUserDefaults {
 		}
 		return v
 	}
+	class func integer(key: String, _ v: Int? = nil) -> Int? {
+		if let obj: Int = v {
+			NSUserDefaults.standardUserDefaults().setInteger(obj, forKey: key)
+			NSUserDefaults.standardUserDefaults().synchronize()
+		} else {
+			return NSUserDefaults.standardUserDefaults().integerForKey(key)
+		}
+		return v
+	}
 	class func string(key: String, _ v: String? = nil) -> String? {
 		if let obj: String = v {
 			NSUserDefaults.standardUserDefaults().setObject(obj, forKey: key)
@@ -289,6 +309,7 @@ extension UIView {
 		}
 		layer.masksToBounds = true
 	}
+	/*
 	func insert_gradient(color1: UIColor = .clearColor(), color2: UIColor = .clearColor(), head: CGPoint = CGPointMake(0, 0), tail: CGPoint = CGPointMake(0, 0)) {
 		let colors: Array<AnyObject> = [color1.CGColor, color2.CGColor]
 		var gradient = CAGradientLayer()
@@ -298,15 +319,40 @@ extension UIView {
 		gradient.endPoint = tail
 		layer.insertSublayer(gradient, atIndex:1)
 	}
+	*/
+	//	it supports more than 2 colors, and more color formats (UIColor, rgb, name)
+	func insert_gradient(colors:[AnyObject?], point1:CGPoint, point2:CGPoint) {
+		var cg_colors: [CGColor] = []
+		for obj in colors {
+			if let name = obj as? String, let rgb = LConst.rgb[name] {
+				cg_colors.append(UIColor(rgb: rgb).CGColor)
+			} else if let rgb = obj as? UInt {
+				cg_colors.append(UIColor(rgb: rgb).CGColor)
+			} else if let color = obj as? UIColor {
+				cg_colors.append(color.CGColor)
+			//} else if let color = obj as? CGColor {
+			//	cg_colors.append(color)
+			} else {
+				LF.log("WARNING unknown color class", obj)
+			}
+		}
+		//LF.log("colors", cg_colors)
+		let gradient = CAGradientLayer()
+		gradient.frame = bounds
+		gradient.colors = cg_colors
+		gradient.startPoint = point1
+		gradient.endPoint = point2
+		layer.insertSublayer(gradient, atIndex:0)
+	}
 }
 
 extension UIColor {
-	convenience init(rgb: UInt) {
+	convenience init(rgb:UInt, alpha:CGFloat = 1.0) {
         self.init(
             red: CGFloat((rgb & 0xFF0000) >> 16) / 255.0,
             green: CGFloat((rgb & 0x00FF00) >> 8) / 255.0,
             blue: CGFloat(rgb & 0x0000FF) / 255.0,
-            alpha: CGFloat(1.0)
+            alpha: CGFloat(alpha)
         )
     }
 }
@@ -615,6 +661,11 @@ extension UIViewController {
 	func push_identifier(controllerIdentifier: String, animated: Bool = true) -> UIViewController {
 		let controller = storyboard?.instantiateViewControllerWithIdentifier(controllerIdentifier) as! UIViewController
 		navigationController?.pushViewController(controller, animated: animated)
+		return controller
+	}
+	func present_identifier(controllerIdentifier: String, animated: Bool = true) -> UIViewController {
+		let controller = storyboard?.instantiateViewControllerWithIdentifier(controllerIdentifier) as! UIViewController
+		self.presentViewController(controller, animated:animated, completion:nil)
 		return controller
 	}
 }

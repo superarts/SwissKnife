@@ -138,19 +138,23 @@ class LRestClient<T: LFModel> {
 	}
 	var connection: NSURLConnection?
 	func execute() {
+        var cache_loaded = false
 		reload_api()
 		if self.cache_policy == .CacheThenNetwork {
 			let filename = self.get_filename()
 			if let data = NSData(contentsOfFile:filename) {
-				LF.log("CACHE loaded")
+				//LF.log("CACHE loaded")
 				//LF.dispatch() { }
+                cache_loaded = true
 				self.execute_data(data)
+                //  TODO: save content hash and execute_data only if downlaoded
+                //  content is new
 			}
 		}
 		if let request = init_request() {
 
 			var error_ret: NSError?
-			if text != nil {
+			if text != nil && !cache_loaded {
 				text_show()
 			}
 			//	TODO: change data and error to optional
@@ -158,7 +162,7 @@ class LRestClient<T: LFModel> {
 				(response: NSURLResponse?, data: NSData?, error: NSError!) -> Void in
 
 				var error_ret: NSError? = error
-				if self.text != nil {
+				if self.text != nil && !cache_loaded {
 					self.text_hide()
 				}
 
@@ -425,6 +429,16 @@ class LFModel: NSObject {
 		}
 	}
 
+    func dictionary(keys: [String]) -> Dictionary<String, AnyObject> {
+        var dict: Dictionary<String, AnyObject> = [:]
+        for key in keys {
+            if let value: AnyObject = valueForKey(key) {
+                dict[key] = value
+            }
+        }
+        return dict
+    }
+    //  TODO: currently dictionary do not support nesting, i.e. model.dictionary may return an object that cannot be serialized. For now use dictionary(keys) to make dictionary only for selected keys.
     var dictionary: Dictionary<String, AnyObject> {
         var dict: Dictionary<String, AnyObject> = [:]
         var count: CUnsignedInt = 0

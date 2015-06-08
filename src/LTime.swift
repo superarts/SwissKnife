@@ -1,5 +1,10 @@
 import Foundation
 
+struct LTime {
+    static var format = "YYYY-MM-dd'T'HH:mm:ss.SSSZZZZ"
+    //static var format = "YYYY-MM-dd'T'HH:mm:ss"
+}
+
 enum TimeIntervalUnit {
     case Seconds, Minutes, Hours, Days, Months, Years
     
@@ -145,7 +150,7 @@ extension String {
 	//	with timezone - it's makes more sense in API calls
 	var date: NSDate? {
 		get {
-			let format = "YYYY-MM-dd'T'HH:mm:ss.SSSZZZZ"	//	TODO: use a global class property
+			let format = LTime.format
 			let formatter = NSDateFormatter()
 			formatter.dateFormat = format
 			return formatter.dateFromString(self)
