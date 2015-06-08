@@ -1,9 +1,9 @@
 import UIKit
 
 struct LConst {
-	func color(name: String) -> UIColor {
+	static func color(name: String, alpha: CGFloat = 1) -> UIColor {
 		if let rgb = LConst.rgb[name] {
-			return UIColor(rgb: rgb)
+			return UIColor(rgb: rgb, alpha: alpha)
 		}
 		return .clearColor()
 	}
