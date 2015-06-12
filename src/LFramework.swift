@@ -1,18 +1,5 @@
 import UIKit
 
-typealias LTDictStrObj = Dictionary<String, AnyObject>
-typealias LTDictStrStr = Dictionary<String, String>
-typealias LTArrayObj = Array<AnyObject>
-typealias LTArrayInt = Array<Int>
-typealias LTArrayStr = Array<String>
-typealias LTBlockVoid = (() -> Void)
-typealias LTBlockVoidError = ((NSError?) -> Void)
-typealias LTBlockVoidObjError = ((AnyObject?, NSError?) -> Void)
-typealias LTBlockVoidDict = ((LTDictStrObj?) -> Void)
-typealias LTBlockVoidDictError = ((LTDictStrObj?, NSError?) -> Void)
-typealias LTBlockVoidArray = ((LTArrayObj?) -> Void)
-typealias LTBlockVoidArrayError = ((LTArrayObj?, NSError?) -> Void)
-
 struct LF {
 	static let domain = "LFramework"
 	static var version: String? {
@@ -344,6 +331,14 @@ extension UIView {
 		gradient.endPoint = point2
 		layer.insertSublayer(gradient, atIndex:0)
 	}
+    func add_shadow(size:CGSize) {
+        let path = UIBezierPath(rect:bounds)
+        layer.masksToBounds = false
+        layer.shadowColor = UIColor.blackColor().CGColor
+        layer.shadowOffset = size
+        layer.shadowOpacity = 0.2
+        layer.shadowPath = path.CGPath
+    }
 }
 
 extension UIColor {
@@ -653,6 +648,17 @@ extension UIViewController {
     }
     @IBAction func lf_actionEndEditing() {
         view.endEditing(true)
+    }
+    func pop_to(level:Int, animated:Bool = true) {
+        if let controllers = navigationController?.viewControllers {
+            var index = level
+            if index < 0 {
+                index = controllers.count - 1 + level
+            }
+            if let controller = controllers[index] as? UIViewController {
+                navigationController?.popToViewController(controller, animated:animated)
+            }
+        }
     }
   
 	func pushIdentifier(controllerIdentifier: String, animated: Bool = true) -> UIViewController {

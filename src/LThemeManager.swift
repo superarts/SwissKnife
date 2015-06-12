@@ -198,13 +198,24 @@ extension UIView {
 	}
 	@IBInspectable var gradient_top: UIColor? {
 		get {
-			LF.log("WARNING no getter for UIView.border_color")
+			LF.log("WARNING no getter for UIView.gradient_top")
 			return nil
 		}
 		set (c) {
 			insert_gradient([c, backgroundColor], 
 					point1:CGPointMake(0, 0),
 					point2:CGPointMake(0, 1))
+		}
+	}
+	@IBInspectable var shadow_down: CGFloat {
+		get {
+			LF.log("WARNING no getter for UIView.shadow_down")
+			return 0
+		}
+		set (f) {
+            LF.dispatch_delay(0.1, {
+                self.add_shadow(CGSizeMake(0, f))
+            })
 		}
 	}
 }

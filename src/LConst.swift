@@ -1,5 +1,18 @@
 import UIKit
 
+typealias LTDictStrObj = Dictionary<String, AnyObject>
+typealias LTDictStrStr = Dictionary<String, String>
+typealias LTArrayObj = Array<AnyObject>
+typealias LTArrayInt = Array<Int>
+typealias LTArrayStr = Array<String>
+typealias LTBlockVoid = (() -> Void)
+typealias LTBlockVoidError = ((NSError?) -> Void)
+typealias LTBlockVoidObjError = ((AnyObject?, NSError?) -> Void)
+typealias LTBlockVoidDict = ((LTDictStrObj?) -> Void)
+typealias LTBlockVoidDictError = ((LTDictStrObj?, NSError?) -> Void)
+typealias LTBlockVoidArray = ((LTArrayObj?) -> Void)
+typealias LTBlockVoidArrayError = ((LTArrayObj?, NSError?) -> Void)
+
 struct LConst {
 	static func color(name: String, alpha: CGFloat = 1) -> UIColor {
 		if let rgb = LConst.rgb[name] {

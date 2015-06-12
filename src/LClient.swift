@@ -134,7 +134,14 @@ class LRestClient<T: LFModel> {
 		} else {
 			LF.log("WARNING unknown content type", content_type)
 		}
-		return request
+        //  add credential manually
+        /*
+        if let authoritazion = String(format:"%@:%@", "icomplain_api", "password").dataUsingEncoding(NSUTF8StringEncoding) {
+            let basic = String(format:"Basic %@", authoritazion.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.Encoding64CharacterLineLength))
+            request.setValue(basic, forHTTPHeaderField:"Authorization")
+        }
+        */
+        return request
 	}
 	var connection: NSURLConnection?
 	func execute() {
@@ -206,6 +213,16 @@ class LRestClient<T: LFModel> {
 			connection = NSURLConnection(request:request, delegate:delegate, startImmediately:true)
 			//LF.log("CONNECTION started", connection!)
 			//LF.log("REQUEST headers", request.allHTTPHeaderFields)
+            /*
+            let url = request.URL
+            let space = NSURLProtectionSpace(host:url.host,
+                port:url.port.integerValue,
+                protocol:url.scheme,
+                realm:nil, 
+                authenticationMethod:NSURLAuthenticationMethodHTTPBasic)
+            NSURLCredentialStorage.sharedCredentialStorage.setDefaultCredential(self.credential!,
+                forProtectionSpace:space)
+            */
 		} else {
 			LF.log("WARNING LClient", "empty request")
 		}
@@ -314,16 +331,17 @@ class LRestClient<T: LFModel> {
 
 class LRestConnectionDelegate: NSObject {
 
-	var func_done: ((NSURLResponse?, NSData?, NSError!) -> Void)?
+	var func_done: ((NSURLResponse?, NSData?, NSError!) -> Void)?   //  TODO: make response/data non-nullable
 	var credential: NSURLCredential?
 	var response: NSURLResponse?
 	var data: NSMutableData = NSMutableData()
 
 	func connection(connection: NSURLConnection, willSendRequestForAuthenticationChallenge challenge: NSURLAuthenticationChallenge) {
 		if challenge.previousFailureCount > 0 {
+			LF.log("challenge cancelled")
 			challenge.sender.cancelAuthenticationChallenge(challenge)
 		} else if let credential = credential {
-			//LF.log("challenge added")
+			LF.log("challenge added")
 			challenge.sender.useCredential(credential, forAuthenticationChallenge:challenge)
 		} else {
 			LF.log("REST connection will challenge", connection)
@@ -346,7 +364,7 @@ class LRestConnectionDelegate: NSObject {
 	func connection(connection: NSURLConnection, didFailWithError error: NSError) {
 		//LF.log("CONNECTION failed", error)
 		if let func_done = func_done {
-			func_done(response, nil, error)
+			func_done(response, data, error)
 		}
 	}
 	deinit {
