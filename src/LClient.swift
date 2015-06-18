@@ -264,8 +264,15 @@ class LRestClient<T: LFModel> {
 			}
 		}
 		if self.func_array != nil {
-			let array = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &error) as! Array<LTDictStrObj>
-			if error == nil {
+			var array: [LTDictStrObj]?
+			if let path = self.path {
+				if let dict = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &error) as? LTDictStrObj {
+					array = dict[path] as? [LTDictStrObj]
+				}
+			} else if let array_json = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &error) as? Array<LTDictStrObj> where error == nil {
+				array = array_json
+			}
+			if let array = array {
 				var array_obj: Array<T> = []
 				for dict in array { 
 					let obj = cls(dict: dict)

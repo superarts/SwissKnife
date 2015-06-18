@@ -91,6 +91,14 @@ extension NSObject {
 	}
 }
 
+extension UIApplication {
+	class func open_string(str: String) {
+		if let url = NSURL(string: str) {
+			UIApplication.sharedApplication().openURL(url)
+		}
+	}
+}
+
 extension Array {
 	/*
 	mutating func append_unique(item: AnyObject) {
@@ -693,6 +701,15 @@ extension UISearchBar {
 		UIGraphicsEndImageContext()
 
 		self.setImage(image, forSearchBarIcon:icon, state:state)
+	}
+}
+
+extension UIWebView {
+	func load_string(str:String) {
+		if let url = NSURL(string:str) {
+			let request = NSURLRequest(URL:url)
+			loadRequest(request)
+		}
 	}
 }
 
