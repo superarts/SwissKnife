@@ -22,4 +22,5 @@ let items: [MyRestObject] = obj.items
 Instead we'll have to write something like `class LRestObject<T:LFModel>: LFModel` which doesn't make sense at all. I mean, if we have to write `class MyRestObject<T:MyRestObject>: LRestObject<T>`, why we don't write `class MyRestClient<T:MyRestModel>: LRestClient` instead? In this case split data model and REST client is the right way to go. Even in Objective-C this is basically cannot be done.
 
 I also thought about coming up with something like `class LFRestTableController<MyModel>: LFTableController`, but generic type cannot work with interface builder since in IB class needs to be determined at design-time, while I suspect Swift generic classes get generated at compile-time (maybe they implement it in run-time, but that would not be a good idea perform-wise).
-(To be continued)
+
+In the end, I need to address all of these and come up with some solution. I have described more of them in my [tech blog](http://www.superarts.org/blog/2015/06/17/some-thoughts-about-uitableview-data-handling/) and will write a post about my final solution later.
