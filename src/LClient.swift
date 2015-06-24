@@ -29,6 +29,25 @@ struct LRest {
 			case CacheThenNetwork
 		}
 	}
+	struct pagination {
+		enum Method {
+			case None
+			case LastID
+			case Page
+		}
+	}
+	struct ui {
+		enum Load {
+			case None
+			case Reload
+			case More
+		}
+		enum Reload {
+			case None
+			case First
+			case Always
+		}
+	}
 }
 
 class LRestClient<T: LFModel> {
@@ -68,25 +87,31 @@ class LRestClient<T: LFModel> {
 	func error_show(error: NSError) {
 		//	override mes
 	}
-	func reload_api() {
+	func reload_api() -> String {
+		var api_reloaded = api
 		if method.rawValue == "GET" && parameters != nil {
-			api = api + "?"
+			if api_reloaded.contains("?") {
+				api_reloaded = api_reloaded + "&"
+			} else {
+				api_reloaded = api_reloaded + "?"
+			}
 
 			//	TODO: encoding
 			for (key, value) in parameters! {
 				if value is String {
-					api = api + key + "=" + String(value as! String) + "&"
+					api_reloaded = api_reloaded + key + "=" + String(value as! String) + "&"
 				} else if value is Int {
-					api = api + key + "=" + String(value as! Int) + "&"
+					api_reloaded = api_reloaded + key + "=" + String(value as! Int) + "&"
 				} else {
 					LF.log("WARNING unknown parameter type", value)
 				}
 			}
-			api = api.sub_range(0, -1)
-			//LF.log("url", api)
+			api_reloaded = api_reloaded.sub_range(0, -1)
+			//LF.log(api_reloaded, parameters)
 		}
+		return api_reloaded
 	}
-	func init_request() -> NSMutableURLRequest? {
+	func init_request(api: String) -> NSMutableURLRequest? {
 		var url = NSURL(string: root + api)!
 		var request = NSMutableURLRequest(URL: url)
 		request.HTTPMethod = method.rawValue
@@ -146,9 +171,9 @@ class LRestClient<T: LFModel> {
 	var connection: NSURLConnection?
 	func execute() {
         var cache_loaded = false
-		reload_api()
+		let api_reloaded = reload_api()
 		if self.cache_policy == .CacheThenNetwork {
-			let filename = self.get_filename()
+			let filename = self.get_filename(api_reloaded)
 			if let data = NSData(contentsOfFile:filename) {
 				//LF.log("CACHE loaded")
 				//LF.dispatch() { }
@@ -158,7 +183,7 @@ class LRestClient<T: LFModel> {
                 //  content is new
 			}
 		}
-		if let request = init_request() {
+		if let request = init_request(api_reloaded) {
 
 			var error_ret: NSError?
 			if text != nil && !cache_loaded {
@@ -186,7 +211,7 @@ class LRestClient<T: LFModel> {
 					error_ret = NSError(domain: LRest.domain, code: code, userInfo:[NSLocalizedDescriptionKey: NSHTTPURLResponse.localizedStringForStatusCode(code)])
 				} else {
 					if self.cache_policy != .None {
-						let filename = self.get_filename()
+						let filename = self.get_filename(api_reloaded)
 						data?.writeToFile(filename, atomically:true)
 						LF.log("CACHE saved")
 					}
@@ -236,13 +261,13 @@ class LRestClient<T: LFModel> {
         //LF.log("CLIENT deinit", self)
     }
 
-	func get_filename() -> String {
+	func get_filename(api: String) -> String {
 		var param_hash = self.parameters?.description.hash
 		if param_hash == nil {
 			param_hash = 0
 		}
 		let filename = String(format:"%@-%@-%i.xml", 
-			self.root.to_filename(), self.api.to_filename(), param_hash!)
+			self.root.to_filename(), api.to_filename(), param_hash!)
 		return filename.to_filename(directory: .CachesDirectory)
 	}
 	func execute_data(data: NSData!) {
@@ -250,7 +275,7 @@ class LRestClient<T: LFModel> {
 		var error: NSError?
 		let s = NSString(data: data, encoding: NSUTF8StringEncoding)
 		let cls = T.self
-		if self.func_model != nil {
+		if let func_model = func_model {
 			var dict = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &error) as! LTDictStrObj?
 			//	TODO: support multi-layer path
 			if let path = self.path {
@@ -260,10 +285,10 @@ class LRestClient<T: LFModel> {
 			}
 			if error == nil {
 				let obj = cls(dict: dict)
-				self.func_model!(obj, error)
+				func_model(obj, error)
 			}
 		}
-		if self.func_array != nil {
+		if let func_array = self.func_array {
 			var array: [LTDictStrObj]?
 			if let path = self.path {
 				if let dict = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &error) as? LTDictStrObj {
@@ -278,14 +303,15 @@ class LRestClient<T: LFModel> {
 					let obj = cls(dict: dict)
 					array_obj.append(obj)
 				}
-				self.func_array!(array_obj, error)
+				func_array(array_obj, error)
+			} else {
+				func_array([], error)
 			}
 		}
-		if self.func_dict != nil {
+		if let func_dict = self.func_dict {
 			//let dict = NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments, error: &error) as LTDictStrObj
-			let dict = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &error) as! LTDictStrObj
-			if error == nil {
-				self.func_dict!(dict, error)
+			if let dict = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &error) as? LTDictStrObj {
+				func_dict(dict, error)
 			}
 		}
 	}
@@ -345,10 +371,10 @@ class LRestConnectionDelegate: NSObject {
 
 	func connection(connection: NSURLConnection, willSendRequestForAuthenticationChallenge challenge: NSURLAuthenticationChallenge) {
 		if challenge.previousFailureCount > 0 {
-			LF.log("challenge cancelled")
+			//LF.log("challenge cancelled")
 			challenge.sender.cancelAuthenticationChallenge(challenge)
 		} else if let credential = credential {
-			LF.log("challenge added")
+			//LF.log("challenge added")
 			challenge.sender.useCredential(credential, forAuthenticationChallenge:challenge)
 		} else {
 			LF.log("REST connection will challenge", connection)
@@ -364,6 +390,7 @@ class LRestConnectionDelegate: NSObject {
 	}
 	func connectionDidFinishLoading(connection: NSURLConnection) {
 		//LF.log("CONNECTION finished", connection)
+		//LF.log("CONNECTION finished", data.to_string())
 		if func_done != nil {
 			func_done!(response, data, nil)
 		}
@@ -411,6 +438,7 @@ class LFModel: NSObject {
 						setValue(value, forKey:key)
 					} else {
     					LF.log("WARNING model ignored '" + key + "' in", self)
+    					//LF.log("data", dict)
 					}
 					//else { LF.log("no selector", key) }
 				}
@@ -544,3 +572,173 @@ class LFModel: NSObject {
 	}
 }
 
+/*
+class LRestObject: LFModel {
+	var items: [LRestObject] = []	//	impossible to make it dynamic?
+	let client = LRestClient<LFModel>()
+}
+*/
+
+protocol LTableClient {
+	func reload()
+	func load_more()
+	func reload_table()
+	//var func_reload: ([LFModel] -> Void)? { get set }
+	//var func_error: (NSError -> Void)? { get set }
+	var func_done: (Void -> Void)? { get set }		//	rename me
+	var last_loaded: Int { get set }
+	var pagination_index: Int { get set }
+}
+
+class LArrayClient<T: LFModel>: LRestClient<T>, LTableClient {
+	var items = Array<T>()
+	var func_reload: ([T] -> Void)?
+	var func_error: (NSError -> Void)?
+	var func_done: (Void -> Void)?
+	var is_loaded = false
+	var is_loading = false
+
+	var last_loaded = 0
+	var pagination_method = LRest.pagination.Method.None
+	var pagination_key: String!
+	var pagination_index = 0
+
+	override init(api url: String, parameters param: LTDictStrObj? = nil) {
+		super.init(api:url, parameters:param)
+		show_error = true
+	}
+	func reload() {
+		pagination_index = 0
+		parameters?.removeValueForKey(pagination_key)
+		items.removeAll()
+		load_more()
+	}
+	func load_more() {
+		if is_loading {
+			return
+		}
+		if pagination_method == .LastID {
+			if pagination_index != 0 {
+				if let last = items.last {
+					LF.log("last", last.id)
+					if parameters != nil {
+						parameters![pagination_key] = last.id
+					} else {
+						parameters = [pagination_key: last.id]
+					}
+				}
+			}
+		}
+		is_loading = true
+		is_loaded = false
+		func_array = {
+			(results: [T]?, error: NSError?) -> Void in
+			if let objs = results {
+				//	only keep the last loaded data
+				if self.is_loaded == false {
+					self.is_loaded = true
+				} else {
+					for var i = 0; i < self.last_loaded; i++ {
+						self.items.removeLast()
+					}
+					//LF.log("last items removed", self.last_loaded)
+				}
+
+				if objs.count > 0 {
+					self.pagination_index++
+				}
+				self.last_loaded = objs.count
+				self.items += objs
+				if let f = self.func_reload { f(self.items) }
+			} else if let f = self.func_error {
+				f(error!)
+			}
+			if let f = self.func_done { f() }
+			self.is_loading = false
+		}
+		execute()
+	}
+	func reload_table() {
+		if let f = func_reload { f(items) }
+		if let f = func_done { f() }
+	}
+}
+
+class LFRestTableController: LFTableController {
+	var client: LTableClient!
+	var reload_table = LRest.ui.Reload.First
+	var refresh_reload: UIRefreshControl!
+	var refresh_more: UIRefreshControl!
+	var pull_down = LRest.ui.Load.None
+	var pull_up = LRest.ui.Load.None
+
+	override func awakeFromNib() {
+		super.awakeFromNib()
+		/*
+		let c = ICMyComplaintClient<ICComplaintModel>()
+		c.func_reload = {
+			(complaints) -> Void in
+			self.reload_table(complaints)
+		}
+		client = c
+		*/
+	}
+	override func viewDidLoad() {
+		super.viewDidLoad()
+		init_refresh()
+		if reload_table != .None {
+			client_reload()
+		}
+	}
+	override func viewWillAppear(animated: Bool) {
+		super.viewWillAppear(animated)
+		if reload_table == .Always {
+			client_reload()
+		}
+	}
+
+	func init_refresh() {
+		//	TODO: refactor
+		if pull_down == .Reload {
+			refresh_reload = UIRefreshControl()
+			refresh_reload.triggerVerticalOffset = 60
+			refresh_reload.addTarget(self, action: "client_reload", forControlEvents: .ValueChanged)
+			table.addSubview(refresh_reload)
+		} else if pull_down == .More {
+			refresh_reload = UIRefreshControl()
+			refresh_reload.triggerVerticalOffset = 60
+			refresh_reload.addTarget(self, action: "client_more", forControlEvents: .ValueChanged)
+			table.addSubview(refresh_reload)
+		}
+		if pull_up == .More && table.respondsToSelector(Selector("bottomRefreshControl")) {
+			refresh_more = UIRefreshControl()
+			refresh_more.triggerVerticalOffset = 60
+			refresh_more.addTarget(self, action:"client_more", forControlEvents:.ValueChanged)
+			table.bottomRefreshControl = refresh_more
+		}
+		client.func_done = {
+			if self.pull_down != .None {
+				self.refresh_reload.endRefreshing()
+			}
+			if self.pull_up != .None {
+				self.refresh_more.endRefreshing()
+			}
+			if self.client.last_loaded == 0 && self.client.pagination_index != 0 {
+				self.show_no_more_items()
+			}
+		}
+	}
+	func client_reload() {
+		client.reload()
+	}
+	func client_more() {
+		client.load_more()
+	}
+	func clear() {
+		source.counts = [0]
+		source.table.reloadData()
+	}
+	func show_no_more_items() {
+		//	override me
+	}
+}

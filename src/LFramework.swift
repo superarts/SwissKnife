@@ -118,6 +118,7 @@ extension Array {
 		}
 		return false
 	}
+
     /*
     mutating func replace_or_append<T>(object: T, at index: Int) {
         if self.count > index {
@@ -945,10 +946,12 @@ class LFMultipleTableController: LFViewController {
 		}
 	}
 	private var _tables: [UITableView] = []
-	
+
+	/*
     override func viewDidLoad() {
         super.viewDidLoad()
 	}
+	*/
 	@IBAction func lf_actionReload() {
 		for table in tables {
 			table.reloadData()
@@ -974,6 +977,9 @@ class LFTableController: LFMultipleTableController {
 		//source = LFTableDataSource(table: table)
 	}
 	/*
+	override func awakeFromNib() {
+		super.awakeFromNib()
+	}
 	@IBAction func lf_actionReload() {
         table.reloadData()
 	}
