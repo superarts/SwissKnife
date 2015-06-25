@@ -322,23 +322,33 @@ class LRestClient<T: LFModel> {
 		body.append_string("Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n")
 		body.append_string("\(value)\r\n")
 	}
+	func form_append_dict(body: NSMutableData, param: LTDictStrObj, prefix: String = "") {
+		for (key, value) in param {
+			var key_nested = key
+			if prefix != "" {
+				key_nested = prefix + "[" + key + "]"
+			}
+			if let array = value as? Array<AnyObject> {
+				for item in array {
+					form_append(body, key:key_nested + "[]", value:item.description)
+				}
+			} else if let dict = value as? LTDictStrObj {
+				form_append_dict(body, param:dict, prefix:key_nested)
+			} else {
+				form_append(body, key:key_nested, value:value.description)
+			}
+			//LF.log(key, value.description)
+		}
+	}
 	func form_body(parameters: [String: AnyObject]?, array_data: [NSData]?) -> NSData {
 		let boundary = form_boundary
 		let body = NSMutableData()
 
 		//body.append_string("\r\ntag_ids[]=134&tag_ids[]=4\r\n")
 		if let param = parameters {
-			for (key, value) in param {
-				if let array = value as? Array<AnyObject> {
-					for item in array {
-						form_append(body, key:key + "[]", value:item.description)
-					}
-				} else {
-					form_append(body, key:key, value:value.description)
-				}
-				LF.log(key, value.description)
-			}
+			form_append_dict(body, param:param)
 		}
+		LF.log("body", body.to_string())
 
 		if let array = array_data {
 			var index = 0
@@ -437,8 +447,10 @@ class LFModel: NSObject {
 					if respondsToSelector(NSSelectorFromString(key)) {
 						setValue(value, forKey:key)
 					} else {
-    					LF.log("WARNING model ignored '" + key + "' in", self)
-    					//LF.log("data", dict)
+    					LF.log("WARNING model ignored", key)
+    					LF.log("\tdata", dict)
+    					LF.log("\tmodel", self)
+    					LF.log("WARNING model ignored end of", key)
 					}
 					//else { LF.log("no selector", key) }
 				}
@@ -491,7 +503,7 @@ class LFModel: NSObject {
         }
         return dict
     }
-    //  TODO: currently dictionary do not support nesting, i.e. model.dictionary may return an object that cannot be serialized. For now use dictionary(keys) to make dictionary only for selected keys.
+    //  Nesting is supported. You can also use dictionary(keys) to make dictionary from selected keys.
     var dictionary: Dictionary<String, AnyObject> {
         var dict: Dictionary<String, AnyObject> = [:]
         var count: CUnsignedInt = 0
@@ -509,7 +521,7 @@ class LFModel: NSObject {
     					break loop
     				}
     				if let value: AnyObject? = valueForKey(key as String) {
-    					dict[key as String] = value
+						dict[key as String] = value
     				}
                 }
 			}
@@ -523,7 +535,11 @@ class LFModel: NSObject {
         for var i = 0; i < Int(count); i++ {
             if let key = NSString(CString: property_getName(properties[i]), encoding: NSUTF8StringEncoding) as? String {
 				if let value: AnyObject? = valueForKey(key) {
-					dict[key] = value
+					if let v = value as? LFModel {
+						dict[key] = v.dictionary
+					} else {
+						dict[key] = value
+					}
 				}
 			}
         }
