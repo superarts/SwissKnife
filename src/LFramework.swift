@@ -1,18 +1,5 @@
 import UIKit
 
-typealias LTDictStrObj = Dictionary<String, AnyObject>
-typealias LTDictStrStr = Dictionary<String, String>
-typealias LTArrayObj = Array<AnyObject>
-typealias LTArrayInt = Array<Int>
-typealias LTArrayStr = Array<String>
-typealias LTBlockVoid = (() -> Void)
-typealias LTBlockVoidError = ((NSError?) -> Void)
-typealias LTBlockVoidObjError = ((AnyObject?, NSError?) -> Void)
-typealias LTBlockVoidDict = ((LTDictStrObj?) -> Void)
-typealias LTBlockVoidDictError = ((LTDictStrObj?, NSError?) -> Void)
-typealias LTBlockVoidArray = ((LTArrayObj?) -> Void)
-typealias LTBlockVoidArrayError = ((LTArrayObj?, NSError?) -> Void)
-
 struct LF {
 	static let domain = "LFramework"
 	static var version: String? {
@@ -104,6 +91,14 @@ extension NSObject {
 	}
 }
 
+extension UIApplication {
+	class func open_string(str: String) {
+		if let url = NSURL(string: str) {
+			UIApplication.sharedApplication().openURL(url)
+		}
+	}
+}
+
 extension Array {
 	/*
 	mutating func append_unique(item: AnyObject) {
@@ -123,6 +118,7 @@ extension Array {
 		}
 		return false
 	}
+
     /*
     mutating func replace_or_append<T>(object: T, at index: Int) {
         if self.count > index {
@@ -344,6 +340,14 @@ extension UIView {
 		gradient.endPoint = point2
 		layer.insertSublayer(gradient, atIndex:0)
 	}
+    func add_shadow(size:CGSize) {
+        let path = UIBezierPath(rect:bounds)
+        layer.masksToBounds = false
+        layer.shadowColor = UIColor.blackColor().CGColor
+        layer.shadowOffset = size
+        layer.shadowOpacity = 0.2
+        layer.shadowPath = path.CGPath
+    }
 }
 
 extension UIColor {
@@ -654,6 +658,17 @@ extension UIViewController {
     @IBAction func lf_actionEndEditing() {
         view.endEditing(true)
     }
+    func pop_to(level:Int, animated:Bool = true) {
+        if let controllers = navigationController?.viewControllers {
+            var index = level
+            if index < 0 {
+                index = controllers.count - 1 + level
+            }
+            if let controller = controllers[index] as? UIViewController {
+                navigationController?.popToViewController(controller, animated:animated)
+            }
+        }
+    }
   
 	func pushIdentifier(controllerIdentifier: String, animated: Bool = true) -> UIViewController {
 		return push_identifier(controllerIdentifier, animated:animated)
@@ -687,6 +702,15 @@ extension UISearchBar {
 		UIGraphicsEndImageContext()
 
 		self.setImage(image, forSearchBarIcon:icon, state:state)
+	}
+}
+
+extension UIWebView {
+	func load_string(str:String) {
+		if let url = NSURL(string:str) {
+			let request = NSURLRequest(URL:url)
+			loadRequest(request)
+		}
 	}
 }
 
@@ -922,10 +946,12 @@ class LFMultipleTableController: LFViewController {
 		}
 	}
 	private var _tables: [UITableView] = []
-	
+
+	/*
     override func viewDidLoad() {
         super.viewDidLoad()
 	}
+	*/
 	@IBAction func lf_actionReload() {
 		for table in tables {
 			table.reloadData()
@@ -951,6 +977,9 @@ class LFTableController: LFMultipleTableController {
 		//source = LFTableDataSource(table: table)
 	}
 	/*
+	override func awakeFromNib() {
+		super.awakeFromNib()
+	}
 	@IBAction func lf_actionReload() {
         table.reloadData()
 	}
