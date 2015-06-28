@@ -765,20 +765,20 @@ class LFRestTableController: LFTableController {
 		//	TODO: refactor
 		if pull_down == .Reload {
 			refresh_reload = UIRefreshControl()
-			refresh_reload.triggerVerticalOffset = 60
+			refresh_reload.perform("triggerVerticalOffset", value:60)
 			refresh_reload.addTarget(self, action: "client_reload", forControlEvents: .ValueChanged)
 			table.addSubview(refresh_reload)
 		} else if pull_down == .More {
 			refresh_reload = UIRefreshControl()
-			refresh_reload.triggerVerticalOffset = 60
+			refresh_reload.perform("triggerVerticalOffset", value:60)
 			refresh_reload.addTarget(self, action: "client_more", forControlEvents: .ValueChanged)
 			table.addSubview(refresh_reload)
 		}
 		if pull_up == .More && table.respondsToSelector(Selector("bottomRefreshControl")) {
 			refresh_more = UIRefreshControl()
-			refresh_more.triggerVerticalOffset = 60
+			refresh_more.perform("triggerVerticalOffset", value:60)
 			refresh_more.addTarget(self, action:"client_more", forControlEvents:.ValueChanged)
-			table.bottomRefreshControl = refresh_more
+			table.perform("bottomRefreshControl", value:refresh_more)
 		}
 		client.func_done = {
 			if self.pull_down != .None {

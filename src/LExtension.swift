@@ -14,6 +14,27 @@ extension MBProgressHUD {
 	}
 }
 
+extension PFObject {
+    //  TODO: find a proper synonym to replace "def" (default)
+    func string(key: String, def: String = "") -> String {
+        if let s = self[key] as? String {
+            return s
+        }
+        return def
+    }
+    func integer(key: String, offset: Int? = nil, def: Int = 0) -> Int {
+        var ret = def
+        if let i = self[key] as? Int {
+            ret = i
+        }
+        if let offset = offset {
+            ret += offset
+            self[key] = ret
+        }
+        return ret
+    }
+}
+
 /*
 //	parse: does it really make sense?
 extension LFModel {

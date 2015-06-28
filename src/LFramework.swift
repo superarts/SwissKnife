@@ -89,6 +89,11 @@ extension NSObject {
 	func associate(p: UnsafePointer<Void>, object: AnyObject) {
 		objc_setAssociatedObject(self, p, object, UInt(OBJC_ASSOCIATION_RETAIN_NONATOMIC))
 	}
+	func perform(key: String, value: AnyObject? = nil) {
+		if respondsToSelector(Selector(key)) {
+			setValue(value, forKey:key)
+		}
+	}
 }
 
 extension UIApplication {
