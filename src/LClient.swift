@@ -50,7 +50,7 @@ struct LRest {
 	}
 }
 
-class LRestClient<T: LFModel> {
+class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate {
 	var path: String?										//	to support results like ["user": [], "succuss" = 1]
 	var text: String?
 	var show_error = false
@@ -169,6 +169,7 @@ class LRestClient<T: LFModel> {
         return request
 	}
 	var connection: NSURLConnection?
+	var task: NSURLSessionDataTask?
 	func execute() {
         var cache_loaded = false
 		let api_reloaded = reload_api()
@@ -191,7 +192,7 @@ class LRestClient<T: LFModel> {
 			}
 			//	TODO: change data and error to optional
 			var func_done = {
-				(response: NSURLResponse?, data: NSData?, error: NSError!) -> Void in
+				(response: NSURLResponse?, data: NSData?, error: NSError?) -> Void in
 
 				var error_ret: NSError? = error
 				if self.text != nil && !cache_loaded {
@@ -232,10 +233,26 @@ class LRestClient<T: LFModel> {
 					}
 				}
 			}
+
+			let config = NSURLSessionConfiguration.defaultSessionConfiguration()
+			let session = NSURLSession(configuration:config, delegate:self, delegateQueue:NSOperationQueue.mainQueue())
+			task = session.dataTaskWithRequest(request) {
+				(data, response, error) -> Void in
+				if let error = error where error.code == -999 {
+					//LF.log("SESSION cancelled")
+				} else {
+					func_done(response, data, error)
+				}
+			}
+			task!.resume()
+
+			/*
 			let delegate = LRestConnectionDelegate()
 			delegate.credential = credential
 			delegate.func_done = func_done
 			connection = NSURLConnection(request:request, delegate:delegate, startImmediately:true)
+			*/
+
 			//LF.log("CONNECTION started", connection!)
 			//LF.log("REQUEST headers", request.allHTTPHeaderFields)
             /*
@@ -252,10 +269,36 @@ class LRestClient<T: LFModel> {
 			LF.log("WARNING LClient", "empty request")
 		}
 	}
-	func cancel() {
-		if let connection = connection {
-			connection.cancel()
+    func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, didReceiveData data: NSData) {
+		LF.log("SESSION data received")
+	}
+	func URLSession(session: NSURLSession, didReceiveChallenge challenge: NSURLAuthenticationChallenge, completionHandler handler: (NSURLSessionAuthChallengeDisposition, NSURLCredential?) -> Void) {
+		LF.log("SESSION challenge", challenge)
+		if let crt = credential {
+			handler(.UseCredential, crt)
 		}
+	}
+	func URLSession(session: NSURLSession, task: NSURLSessionTask, didReceiveChallenge challenge: NSURLAuthenticationChallenge, completionHandler handler: (NSURLSessionAuthChallengeDisposition, NSURLCredential?) -> Void) {
+		LF.log("TASK challenge", challenge)
+		if let crt = credential {
+			handler(.UseCredential, crt)
+		}
+		return
+		/*
+		if challenge.previousFailureCount > 0 {
+			//LF.log("challenge cancelled")
+			challenge.sender.cancelAuthenticationChallenge(challenge)
+		} else if let credential = credential {
+			//LF.log("challenge added")
+			challenge.sender.useCredential(credential, forAuthenticationChallenge:challenge)
+		} else {
+			LF.log("REST connection will challenge", connection)
+		}
+		*/
+	}
+	func cancel() {
+		connection?.cancel()
+		task?.cancel()
 	}
     deinit {
         //LF.log("CLIENT deinit", self)
@@ -334,6 +377,8 @@ class LRestClient<T: LFModel> {
 				}
 			} else if let dict = value as? LTDictStrObj {
 				form_append_dict(body, param:dict, prefix:key_nested)
+			//} else if value is Int || value is Float || value is Double {
+			//	form_append(body, key:key_nested, value:value)
 			} else {
 				form_append(body, key:key_nested, value:value.description)
 			}
@@ -598,7 +643,7 @@ class LRestObject: LFModel {
 protocol LTableClient {
 	func reload()
 	func load_more()
-	func reload_table()
+	//func reload_table()
 	//var func_reload: ([LFModel] -> Void)? { get set }
 	//var func_error: (NSError -> Void)? { get set }
 	var func_done: (Void -> Void)? { get set }		//	rename me
@@ -674,10 +719,13 @@ class LArrayClient<T: LFModel>: LRestClient<T>, LTableClient {
 		}
 		execute()
 	}
+	/*
 	func reload_table() {
+		reload()
 		if let f = func_reload { f(items) }
 		if let f = func_done { f() }
 	}
+	*/
 }
 
 class LFRestTableController: LFTableController {
