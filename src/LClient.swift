@@ -23,6 +23,10 @@ struct LRest {
 		static let post = HTTPMethod.Post
 		static let delete = HTTPMethod.Delete
 	}
+	enum ConnectionClass {
+		case NSURLSession
+		case NSURLConnection
+	}
 	struct cache {
 		enum Policy {
 			case None
@@ -50,11 +54,12 @@ struct LRest {
 	}
 }
 
-class LRestClient<T: LFModel> {
+class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLSessionTaskDelegate {
 	var path: String?										//	to support results like ["user": [], "succuss" = 1]
 	var text: String?
 	var show_error = false
 	var content_type = LRest.content.json
+	var connection_class = LRest.ConnectionClass.NSURLSession
 	var method = LRest.method.get
 	var root: String!
 	var api: String!
@@ -169,6 +174,7 @@ class LRestClient<T: LFModel> {
         return request
 	}
 	var connection: NSURLConnection?
+	var task: NSURLSessionDataTask?
 	func execute() {
         var cache_loaded = false
 		let api_reloaded = reload_api()
@@ -189,9 +195,9 @@ class LRestClient<T: LFModel> {
 			if text != nil && !cache_loaded {
 				text_show()
 			}
-			//	TODO: change data and error to optional
+			//	TODO: change data and error to optional - done, need more debugging
 			var func_done = {
-				(response: NSURLResponse?, data: NSData?, error: NSError!) -> Void in
+				(response: NSURLResponse?, data: NSData?, error: NSError?) -> Void in
 
 				var error_ret: NSError? = error
 				if self.text != nil && !cache_loaded {
@@ -206,9 +212,14 @@ class LRestClient<T: LFModel> {
 					//	LF.log("url empty response", data)
 					error_ret = NSError(domain: LRest.domain, code: LRest.error.empty_response, userInfo:[NSLocalizedDescriptionKey: "LRestKit: empty response"])
 				} else if resp!.statusCode < 200 || resp!.statusCode >= 300 {
-					//	LF.log("url failed", response)
+					//	LF.log("url failed", data?.to_string())
 					let code = resp!.statusCode
-					error_ret = NSError(domain: LRest.domain, code: code, userInfo:[NSLocalizedDescriptionKey: NSHTTPURLResponse.localizedStringForStatusCode(code)])
+					var info = [NSLocalizedDescriptionKey: NSHTTPURLResponse.localizedStringForStatusCode(code)]
+					if let str = data?.to_string() {
+						//	TODO: this is a temporary solution
+						info["LRestClientResponseData"] = str
+					}
+					error_ret = NSError(domain: LRest.domain, code: code, userInfo:info)
 				} else {
 					if self.cache_policy != .None {
 						let filename = self.get_filename(api_reloaded)
@@ -232,10 +243,28 @@ class LRestClient<T: LFModel> {
 					}
 				}
 			}
-			let delegate = LRestConnectionDelegate()
-			delegate.credential = credential
-			delegate.func_done = func_done
-			connection = NSURLConnection(request:request, delegate:delegate, startImmediately:true)
+
+			if connection_class == .NSURLSession {
+				let config = NSURLSessionConfiguration.defaultSessionConfiguration()
+				let session = NSURLSession(configuration:config, delegate:self, delegateQueue:NSOperationQueue.mainQueue())
+				//task = session.dataTaskWithRequest(request, completionHandler:nil)
+				task = session.dataTaskWithRequest(request) {
+					(data, response, error) -> Void in
+					//LF.log("SESSION response", response)
+					if let error = error where error.code == -999 {
+						//LF.log("SESSION cancelled")
+					} else {
+						func_done(response, data, error)
+					}
+				}
+				task!.resume()
+			} else if connection_class == .NSURLConnection {
+				let delegate = LRestConnectionDelegate()
+				delegate.credential = credential
+				delegate.func_done = func_done
+				connection = NSURLConnection(request:request, delegate:delegate, startImmediately:true)
+			}
+
 			//LF.log("CONNECTION started", connection!)
 			//LF.log("REQUEST headers", request.allHTTPHeaderFields)
             /*
@@ -252,10 +281,45 @@ class LRestClient<T: LFModel> {
 			LF.log("WARNING LClient", "empty request")
 		}
 	}
-	func cancel() {
-		if let connection = connection {
-			connection.cancel()
+	func URLSession(session: NSURLSession, didBecomeInvalidWithError error: NSError?) {
+		LF.log("SESSION invalid", error)
+	}
+	func URLSession(session: NSURLSession, didReceiveChallenge challenge: NSURLAuthenticationChallenge, completionHandler handler: (NSURLSessionAuthChallengeDisposition, NSURLCredential?) -> Void) {
+		LF.log("SESSION challenge", challenge)
+		if let crt = credential {
+			handler(.UseCredential, crt)
 		}
+	}
+	func URLSessionDidFinishEventsForBackgroundURLSession(session: NSURLSession) {
+		LF.log("SESSION finished")
+	}
+    func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, didReceiveData data: NSData) {
+		LF.log("TASK data received")
+	}
+	func URLSession(session: NSURLSession, task: NSURLSessionTask, didReceiveChallenge challenge: NSURLAuthenticationChallenge, completionHandler handler: (NSURLSessionAuthChallengeDisposition, NSURLCredential?) -> Void) {
+		LF.log("TASK challenge", challenge)
+		if let crt = credential {
+			handler(.UseCredential, crt)
+		}
+		return
+		/*
+		if challenge.previousFailureCount > 0 {
+			//LF.log("challenge cancelled")
+			challenge.sender.cancelAuthenticationChallenge(challenge)
+		} else if let credential = credential {
+			//LF.log("challenge added")
+			challenge.sender.useCredential(credential, forAuthenticationChallenge:challenge)
+		} else {
+			LF.log("REST connection will challenge", connection)
+		}
+		*/
+	}
+	func URLSession(session: NSURLSession, task: NSURLSessionTask, didCompleteWithError error: NSError?) {
+		LF.log("TASK error", error)
+	}
+	func cancel() {
+		connection?.cancel()
+		task?.cancel()
 	}
     deinit {
         //LF.log("CLIENT deinit", self)
@@ -322,23 +386,35 @@ class LRestClient<T: LFModel> {
 		body.append_string("Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n")
 		body.append_string("\(value)\r\n")
 	}
+	func form_append_dict(body: NSMutableData, param: LTDictStrObj, prefix: String = "") {
+		for (key, value) in param {
+			var key_nested = key
+			if prefix != "" {
+				key_nested = prefix + "[" + key + "]"
+			}
+			if let array = value as? Array<AnyObject> {
+				for item in array {
+					form_append(body, key:key_nested + "[]", value:item.description)
+				}
+			} else if let dict = value as? LTDictStrObj {
+				form_append_dict(body, param:dict, prefix:key_nested)
+			//} else if value is Int || value is Float || value is Double {
+			//	form_append(body, key:key_nested, value:value)
+			} else {
+				form_append(body, key:key_nested, value:value.description)
+			}
+			//LF.log(key, value.description)
+		}
+	}
 	func form_body(parameters: [String: AnyObject]?, array_data: [NSData]?) -> NSData {
 		let boundary = form_boundary
 		let body = NSMutableData()
 
 		//body.append_string("\r\ntag_ids[]=134&tag_ids[]=4\r\n")
 		if let param = parameters {
-			for (key, value) in param {
-				if let array = value as? Array<AnyObject> {
-					for item in array {
-						form_append(body, key:key + "[]", value:item.description)
-					}
-				} else {
-					form_append(body, key:key, value:value.description)
-				}
-				LF.log(key, value.description)
-			}
+			form_append_dict(body, param:param)
 		}
+		LF.log("body", body.to_string())
 
 		if let array = array_data {
 			var index = 0
@@ -371,10 +447,10 @@ class LRestConnectionDelegate: NSObject {
 
 	func connection(connection: NSURLConnection, willSendRequestForAuthenticationChallenge challenge: NSURLAuthenticationChallenge) {
 		if challenge.previousFailureCount > 0 {
-			//LF.log("challenge cancelled")
+			LF.log("challenge cancelled")
 			challenge.sender.cancelAuthenticationChallenge(challenge)
 		} else if let credential = credential {
-			//LF.log("challenge added")
+			LF.log("challenge added")
 			challenge.sender.useCredential(credential, forAuthenticationChallenge:challenge)
 		} else {
 			LF.log("REST connection will challenge", connection)
@@ -437,8 +513,10 @@ class LFModel: NSObject {
 					if respondsToSelector(NSSelectorFromString(key)) {
 						setValue(value, forKey:key)
 					} else {
-    					LF.log("WARNING model ignored '" + key + "' in", self)
-    					//LF.log("data", dict)
+    					LF.log("WARNING model ignored", key)
+    					LF.log("\tdata", dict)
+    					LF.log("\tmodel", self)
+    					LF.log("WARNING model ignored end of", key)
 					}
 					//else { LF.log("no selector", key) }
 				}
@@ -482,16 +560,19 @@ class LFModel: NSObject {
 		}
 	}
 
+	override func valueForUndefinedKey(key: String) -> AnyObject? {
+		return nil
+	}
     func dictionary(keys: [String]) -> Dictionary<String, AnyObject> {
         var dict: Dictionary<String, AnyObject> = [:]
         for key in keys {
-            if let value: AnyObject = valueForKey(key) {
+            if let value: AnyObject = valueForKeyPath(key) {
                 dict[key] = value
             }
         }
         return dict
     }
-    //  TODO: currently dictionary do not support nesting, i.e. model.dictionary may return an object that cannot be serialized. For now use dictionary(keys) to make dictionary only for selected keys.
+    //  Nesting is supported. You can also use dictionary(keys) to make dictionary from selected keys.
     var dictionary: Dictionary<String, AnyObject> {
         var dict: Dictionary<String, AnyObject> = [:]
         var count: CUnsignedInt = 0
@@ -508,8 +589,8 @@ class LFModel: NSObject {
     					//LF.log("WARNING model: this condition is not ideal")
     					break loop
     				}
-    				if let value: AnyObject? = valueForKey(key as String) {
-    					dict[key as String] = value
+    				if let value: AnyObject? = valueForKey(key as String) where key != "raw" {
+						dict[key as String] = value
     				}
                 }
 			}
@@ -523,7 +604,17 @@ class LFModel: NSObject {
         for var i = 0; i < Int(count); i++ {
             if let key = NSString(CString: property_getName(properties[i]), encoding: NSUTF8StringEncoding) as? String {
 				if let value: AnyObject? = valueForKey(key) {
-					dict[key] = value
+					if let v = value as? LFModel {
+						dict[key] = v.dictionary
+					} else if let a = value as? [LFModel] {
+						var array = [AnyObject]()
+						for v in a {
+							array.append(v.dictionary)
+						}
+						dict[key] = array
+					} else {
+						dict[key] = value
+					}
 				}
 			}
         }
@@ -582,7 +673,7 @@ class LRestObject: LFModel {
 protocol LTableClient {
 	func reload()
 	func load_more()
-	func reload_table()
+	//func reload_table()
 	//var func_reload: ([LFModel] -> Void)? { get set }
 	//var func_error: (NSError -> Void)? { get set }
 	var func_done: (Void -> Void)? { get set }		//	rename me
@@ -658,10 +749,13 @@ class LArrayClient<T: LFModel>: LRestClient<T>, LTableClient {
 		}
 		execute()
 	}
+	/*
 	func reload_table() {
+		reload()
 		if let f = func_reload { f(items) }
 		if let f = func_done { f() }
 	}
+	*/
 }
 
 class LFRestTableController: LFTableController {

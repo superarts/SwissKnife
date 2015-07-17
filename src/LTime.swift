@@ -131,6 +131,9 @@ extension NSDate {
        
         return formatter.stringFromDate(self)
     }
+    func to_string() -> String? {
+		return to_string("YYYY-MM-dd HH:mm:ss.SSS")
+	}
 }
 
 var test7 = NSDate.yesterday().to_string("MM/dd")

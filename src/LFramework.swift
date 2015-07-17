@@ -24,6 +24,10 @@ struct LF {
             }
         #endif
     }
+    static func alert(message: String, _ obj: AnyObject?) {
+		let alert = UIAlertView(title: "TEST", message: obj?.description, delegate: nil, cancelButtonTitle: "OK")
+		alert.show()
+	}
 	static func dispatch_delay(delay: NSTimeInterval, _ block: dispatch_block_t) {
 		let time = dispatch_time(DISPATCH_TIME_NOW, Int64(delay * Double(NSEC_PER_SEC)))
 		dispatch_after(time, dispatch_get_main_queue(), block)
@@ -1119,10 +1123,11 @@ class LFTableDataSource: NSObject, UITableViewDelegate, UITableViewDataSource {
 	}
 }
 
-//	TODO: refactor for better naming
-struct LDebug {
+struct LFDebug {
 	static var filename = "LDebug.xml"
-	static func log_string(_ namespace: String? = nil) -> String {
+	static var is_appending = true
+
+	static func string(_ namespace: String? = nil) -> String {
 		if let s = String(contentsOfFile:filename.filename_doc(namespace), encoding: NSUTF8StringEncoding, error: nil) {
 			return s
 		}
@@ -1130,14 +1135,23 @@ struct LDebug {
 		return ""
 	}
 	static func log(msg: String, _ namespace: String? = nil) {
-		var s = log_string(namespace)
-		s += "\n" + NSDate().description + "\t" + msg	
+		var s = string(namespace)
+		if let date = NSDate().to_string() {
+			if is_appending {
+				s += "\n" + date + ":\t" + msg	
+			} else {
+				s = date + ":\t" + msg + "\n" + s
+			}
+		}
 		var error: NSError?
 		s.writeToFile(filename.filename_doc(namespace), atomically:true, encoding:NSUTF8StringEncoding, error:&error)
 		//LF.log("LDebug save error", error)
 	}
+	static func clear(_ namespace: String? = nil) {
+		"".writeToFile(filename.filename_doc(namespace), atomically:true, encoding:NSUTF8StringEncoding, error:nil)
+	}
 	static func log_show(_ namespace: String? = nil) {
-		var s = log_string(namespace)
+		var s = string(namespace)
 		LF.log("LDebug", s)
 	}
 }
