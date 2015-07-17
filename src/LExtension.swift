@@ -14,6 +14,17 @@ extension MBProgressHUD {
 	}
 }
 
+extension PFAnalytics {
+	class func track(event: String, dimensions: LTDictStrStr = [:], error: NSError? = nil) {
+		var dict = dimensions
+		if let error = error {
+			dict["error-code"] = String(error.code)
+			dict["error-description"] = String(error.localizedDescription)
+		}
+		PFAnalytics.trackEventInBackground("user-signin-failed", dimensions:dimensions, block:nil)
+	}
+}
+
 extension PFObject {
     //  TODO: find a proper synonym to replace "def" (default)
     func string(key: String, def: String = "") -> String {
