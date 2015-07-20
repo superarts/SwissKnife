@@ -1117,12 +1117,10 @@ class LFTableDataSource: NSObject, UITableViewDelegate, UITableViewDataSource {
 		}
 		return
 	}
-	/*
 	func tableView(tableView: UITableView, willDisplayCell cell: UITableViewCell, forRowAtIndexPath indexPath: NSIndexPath) {
 		cell.layoutIfNeeded()
-		//cell.backgroundColor = UIColor.clearColor()
+		cell.backgroundColor = UIColor.clearColor()
 	}
-	*/
 }
 
 struct LFDebug {
