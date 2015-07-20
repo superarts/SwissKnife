@@ -511,6 +511,7 @@ class LFModel: NSObject {
 				} else {
 					//	TODO: not working for Int? and Int! in 6.0 GM
 					if respondsToSelector(NSSelectorFromString(key)) {
+						//LF.log(key, value)
 						setValue(value, forKey:key)
 					} else {
     					LF.log("WARNING model ignored", key)
@@ -525,7 +526,7 @@ class LFModel: NSObject {
 			//LF.log("LFModel empty dict")
 		}
     }
-  
+
 	convenience init(filename: String) {
 		let dict = NSDictionary(contentsOfFile: filename)
 		//LF.log(filename, dict)
