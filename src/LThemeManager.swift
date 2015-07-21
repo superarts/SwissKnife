@@ -151,6 +151,14 @@ extension UIView {
 			} else if self is UIButton {
 				let button = self as! UIButton
 				button.titleLabel!.font = UIFont(name: name!, size: button.titleLabel!.font.pointSize)
+			} else if self is UISegmentedControl {
+				let segment = self as! UISegmentedControl
+				var font_size: CGFloat = 13
+				if let attr = segment.titleTextAttributesForState(.Normal), let font = attr[NSFontAttributeName] as? UIFont {
+					font_size = font.pointSize
+				}
+				let attr = [NSFontAttributeName: UIFont(name: name!, size: font_size)!]
+				segment.setTitleTextAttributes(attr, forState: .Normal)
 			} else {
 				LF.log("WARNING unknown type for font_name in Interface Builder", self)
 			}
@@ -407,20 +415,3 @@ class LFActionSheetSegue: UIStoryboardSegue {
         }
     }
 }
-
-/*
-+class LFConfig: LFModel {
-+       let key1 = "value1"
-+       let key2 = "value2"
-+}
-+struct AS {
-+       static let config = LFConfig(dict: nil)
-+}
-+LF.log("key1", AS.config.key1)
-+ * upload the current config as default if there isn't one, or
-+ * download the config
-+ * apply the config by default, or
-+ * apply it the next time app starts
-+config.pf_sync(auto_apply:true)
-*/
-

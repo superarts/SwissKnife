@@ -157,3 +157,19 @@ extension LFModel {
 		return obj
 	}
 }
+
+/*
++class LFConfig: LFModel {
++       let key1 = "value1"
++       let key2 = "value2"
++}
++struct AS {
++       static let config = LFConfig(dict: nil)
++}
++LF.log("key1", AS.config.key1)
++ * upload the current config as default if there isn't one, or
++ * download the config
++ * apply the config by default, or
++ * apply it the next time app starts
++config.pf_sync(auto_apply:true)
+*/
