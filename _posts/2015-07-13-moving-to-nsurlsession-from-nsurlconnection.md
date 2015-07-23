@@ -10,7 +10,7 @@ Recently the server team I'm working with wants to work in a way that when an AP
 From iOS 7.0, `NSURLSession` has been introduced and due to the requirement mentioned above, I think it's time to move to it. From now, by default `NSURLConnection` will be used by `LRestClient`, and you can change this by writing something like:
 
 {% highlight swift %}
-	client.connection_class = .NSURLConnection
+client.connection_class = .NSURLConnection
 {% endhighlight %}
 
 The reason why I keep a "legacy mode" here is that I cannot get authentication work. Some people said in iOS 8 there's some bug that prevents the delegate methods of `NSURLSession` being called, and I need to spend more time to get it work. Before it's worked out, `NSURLConnection` can be used as a work-around.
