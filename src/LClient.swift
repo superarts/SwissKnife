@@ -55,7 +55,23 @@ struct LRest {
 }
 
 class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLSessionTaskDelegate {
-	var path: String?										//	to support results like ["user": [], "succuss" = 1]
+	var paths: [String]?		//	to support results like ["user": ["username"="1"], "succuss" = 1]
+	var subpaths: [String]?		//	to support ["users": [ [_source: ["username"="1"] ] ], "success" = 1]
+	var path: String? {			
+		get {
+			if let paths = paths where paths.count > 0 {
+				return paths[0]
+			}
+			return nil
+		}
+		set(str) {
+			if let s = str {
+				paths = [s]
+			} else {
+				paths = nil
+			}
+		}
+	}
 	var text: String?
 	var show_error = false
 	var content_type = LRest.content.json
@@ -339,9 +355,10 @@ class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLSessionT
 		var error: NSError?
 		let s = NSString(data: data, encoding: NSUTF8StringEncoding)
 		let cls = T.self
+		//LF.log("data", s)
 		if let func_model = func_model {
 			var dict = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &error) as! LTDictStrObj?
-			//	TODO: support multi-layer path
+			//	TODO: support multi-layer path (already implemented in func_array)
 			if let path = self.path {
 				if var dict_tmp = dict?[path] as? LTDictStrObj {
 					dict = dict_tmp
@@ -354,16 +371,27 @@ class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLSessionT
 		}
 		if let func_array = self.func_array {
 			var array: [LTDictStrObj]?
-			if let path = self.path {
-				if let dict = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &error) as? LTDictStrObj {
-					array = dict[path] as? [LTDictStrObj]
+			if let paths = self.paths {
+				if var obj: AnyObject = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &error) {
+					for path in paths {
+						if let obj_new: AnyObject = (obj as? LTDictStrObj)?[path] {
+							obj = obj_new	//(obj as! LTDictStrObj)[path]!
+						}
+					}
+					array = obj as? [LTDictStrObj]
 				}
 			} else if let array_json = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &error) as? Array<LTDictStrObj> where error == nil {
 				array = array_json
 			}
 			if let array = array {
 				var array_obj: Array<T> = []
-				for dict in array { 
+				for a_dict in array { 
+					var dict = a_dict
+					if let subpaths = self.subpaths {
+						for subpath in subpaths {
+							dict = dict[subpath] as! LTDictStrObj	//	TODO: subpath checking
+						}
+					}
 					let obj = cls(dict: dict)
 					array_obj.append(obj)
 				}
@@ -568,7 +596,11 @@ class LFModel: NSObject {
         var dict: Dictionary<String, AnyObject> = [:]
         for key in keys {
             if let value: AnyObject = valueForKeyPath(key) {
-                dict[key] = value
+				if let v = value as? LFModel {
+					dict[key] = v.dictionary
+				} else {
+					dict[key] = value
+				}
             }
         }
         return dict

@@ -44,6 +44,7 @@ struct LTheme {
 				"No",
 			],
 		]
+		/*
 		class StringPack {
 			var dictionary: [String:[String]] = [:]
 			var auto_first_language: Bool = false
@@ -64,12 +65,22 @@ struct LTheme {
 				}
 			}
 		}
-		static func strings_append(dict: [String:[String]]) {
+		*/
+		static func strings_append(dict: LTDictStrObj) {//[String:[String]]) {
 			for (key, value) in dict {
-				strings[key] = value
+				if let dict = value as? [String] {
+					strings[key] = dict
+				}
 			}
 		}
-		static func string(key:String, index: Int? = nil) -> String {
+		static func STR(key:String, index: Int? = nil) -> String {
+			return str(key, index:index).uppercaseString
+		}
+		static func Str(key:String, index: Int? = nil) -> String {
+			let s = str(key, index:index)
+			return s[0].uppercaseString + s[1...s.length]
+		}
+		static func str(key:String, index: Int? = nil) -> String {
 			var i = index
 			if i == nil {
 				//	if system language is not supported, default language is used
@@ -265,7 +276,7 @@ extension UIBarItem {
 			return self.title
 		}
 		set (s) {
-			self.title = LTheme.localization.string(s!)
+			self.title = LTheme.localization.Str(s!)
 		}
 	}
 	@IBInspectable var auto_localized: Bool {
@@ -275,7 +286,7 @@ extension UIBarItem {
 		set (b) {
 			if b {
 				if let title = self.title {
-					self.title = LTheme.localization.string(title)
+					self.title = LTheme.localization.Str(title)
 				}
 			}
 		}

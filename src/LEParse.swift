@@ -34,7 +34,7 @@ class LParseClient<T: LFModel>: PFQuery {
 	//init(class_name: String) { }
 }
 
-class LFConfigModel: LFModel {
+class LFProfile: LFModel {
 	//var object_id: String?
 	//var created_at: NSDate?
 	//var updated_at: NSDate?
@@ -79,6 +79,7 @@ class LFConfigModel: LFModel {
 					self.save(self.config_filename())
 				}
 			} else {
+				LF.log("CONFIG reload failed", self)
 				LF.log("CONFIG reload error", error)
 			}
 		}
@@ -158,18 +159,5 @@ extension LFModel {
 	}
 }
 
-/*
-+class LFConfig: LFModel {
-+       let key1 = "value1"
-+       let key2 = "value2"
-+}
-+struct AS {
-+       static let config = LFConfig(dict: nil)
-+}
-+LF.log("key1", AS.config.key1)
-+ * upload the current config as default if there isn't one, or
-+ * download the config
-+ * apply the config by default, or
-+ * apply it the next time app starts
-+config.pf_sync(auto_apply:true)
-*/
+class LFLocalizable: LFProfile {
+}
