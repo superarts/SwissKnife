@@ -413,11 +413,19 @@ extension UIImageView {
 		if url == nil {
 			return
 		}
-        let filename = url!.stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet.URLHostAllowedCharacterSet())!
+        var filename = url!.stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet.URLHostAllowedCharacterSet())!	//.lowercaseString
+		//filename = filename.stringByReplacingOccurrencesOfString(".", withString:"")
+		//filename = filename.stringByReplacingOccurrencesOfString("jpeg", withString:"")
+		//filename = filename.stringByReplacingOccurrencesOfString("jpg", withString:"")
+		//filename = filename.stringByReplacingOccurrencesOfString("png", withString:"")
+		//filename = filename.stringByReplacingOccurrencesOfString("gif", withString:"")
+		//filename += ".jpg"
 
         //if false {
         if filename.file_exists_doc() {
-            image = UIImage(named: filename.filename_doc())
+			//LF.log("IMAGE load from file", filename.filename_doc())
+            //image = UIImage(named: filename.filename_doc())
+            image = UIImage(contentsOfFile: filename.filename_doc())
         } else {
             //dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), {
             LF.dispatch_delay(0, {
