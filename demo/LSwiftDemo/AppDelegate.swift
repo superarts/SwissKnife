@@ -6,7 +6,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-		LF.log("test", UIDevice.is_version(larger_than: "8.0.0"))
         return true
     }
 

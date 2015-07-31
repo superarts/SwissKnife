@@ -739,14 +739,9 @@ extension UIWebView {
 }
 
 extension UIDevice {
-	class func is_version(lower_than lower_than: String?, higher_than: String?) -> Bool {
-		let version_system = UIDevice.currentDevice().systemVersion
-		if let version = lower_than {
-			return version_system.compare(version, options: NSStringCompareOptions.NumericSearch) == .OrderedDescending
-		} else if let version = higher_than {
-			return version_system.compare(version, options: NSStringCompareOptions.NumericSearch) == .OrderedDescending
-		}
-		return false
+	class func version_at_least(version: String) -> Bool {
+		let version_system = UIDevice.currentDevice().systemVersion + ".0.0.0"
+		return version_system.compare(version, options: NSStringCompareOptions.NumericSearch) == .OrderedDescending
 	}
 }
 

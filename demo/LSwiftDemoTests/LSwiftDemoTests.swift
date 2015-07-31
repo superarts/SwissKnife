@@ -1,36 +1,32 @@
-//
-//  LSwiftDemoTests.swift
-//  LSwiftDemoTests
-//
-//  Created by Leo on 31/07/2015.
-//  Copyright (c) 2015 Leo. All rights reserved.
-//
-
 import UIKit
 import XCTest
 
 class LSwiftDemoTests: XCTestCase {
-    
+   
     override func setUp() {
+		LF.log("iOS version", UIDevice.currentDevice().systemVersion)
         super.setUp()
-        // Put setup code here. This method is called before the invocation of each test method in the class.
     }
     
     override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
         super.tearDown()
     }
     
     func testExample() {
-        // This is an example of a functional test case.
-        XCTAssert(true, "Pass")
+        XCTAssert(UIDevice.version_at_least("7.0.0"), "Pass")
+        XCTAssert(UIDevice.version_at_least("8.0.0"), "Pass")
+        XCTAssert(UIDevice.version_at_least("8.4.0"), "Pass")
+        XCTAssert(!UIDevice.version_at_least("8.5.0"), "Pass")
+        XCTAssert(!UIDevice.version_at_least("9.0.0"), "Pass")
     }
-    
+   
+	/*
     func testPerformanceExample() {
         // This is an example of a performance test case.
         self.measureBlock() {
             // Put the code you want to measure the time of here.
         }
     }
+	*/
     
 }

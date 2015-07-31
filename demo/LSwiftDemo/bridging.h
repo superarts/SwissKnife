@@ -1,2 +1,2 @@
-#import "Parse.h"
+#import <Parse/Parse.h>
 #import "MBProgressHUD.h"
