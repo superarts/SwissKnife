@@ -1,0 +1,14 @@
+# Podfile
+
+# use_frameworks!
+source 'https://github.com/CocoaPods/Specs.git'
+
+# pod 'Facebook-iOS-SDK'
+# pod 'SCFacebook'
+# pod 'iOS-Slide-Menu'
+# pod 'UITextView+Placeholder'
+# pod 'SCLAlertView-Objective-C'
+# pod 'CWStatusBarNotification'
+# pod 'Appboy-iOS-SDK'
+pod 'MBProgressHUD'
+pod 'Parse'
