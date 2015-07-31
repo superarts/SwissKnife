@@ -10,7 +10,7 @@ LSwift is a `swift` library that contains various extensions and classes, includ
 Install
 ====
 
-Manual
+Manually
 ----
 Clone this repo and copy all the source files under `src` into your project manually, and then remove LExtension.swift if you don't have the dependency.
 
