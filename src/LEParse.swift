@@ -158,6 +158,3 @@ extension LFModel {
 		return obj
 	}
 }
-
-class LFLocalizable: LFProfile {
-}

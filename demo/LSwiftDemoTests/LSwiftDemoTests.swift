@@ -16,6 +16,8 @@ class LSwiftDemoTests: XCTestCase {
         XCTAssert(UIDevice.version_at_least("7.0.0"), "Pass")
         XCTAssert(UIDevice.version_at_least("8.0.0"), "Pass")
         XCTAssert(UIDevice.version_at_least("8.4.0"), "Pass")
+        XCTAssert(UIDevice.version_at_least("8.4"), "Pass")
+        XCTAssert(!UIDevice.version_at_least("8.5"), "Pass")
         XCTAssert(!UIDevice.version_at_least("8.5.0"), "Pass")
         XCTAssert(!UIDevice.version_at_least("9.0.0"), "Pass")
     }

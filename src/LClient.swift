@@ -606,6 +606,52 @@ class LFModel: NSObject {
         }
         return dict
     }
+	//	TODO: refactor me
+	var keys: [String] {
+        var array = [String]()
+        var count: CUnsignedInt = 0
+		let properties: UnsafeMutablePointer<objc_property_t> = class_copyPropertyList(object_getClass(self), &count)
+   
+		var c: AnyClass! = object_getClass(self)
+		loop: while c != nil {
+			//LF.log("---- class", NSStringFromClass(c))
+			var ct: CUnsignedInt = 0
+			let prop: UnsafeMutablePointer<objc_property_t> = class_copyPropertyList(c, &ct)
+			for var i = 0; i < Int(ct); i++ {
+                if let key = NSString(CString: property_getName(prop[i]), encoding: NSUTF8StringEncoding) {
+    				if key == "dictionary" {
+    					//LF.log("WARNING model: this condition is not ideal")
+    					break loop
+    				}
+					/*
+    				if let value: AnyObject? = valueForKey(key as String) where key != "raw" {
+						array.append(key as String)
+    				}
+					*/
+                }
+			}
+			//	TODO: apple's bug
+			if NSStringFromClass(c) == "NSObject" {
+				break
+			}
+			/*
+			if NSStringFromClass(c).contains("LFModel") {
+				break
+			}
+			*/
+			c = class_getSuperclass(c)
+		}
+
+        for var i = 0; i < Int(count); i++ {
+            if let key = NSString(CString: property_getName(properties[i]), encoding: NSUTF8StringEncoding) as? String {
+				//LF.log(key, valueForKey(key))
+				if let value: AnyObject? = valueForKey(key) {
+					array.append(key)
+				}
+			}
+        }
+        return array
+	}
     //  Nesting is supported. You can also use dictionary(keys) to make dictionary from selected keys.
     var dictionary: Dictionary<String, AnyObject> {
         var dict: Dictionary<String, AnyObject> = [:]

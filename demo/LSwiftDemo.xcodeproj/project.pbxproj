@@ -20,12 +20,12 @@
 		B306AFB41B6B31AD0025D385 /* LExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = B306AFA61B6B31AD0025D385 /* LExtension.swift */; };
 		B306AFB51B6B31AD0025D385 /* LFramework.swift in Sources */ = {isa = PBXBuildFile; fileRef = B306AFA71B6B31AD0025D385 /* LFramework.swift */; };
 		B306AFB61B6B31AD0025D385 /* LKeychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = B306AFA81B6B31AD0025D385 /* LKeychain.swift */; };
-		B306AFB71B6B31AD0025D385 /* LTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B306AFA91B6B31AD0025D385 /* LTest.swift */; };
 		B306AFB81B6B31AD0025D385 /* LThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B306AFAA1B6B31AD0025D385 /* LThemeManager.swift */; };
 		B306AFB91B6B31AD0025D385 /* LTime.swift in Sources */ = {isa = PBXBuildFile; fileRef = B306AFAB1B6B31AD0025D385 /* LTime.swift */; };
 		B306AFC31B6B32F60025D385 /* LFramework.swift in Sources */ = {isa = PBXBuildFile; fileRef = B306AFA71B6B31AD0025D385 /* LFramework.swift */; };
 		B306AFC41B6B33060025D385 /* LConst.swift in Sources */ = {isa = PBXBuildFile; fileRef = B306AFA41B6B31AD0025D385 /* LConst.swift */; };
 		B306AFC51B6B33100025D385 /* LTime.swift in Sources */ = {isa = PBXBuildFile; fileRef = B306AFAB1B6B31AD0025D385 /* LTime.swift */; };
+		B306AFC61B6B5F390025D385 /* LTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B306AFA91B6B31AD0025D385 /* LTest.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -320,9 +320,9 @@
 				B306AFB51B6B31AD0025D385 /* LFramework.swift in Sources */,
 				B306AFB21B6B31AD0025D385 /* LConst.swift in Sources */,
 				B306AFB31B6B31AD0025D385 /* LEParse.swift in Sources */,
-				B306AFB71B6B31AD0025D385 /* LTest.swift in Sources */,
 				B306AF511B6AFE340025D385 /* AppDelegate.swift in Sources */,
 				B306AFB91B6B31AD0025D385 /* LTime.swift in Sources */,
+				B306AFC61B6B5F390025D385 /* LTest.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

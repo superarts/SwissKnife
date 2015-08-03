@@ -73,6 +73,31 @@ struct LTheme {
 				}
 			}
 		}
+		static func language_current(index: Int? = nil) -> Int? {
+			var i = index
+			if i == nil {
+				//	if system language is not supported, default language is used
+				var lang: Language! = language
+				if lang == nil {
+					lang = language_default
+				}
+				if lang == nil {
+					return nil
+				}
+				i = find(languages, lang)
+
+				//	if language is not supported directly, check alias
+				if i == nil {
+					if let lang = languages_alias[lang.rawValue] {
+						i = find(languages, lang)
+					}
+				}
+			}
+			if i == nil && language_default != nil {
+				i = 0
+			}
+			return i
+		}
 		static func STR(key:String, index: Int? = nil) -> String {
 			return str(key, index:index).uppercaseString
 		}
@@ -81,6 +106,7 @@ struct LTheme {
 			return s[0].uppercaseString + s[1...s.length]
 		}
 		static func str(key:String, index: Int? = nil) -> String {
+			/*
 			var i = index
 			if i == nil {
 				//	if system language is not supported, default language is used
@@ -107,9 +133,10 @@ struct LTheme {
 					return key
 				}
 			}
-			if let array = strings[key] {
-				if i < array.count {
-					return array[i!]
+			*/
+			if let i = language_current(index: index) {
+				if let array = strings[key] where i < array.count {
+					return array[i]
 				}
 			}
 			return key

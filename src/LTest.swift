@@ -76,8 +76,9 @@ struct LTest {
 		*/
 		LTheme.localization.strings_append(set0)
 
-		var common = TestLocalizable(publish:false)
+		var common = TestLocalizable(publish:true)
 		LTheme.localization.strings_append(common.dictionary)
+		LF.log("localizable", common.keys)
 
 		LTheme.localization.language_default = .SpanishMexico
 		LF.log("")
@@ -89,25 +90,69 @@ struct LTest {
 		LF.log("Test 6", LTheme.localization.Str("old"))
 		LF.log("test x", LTheme.localization.Str("wow"))
 
-		LF.log("test 5", LTheme.localization.str("new"))
-		LF.log("TEST 5", LTheme.localization.STR("old"))
+		LF.log("test 7", LTheme.localization.str("new"))
+		LF.log("TEST 7", LTheme.localization.STR("old"))
 
-		LF.log("Test 5", common.new)
+		LF.log("test 8 array", common.new.array)
+		LF.log("test 8", common.new.str)
+		LF.log("Test 8", common.new.Str)
+		LF.log("TEST 8", common.new.STR)
+		LF.log("Test 8", common.old.Str)
 	}
 }
 
+class LFLocalizable: LFProfile {
+	class Item: NSObject {
+		var array = [String]()
+		var str: String {
+			if let index = LTheme.localization.language_current(index:nil) {
+				return array[index]
+			}
+			return ""
+		}
+		var STR: String {
+			return str.uppercaseString
+		}
+		var Str: String {
+			let s = str
+			return s[0].uppercaseString + s[1...s.length]
+		}
+	}
+    override var dictionary: Dictionary<String, AnyObject> {
+		var dict = [String: AnyObject]()
+		for key in keys {
+			if let item = valueForKey(key) as? Item {
+				dict[key] = item.array
+			}
+		}
+		return dict
+	}
+}
+
+func += (inout left: LFLocalizable.Item, right: String) {
+	left.array.append(right)
+}
+
 class TestLocalizable: LFLocalizable {
-	var new = ["new"]
-	var old = ["old"]
+	var new = Item()
+	var old = Item()
 	required init(dict: LTDictStrObj?) {
 		super.init(dict: dict)
-		new.append("新")
-		old.append("旧")
-		new.append("nuevo")
-		old.append("viejo")
+		new += "new"
+		new += "新"
+		new += "nuevo"
+		old += "old"
+		old += "旧"
+		old += "viejo"
+	}
+	/*
+	override func setValue(obj: AnyObject?, forKey key: String) {
+		LF.log("xx set", key)
+		super.setValue(obj, forKey: key)
 	}
 	override func valueForKey(key: String) -> AnyObject? {
-		LF.log("xx", key)
+		LF.log("xx get", key)
 		return super.valueForKey(key)
 	}
+	*/
 }
