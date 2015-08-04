@@ -841,8 +841,8 @@ class LArrayClient<T: LFModel>: LRestClient<T>, LTableClient {
 class LFRestTableController: LFTableController {
 	var client: LTableClient!
 	var reload_table = LRest.ui.Reload.First
-	var refresh_reload: UIRefreshControl!
-	var refresh_more: UIRefreshControl!
+	var refresh_reload: UIRefreshControl?
+	var refresh_more: UIRefreshControl?
 	var pull_down = LRest.ui.Load.None
 	var pull_up = LRest.ui.Load.None
 
@@ -859,7 +859,7 @@ class LFRestTableController: LFTableController {
 	}
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		init_refresh()
+		reload_refresh()
 		if reload_table != .None {
 			client_reload()
 		}
@@ -871,35 +871,46 @@ class LFRestTableController: LFTableController {
 		}
 	}
 
-	func init_refresh() {
+	func reload_refresh() {
 		//	TODO: refactor
+		if refresh_reload != nil {
+			refresh_reload!.removeFromSuperview()
+			refresh_reload = nil
+		}
+		if refresh_more != nil {
+			table.perform("bottomRefreshControl", value:nil)
+			refresh_more = nil
+		}
 		if pull_down == .Reload {
 			refresh_reload = UIRefreshControl()
-			refresh_reload.perform("triggerVerticalOffset", value:60)
-			refresh_reload.addTarget(self, action: "client_reload", forControlEvents: .ValueChanged)
-			table.addSubview(refresh_reload)
+			refresh_reload!.perform("triggerVerticalOffset", value:60)
+			refresh_reload!.addTarget(self, action: "client_reload", forControlEvents: .ValueChanged)
+			table.addSubview(refresh_reload!)
 		} else if pull_down == .More {
 			refresh_reload = UIRefreshControl()
-			refresh_reload.perform("triggerVerticalOffset", value:60)
-			refresh_reload.addTarget(self, action: "client_more", forControlEvents: .ValueChanged)
-			table.addSubview(refresh_reload)
+			refresh_reload!.perform("triggerVerticalOffset", value:60)
+			refresh_reload!.addTarget(self, action: "client_more", forControlEvents: .ValueChanged)
+			table.addSubview(refresh_reload!)
 		}
 		if pull_up == .More && table.respondsToSelector(Selector("bottomRefreshControl")) {
 			refresh_more = UIRefreshControl()
-			refresh_more.perform("triggerVerticalOffset", value:60)
-			refresh_more.addTarget(self, action:"client_more", forControlEvents:.ValueChanged)
-			table.perform("bottomRefreshControl", value:refresh_more)
+			refresh_more!.perform("triggerVerticalOffset", value:60)
+			refresh_more!.addTarget(self, action:"client_more", forControlEvents:.ValueChanged)
+			table.perform("bottomRefreshControl", value:refresh_more!)
 		}
 		client.func_done = {
-			if self.pull_down != .None {
-				self.refresh_reload.endRefreshing()
-			}
-			if self.pull_up != .None {
-				self.refresh_more.endRefreshing()
-			}
+			self.refresh_end()
 			if self.client.last_loaded == 0 && self.client.pagination_index != 0 {
 				self.show_no_more_items()
 			}
+		}
+	}
+	func refresh_end() {
+		if let refresh = refresh_reload where self.pull_down != .None {
+			refresh.endRefreshing()
+		}
+		if let refresh = refresh_more where self.pull_up != .None {
+			refresh.endRefreshing()
 		}
 	}
 	func client_reload() {
