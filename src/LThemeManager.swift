@@ -157,8 +157,9 @@ extension UITabBarController {
 	}
 }
 
-//	TODO: add getters when extension property is added - having problem with associating in swift (key cannot be a string variable)
 extension UIView {
+	//	TODO: add getters when extension property is added - having problem with associating in swift (key cannot be a string variable)
+	//	WARNING: font_name of UIView will be deprecated soon, use text_font_name etc. instead.
 	@IBInspectable var font_name: String? {
 		get {
 			if self is UILabel {
@@ -266,6 +267,38 @@ extension UIView {
 	}
 }
 
+extension UILabel {
+	@IBInspectable var text_localized: String? {
+		get {
+			return self.text
+		}
+		set (s) {
+			self.text = LTheme.localization.Str(s!)
+		}
+	}
+	@IBInspectable var text_auto_localized: Bool {
+		get {
+			LF.log("WARNING: getter not implemented")
+			return false
+		}
+		set (b) {
+			if b {
+				if let text = self.text {
+					self.text = LTheme.localization.Str(text)
+				}
+			}
+		}
+	}
+	@IBInspectable var text_font_name: String? {
+		get {
+			return font.fontName
+		}
+		set (name) {
+			font = UIFont(name: name!, size: font.pointSize)
+		}
+	}
+}
+
 extension UITextField {
 	@IBInspectable var padding_left: CGFloat {
 		get {
@@ -274,6 +307,35 @@ extension UITextField {
 		}
 		set (f) {
 			layer.sublayerTransform = CATransform3DMakeTranslation(f, 0, 0)
+		}
+	}
+	@IBInspectable var text_localized: String? {
+		get {
+			return self.text
+		}
+		set (s) {
+			self.text = LTheme.localization.Str(s!)
+		}
+	}
+	@IBInspectable var text_auto_localized: Bool {
+		get {
+			LF.log("WARNING: getter not implemented")
+			return false
+		}
+		set (b) {
+			if b {
+				if let text = self.text {
+					self.text = LTheme.localization.Str(text)
+				}
+			}
+		}
+	}
+	@IBInspectable var text_font_name: String? {
+		get {
+			return font.fontName
+		}
+		set (name) {
+			font = UIFont(name: name!, size: font.pointSize)
 		}
 	}
 }
@@ -362,6 +424,62 @@ extension UIButton {
 			setBackgroundImage(image, forState: .Disabled)
 		}
 	}
+	//	TODO: @IBInspectable var selected_title_localized: String? { }
+	@IBInspectable var normal_title_localized: String? {
+		get {
+			return titleForState(.Normal)
+		}
+		set (s) {
+			setTitle(LTheme.localization.Str(s!), forState:.Normal)
+		}
+	}
+	@IBInspectable var normal_text_auto_localized: Bool {
+		get {
+			LF.log("WARNING: getter not implemented")
+			return false
+		}
+		set (b) {
+			if b {
+				if let title = titleForState(.Normal) {
+					setTitle(LTheme.localization.Str(title), forState:.Normal)
+				}
+			}
+		}
+	}
+	@IBInspectable var highlighted_title_localized: String? {
+		get {
+			return titleForState(.Highlighted)
+		}
+		set (s) {
+			setTitle(LTheme.localization.Str(s!), forState:.Highlighted)
+		}
+	}
+	@IBInspectable var highlighted_text_auto_localized: Bool {
+		get {
+			LF.log("WARNING: getter not implemented")
+			return false
+		}
+		set (b) {
+			if b {
+				if let title = titleForState(.Highlighted) {
+					setTitle(LTheme.localization.Str(title), forState:.Highlighted)
+				}
+			}
+		}
+	}
+	@IBInspectable var label_font_name: String? {
+		get {
+			if let label = titleLabel {
+				return label.font.fontName
+			}
+			return nil
+		}
+		set (name) {
+			if let label = titleLabel {
+				label.font = UIFont(name: name!, size: label.font.pointSize)
+			}
+		}
+	}
 }
 
 extension UITextView {
@@ -422,6 +540,35 @@ extension UITextView {
 	func lf_text_edit_ended(notification: NSNotification) {
 		if self.text == "" {
 			self.text = self.placeholder
+		}
+	}
+	@IBInspectable var text_localized: String? {
+		get {
+			return self.text
+		}
+		set (s) {
+			self.text = LTheme.localization.Str(s!)
+		}
+	}
+	@IBInspectable var text_auto_localized: Bool {
+		get {
+			LF.log("WARNING: getter not implemented")
+			return false
+		}
+		set (b) {
+			if b {
+				if let text = self.text {
+					self.text = LTheme.localization.Str(text)
+				}
+			}
+		}
+	}
+	@IBInspectable var text_font_name: String? {
+		get {
+			return font.fontName
+		}
+		set (name) {
+			font = UIFont(name: name!, size: font.pointSize)
 		}
 	}
 }

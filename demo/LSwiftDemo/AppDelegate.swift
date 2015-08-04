@@ -1,13 +1,13 @@
 import UIKit
 
-@UIApplicationMain
+//@UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-		init_parse()
-		LTest.localization()
+		//init_parse()
+		//LTest.localization()
         return true
     }
 	func init_parse() {

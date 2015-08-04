@@ -76,7 +76,7 @@ struct LTest {
 		*/
 		LTheme.localization.strings_append(set0)
 
-		var common = TestLocalizable(publish:true)
+		var common = TestLocalizable(publish:false)
 		LTheme.localization.strings_append(common.dictionary)
 		LF.log("localizable", common.keys)
 

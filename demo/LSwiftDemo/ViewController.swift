@@ -1,25 +1,15 @@
-//
-//  ViewController.swift
-//  LSwiftDemo
-//
-//  Created by Leo on 31/07/2015.
-//  Copyright (c) 2015 Leo. All rights reserved.
-//
-
 import UIKit
 
 class ViewController: UIViewController {
 
+	@IBOutlet var label_test: UILabel!
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+		label_test.text = LS.demo.test.STR
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
-
-
 }
-

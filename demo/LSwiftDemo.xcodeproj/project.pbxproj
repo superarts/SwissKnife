@@ -26,6 +26,7 @@
 		B306AFC41B6B33060025D385 /* LConst.swift in Sources */ = {isa = PBXBuildFile; fileRef = B306AFA41B6B31AD0025D385 /* LConst.swift */; };
 		B306AFC51B6B33100025D385 /* LTime.swift in Sources */ = {isa = PBXBuildFile; fileRef = B306AFAB1B6B31AD0025D385 /* LTime.swift */; };
 		B306AFC61B6B5F390025D385 /* LTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B306AFA91B6B31AD0025D385 /* LTest.swift */; };
+		B306AFC81B7078580025D385 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = B306AFC71B7078580025D385 /* main.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -62,6 +63,7 @@
 		B306AFA91B6B31AD0025D385 /* LTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LTest.swift; sourceTree = "<group>"; };
 		B306AFAA1B6B31AD0025D385 /* LThemeManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LThemeManager.swift; sourceTree = "<group>"; };
 		B306AFAB1B6B31AD0025D385 /* LTime.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LTime.swift; sourceTree = "<group>"; };
+		B306AFC71B7078580025D385 /* main.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -117,6 +119,7 @@
 			isa = PBXGroup;
 			children = (
 				B306AF831B6B03970025D385 /* bridging.h */,
+				B306AFC71B7078580025D385 /* main.swift */,
 				B306AF501B6AFE340025D385 /* AppDelegate.swift */,
 				B306AF521B6AFE340025D385 /* ViewController.swift */,
 				B306AF541B6AFE340025D385 /* Main.storyboard */,
@@ -314,6 +317,7 @@
 			files = (
 				B306AFB41B6B31AD0025D385 /* LExtension.swift in Sources */,
 				B306AFB11B6B31AD0025D385 /* LClient.swift in Sources */,
+				B306AFC81B7078580025D385 /* main.swift in Sources */,
 				B306AFB81B6B31AD0025D385 /* LThemeManager.swift in Sources */,
 				B306AFB61B6B31AD0025D385 /* LKeychain.swift in Sources */,
 				B306AF531B6AFE340025D385 /* ViewController.swift in Sources */,
