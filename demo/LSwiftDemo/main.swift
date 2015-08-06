@@ -25,7 +25,7 @@ let clientKey		= "ik5E1yuhvPwUqiUBc6QyhSN3NSz3KyQmLWtOWHWw"
 Parse.setApplicationId(applicationId, clientKey:clientKey)
 PFUser.enableAutomaticUser()
 
-//	load localizable
+//	load localizable - to support storyboard
 LTheme.localization.strings_append(LS.demo.dictionary)
 
 UIApplicationMain(Process.argc, Process.unsafeArgv, nil, NSStringFromClass(AppDelegate))

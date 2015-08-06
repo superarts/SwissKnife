@@ -1,4 +1,8 @@
 struct LTest {
+	static func profile() {
+		LF.log("url root", Test.profile.url.root)
+		LF.log("api list", Test.profile.api.list)
+	}
 	static func localization() {
 		//	default language from system settings
 		LF.log("language", LTheme.localization.language?.rawValue)
@@ -76,7 +80,7 @@ struct LTest {
 		*/
 		LTheme.localization.strings_append(set0)
 
-		var common = TestLocalizable(publish:false)
+		var common = Test.localizable.common
 		LTheme.localization.strings_append(common.dictionary)
 		LF.log("localizable", common.keys)
 
@@ -98,42 +102,11 @@ struct LTest {
 		LF.log("Test 8", common.new.Str)
 		LF.log("TEST 8", common.new.STR)
 		LF.log("Test 8", common.old.Str)
+		LTheme.localization.language_default = .English
 	}
 }
 
-class LFLocalizable: LFProfile {
-	class Item: NSObject {
-		var array = [String]()
-		var str: String {
-			if let index = LTheme.localization.language_current(index:nil) {
-				return array[index]
-			}
-			return ""
-		}
-		var STR: String {
-			return str.uppercaseString
-		}
-		var Str: String {
-			let s = str
-			return s[0].uppercaseString + s[1...s.length]
-		}
-	}
-    override var dictionary: Dictionary<String, AnyObject> {
-		var dict = [String: AnyObject]()
-		for key in keys {
-			if let item = valueForKey(key) as? Item {
-				dict[key] = item.array
-			}
-		}
-		return dict
-	}
-}
-
-func += (inout left: LFLocalizable.Item, right: String) {
-	left.array.append(right)
-}
-
-class TestLocalizable: LFLocalizable {
+class TestLocalizable: LFParseLocalizable {
 	var new = Item()
 	var old = Item()
 	required init(dict: LTDictStrObj?) {
@@ -147,12 +120,30 @@ class TestLocalizable: LFLocalizable {
 	}
 	/*
 	override func setValue(obj: AnyObject?, forKey key: String) {
-		LF.log("xx set", key)
 		super.setValue(obj, forKey: key)
 	}
 	override func valueForKey(key: String) -> AnyObject? {
-		LF.log("xx get", key)
 		return super.valueForKey(key)
 	}
 	*/
+}
+
+class TestProfileURL: LFProfile {
+	var root = "http://na.com"
+	var promotion = "http://nb.com"
+}
+class TestProfileAPI: LFProfile {
+	var list = "v1/list"
+	var detail = "v1/detail"
+}
+
+struct Test {
+	struct profile {
+		static let is_publisher = false
+		static var url = TestProfileURL(publish:is_publisher)
+		static var api = TestProfileAPI(publish:is_publisher)
+	}
+	struct localizable {
+		static var common = TestLocalizable(publish:false)
+	}
 }
