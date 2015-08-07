@@ -669,7 +669,7 @@ class LFModel: NSObject {
     					//LF.log("WARNING model: this condition is not ideal")
     					break loop
     				}
-    				if let value: AnyObject? = valueForKey(key as String) where key != "raw" {
+    				if let value: AnyObject? = valueForKey(key as String) where key != "raw" && key != "keys" {
 						dict[key as String] = value
     				}
                 }
