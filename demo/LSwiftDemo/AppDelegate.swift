@@ -7,7 +7,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
 		//init_parse()
-		//LTest.localization()
+		LTest.profile()
+		LTest.localization()
         return true
     }
 	func init_parse() {

@@ -113,8 +113,26 @@
                                     <userDefinedRuntimeAttribute type="boolean" keyPath="text_auto_localized" value="YES"/>
                                 </userDefinedRuntimeAttributes>
                             </textView>
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HCB-Io-Ozr">
+                                <rect key="frame" x="0.0" y="556" width="600" height="44"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="44" id="vSe-ca-7pB"/>
+                                </constraints>
+                                <items>
+                                    <barButtonItem title="new" id="vP9-dT-RCr">
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="string" keyPath="title_localized" value="new"/>
+                                        </userDefinedRuntimeAttributes>
+                                    </barButtonItem>
+                                </items>
+                            </toolbar>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="FKs-gG-RFD" firstAttribute="top" secondItem="HCB-Io-Ozr" secondAttribute="bottom" id="2qY-PA-BUT"/>
+                            <constraint firstItem="HCB-Io-Ozr" firstAttribute="leading" secondItem="iDs-0B-S0b" secondAttribute="leading" id="M2Z-nP-qBM"/>
+                            <constraint firstAttribute="trailing" secondItem="HCB-Io-Ozr" secondAttribute="trailing" id="lez-cN-Cap"/>
+                        </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="bVI-0Q-0Dm">
                         <barButtonItem key="leftBarButtonItem" title="test" id="jdR-WO-tPg">

@@ -30,66 +30,112 @@ extension PFObject {
     }
 }
 
-class LParseClient<T: LFModel>: PFQuery {
-	//init(class_name: String) { }
-}
-
-class LFProfile: LFModel {
-	//var object_id: String?
-	//var created_at: NSDate?
-	//var updated_at: NSDate?
-
-	func config_filename() -> String {
-		return ("AppConfig_" + parse_class() + ".xml").filename_doc()
-	}
-	//	publish
-	//		true: publish config (debug build only)
-	//		false: download config
-	//	reload_immediately
-	//		true: overwrite config immediately after it's downloaded (default)
-	//		false: config will be available from next app launch (not implemented)
-	convenience init(publish: Bool, reload_immediately: Bool = true) {
-		//	TODO: how to call config_filename() instead? is double-init a must?
-        var filename = NSStringFromClass(self.dynamicType)
-		filename = filename.stringByReplacingOccurrencesOfString(".", withString: "_", options:nil, range: nil)
-		filename = "AppConfig_" + filename + ".xml"
-		filename = filename.filename_doc()
-
-		self.init(filename: filename)
-		//LF.log("CONFIG inited", self)
-		if publish {
-			LF.log("CONFIG publishing", self)
-			let obj = parse_object()
-			obj.saveInBackgroundWithBlock() {
-				(success, error) -> Void in
-				LF.log("CONFIG published, error", error)
-			}
-		} else {
-			reload_config()
+class LFProfile: LFAutosaveModel {
+	//	TODO: currently the size of a profile is limited to 128K
+	
+	override func autosave_publish() {
+		LF.log("PROFILE publishing", self)
+		let obj = parse_object()
+		obj.saveInBackgroundWithBlock() {
+			(success, error) -> Void in
+			LF.log("PROFILE published, error", error)
 		}
 	}
-	func reload_config() {
+	override func autosave_reload() {
 		let query = PFQuery(className:parse_class())
+		query.orderByDescending("createdAt")
 		query.getFirstObjectInBackgroundWithBlock() {
 			(object, error) -> Void in
 			if error == nil {
-				//LF.log("CONFIG reloaded", object)
+				//LF.log("PROFILE reloaded", object)
 				if let obj = object {
 					self.parse_load(obj)
-					self.save(self.config_filename())
+					self.save(self.autosave_filename())
 				}
 			} else {
-				LF.log("CONFIG reload failed", self)
-				LF.log("CONFIG reload error", error)
+				LF.log("PROFILE reload failed", self)
+				LF.log("PROFILE reload error", error)
 			}
 		}
 	}
-	override func parse_load(object: PFObject) {
-		super.parse_load(object)
-		//object_id	= object.objectId
-		//created_at	= object.createdAt
-		//updated_at	= object.updatedAt
-		//LF.log("CONFIG loaded", self)
+}
+
+class LFParseLocalizable: LFLocalizable {
+	
+	convenience init(filename: String) {
+		let dict = NSDictionary(contentsOfFile: filename)
+		//LF.log(filename, dict)
+		self.init(dict: nil)
+		//self.init(dict: dict as? LTDictStrObj)
+		if let dict = dict as? [String: [AnyObject]] {
+			for key in dict.keys.array {
+				//LF.log(key, dict[key])
+				if var item = valueForKey(key) as? Item, let array = dict[key] as? [String] {
+					if item.array.count >= array.count {
+						item.array.removeAll()
+					}
+					for s in array {
+						item += s
+					}
+				}
+			}
+		}
+	}
+	override func autosave_publish() {
+		//LF.log("LOCALIZABLE publishing", self)
+		var count = 0
+        for (key, value) in dictionary {
+			if let array = value as? [String] {
+				count = array.count - 1
+				break
+			}
+        }
+		LF.dispatch() {
+			var dict = self.dictionary
+			dict["lf_language"] = self.lf_language.array
+			for i in 0 ... count {
+				var object = PFObject(className: self.parse_class())
+				for (key, value) in dict {
+					if let array = value as? [String] where array.count > i {
+						let s = array[i]
+						object[key] = s
+						//LF.log(key, s)
+					}
+				}
+				object.save()
+				LF.log("LOCALIZABLE publishing", i)
+			}
+		}
+	}
+	override func autosave_reload() {
+		let query = PFQuery(className:parse_class())
+		query.orderByAscending("createdAt")
+		query.findObjectsInBackgroundWithBlock() {
+			(objects, error) -> Void in
+			if error == nil {
+				for object in objects! {
+					if let obj = object as? PFObject {
+						for key in obj.allKeys() {
+							if let key = key as? String where key != "keys" {
+								//LF.log(key, obj[key])
+								if var item = self.valueForKey(key) as? Item, let s = obj[key] as? String {
+									//	TODO: currently a brand new language cannot be added in Parse dashboard
+									if item.array.count >= objects!.count {
+										item.array.removeAll()
+									}
+									item += s
+								}
+							}
+						}
+					}
+				}
+				self.save(self.autosave_filename())
+				//LF.log("LOCALIZABLE reloaded", self)
+			} else {
+				LF.log("LOCALIZABLE reload failed", self)
+				LF.log("LOCALIZABLE reload error", error)
+			}
+		}
 	}
 }
 
@@ -144,9 +190,9 @@ extension LFModel {
 		return object
 	}
 	func parse_load(object: PFObject) {
-		let dict = dictionary
 		for key in object.allKeys() {
-			if let key = key as? String {
+			if let key = key as? String where key != "keys" {
+				//LF.log(key, object[key])
 				setValue(object[key], forKey:key)
 			}
 		}
@@ -158,3 +204,4 @@ extension LFModel {
 		return obj
 	}
 }
+

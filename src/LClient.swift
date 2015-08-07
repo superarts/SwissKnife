@@ -539,7 +539,7 @@ class LFModel: NSObject {
 					//LF.log("WARNING null value", key)
 				} else {
 					//	TODO: not working for Int? and Int! in 6.0 GM
-					if respondsToSelector(NSSelectorFromString(key)) {
+					if respondsToSelector(NSSelectorFromString(key)) && key != "keys" {
 						//LF.log(key, value)
 						setValue(value, forKey:key)
 					} else {
@@ -606,7 +606,7 @@ class LFModel: NSObject {
         }
         return dict
     }
-	//	TODO: refactor me
+	//	TODO: refactor me - should be method instead of property
 	var keys: [String] {
         var array = [String]()
         var count: CUnsignedInt = 0
@@ -740,6 +740,46 @@ class LFModel: NSObject {
 			s = s.stringByAppendingString("    ")
 		}
 		return s
+	}
+}
+
+class LFAutosaveModel: LFModel {
+	//	autosave only makes sense when a back-end service is enabled e.g. Parse, see LFProfile
+
+	var lf_version = NSBundle.mainBundle().infoDictionary?["CFBundleVersion"] as? String
+
+	static let autosave_prefix = "Autosave_"		//	TODO
+	func autosave_filename() -> String {
+        var filename = NSStringFromClass(self.dynamicType)
+		filename = filename.stringByReplacingOccurrencesOfString(".", withString: "_", options:nil, range: nil)
+		filename = LFAutosaveModel.autosave_prefix + filename + ".xml"
+		return filename.filename_doc()
+	}
+	//	publish
+	//		true: publish profile (debug build only)
+	//		false: download profile
+	//	reload_immediately
+	//		true: overwrite profile immediately after it's downloaded (default)
+	//		false: profile will be available from next app launch (not implemented)
+	convenience init(publish: Bool, reload_immediately: Bool = true) {
+		//	TODO: how to call autosave_filename() instead? is double-init a must?
+        var filename = NSStringFromClass(self.dynamicType)
+		filename = filename.stringByReplacingOccurrencesOfString(".", withString: "_", options:nil, range: nil)
+		filename = LFAutosaveModel.autosave_prefix + filename + ".xml"
+		filename = filename.filename_doc()
+
+		self.init(filename: filename)
+		if publish {
+			autosave_publish()
+		} else {
+			autosave_reload()
+		}
+	}
+	func autosave_publish() {
+		LF.log("TODO save", "override me")
+	}
+	func autosave_reload() {
+		LF.log("TODO load", "override me")
 	}
 }
 
