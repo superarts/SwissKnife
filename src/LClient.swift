@@ -81,6 +81,7 @@ class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLSessionT
 	var root: String!
 	var api: String!
 	var parameters: LTDictStrObj?
+	var func_error: ((NSError) -> Void)?					//	generic error handler
 	var func_model: ((T?, NSError?) -> Void)?				//	parse to model
 	var func_array: ((Array<T>?, NSError?) -> Void)?		//	parse to array
 	var func_dict: ((LTDictStrObj?, NSError?) -> Void)?		//	raw dictionary
@@ -165,14 +166,17 @@ class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLSessionT
 					if show_error == true {
 						error_show(error_ret!)
 					}
-					if func_model != nil {
-						func_model!(nil, error_ret)
+					if let f = func_model {
+						f(nil, error_ret)
 					}
-					if func_array != nil {
-						func_array!(nil, error_ret)
+					if let f = func_array {
+						f(nil, error_ret)
 					}
-					if func_dict != nil {
-						func_dict!(nil, error_ret)
+					if let f = func_dict {
+						f(nil, error_ret)
+					}
+					if let f = func_error {
+						f(error_ret!)
 					}
 					return nil
 				}
@@ -249,14 +253,17 @@ class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLSessionT
 					if self.show_error == true {
 						self.error_show(error_ret!)
 					}
-					if self.func_model != nil {
-						self.func_model!(nil, error_ret)
+					if let f = self.func_model {
+						f(nil, error_ret)
 					}
-					if self.func_array != nil {
-						self.func_array!(nil, error_ret)
+					if let f = self.func_array {
+						f(nil, error_ret)
 					}
-					if self.func_dict != nil {
-						self.func_dict!(nil, error_ret)
+					if let f = self.func_dict {
+						f(nil, error_ret)
+					}
+					if let f = self.func_error {
+						f(error_ret!)
 					}
 				}
 			}
@@ -357,6 +364,7 @@ class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLSessionT
 		let s = NSString(data: data, encoding: NSUTF8StringEncoding)
 		let cls = T.self
 		//LF.log("data", s)
+		//	TODO: call func_error if error araises
 		if let func_model = func_model {
 			var dict = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &error) as! LTDictStrObj?
 			//	TODO: support multi-layer path (already implemented in func_array)
@@ -804,7 +812,7 @@ protocol LTableClient {
 class LArrayClient<T: LFModel>: LRestClient<T>, LTableClient {
 	var items = Array<T>()
 	var func_reload: ([T] -> Void)?
-	var func_error: (NSError -> Void)?
+	//var func_error: (NSError -> Void)?
 	var func_done: (Void -> Void)?
 	var is_loaded = false
 	var is_loading = false
@@ -861,8 +869,8 @@ class LArrayClient<T: LFModel>: LRestClient<T>, LTableClient {
 				self.last_loaded = objs.count
 				self.items += objs
 				if let f = self.func_reload { f(self.items) }
-			} else if let f = self.func_error {
-				f(error!)
+			} else if let f = self.func_error, let error = error {
+				f(error)
 			}
 			if let f = self.func_done { f() }
 			self.is_loading = false
@@ -885,6 +893,7 @@ class LFRestTableController: LFTableController {
 	var refresh_more: UIRefreshControl?
 	var pull_down = LRest.ui.Load.None
 	var pull_up = LRest.ui.Load.None
+	var func_done: (Void -> Void)?
 
 	override func awakeFromNib() {
 		super.awakeFromNib()
@@ -942,6 +951,9 @@ class LFRestTableController: LFTableController {
 			self.refresh_end()
 			if self.client.last_loaded == 0 && self.client.pagination_index != 0 {
 				self.show_no_more_items()
+			}
+			if let f = self.func_done {
+				f()
 			}
 		}
 	}
