@@ -5,7 +5,7 @@ extension PFAnalytics {
 			dict["error-code"] = String(error.code)
 			dict["error-description"] = String(error.localizedDescription)
 		}
-		PFAnalytics.trackEventInBackground("user-signin-failed", dimensions:dimensions, block:nil)
+		PFAnalytics.trackEventInBackground(event, dimensions:dimensions, block:nil)
 	}
 }
 
