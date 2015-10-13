@@ -29,40 +29,43 @@ let kSecMatchLimitOneValue = NSString(format:kSecMatchLimitOne)
 class LKeychain: NSObject {
 
   class func save(key: String, _ data: NSString) {
-    var dataFromString: NSData = data.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)!
+    let dataFromString: NSData = data.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)!
 
     // Instantiate a new default keychain query
-    var keychainQuery: NSMutableDictionary = NSMutableDictionary(objects: [kSecClassGenericPasswordValue, key, userAccount, dataFromString], forKeys: [kSecClassValue, kSecAttrServiceValue, kSecAttrAccountValue, kSecValueDataValue])
+    let keychainQuery: NSMutableDictionary = NSMutableDictionary(objects: [kSecClassGenericPasswordValue, key, userAccount, dataFromString], forKeys: [kSecClassValue, kSecAttrServiceValue, kSecAttrAccountValue, kSecValueDataValue])
 
     // Delete any existing items
     SecItemDelete(keychainQuery as CFDictionaryRef)
 
     // Add the new keychain item
-    var status: OSStatus = SecItemAdd(keychainQuery as CFDictionaryRef, nil)
+    //var status: OSStatus = SecItemAdd(keychainQuery as CFDictionaryRef, nil)
   }
 
   class func load(key: String) -> String? {
     // Instantiate a new default keychain query
     // Tell the query to return a result
     // Limit our results to one item
-    var keychainQuery: NSMutableDictionary = NSMutableDictionary(objects: [kSecClassGenericPasswordValue, key, userAccount, kCFBooleanTrue, kSecMatchLimitOneValue], forKeys: [kSecClassValue, kSecAttrServiceValue, kSecAttrAccountValue, kSecReturnDataValue, kSecMatchLimitValue])
+    let keychainQuery: NSMutableDictionary = NSMutableDictionary(objects: [kSecClassGenericPasswordValue, key, userAccount, kCFBooleanTrue, kSecMatchLimitOneValue], forKeys: [kSecClassValue, kSecAttrServiceValue, kSecAttrAccountValue, kSecReturnDataValue, kSecMatchLimitValue])
 
+    /*
     var dataTypeRef :Unmanaged<AnyObject>?
-
     // Search for the keychain items
     let status: OSStatus = SecItemCopyMatching(keychainQuery, &dataTypeRef)
-
     let opaque = dataTypeRef?.toOpaque()
+    if let op = opaque {
+		let retrievedData = Unmanaged<NSData>.fromOpaque(op).takeUnretainedValue()
+		...
+    */
+    
+    var obj: AnyObject?
+    let status: OSStatus = SecItemCopyMatching(keychainQuery, &obj)
 
     var contentsOfKeychain: NSString?
 
-    if let op = opaque {
-      let retrievedData = Unmanaged<NSData>.fromOpaque(op).takeUnretainedValue()
-
-      // Convert the data retrieved from the keychain into a string
-      contentsOfKeychain = NSString(data: retrievedData, encoding: NSUTF8StringEncoding)
+    if let data = obj as? NSData where status == errSecSuccess {
+      contentsOfKeychain = NSString(data: data, encoding: NSUTF8StringEncoding)
     } else {
-      println("Nothing was retrieved from the keychain. Status code \(status)")
+      print("Nothing was retrieved from the keychain. Status code \(status)", terminator: "")
     }
 
     return contentsOfKeychain as? String

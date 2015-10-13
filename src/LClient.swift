@@ -135,8 +135,8 @@ class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLSessionT
 		return api_reloaded
 	}
 	func init_request(api: String) -> NSMutableURLRequest? {
-		var url = NSURL(string: root + api)!
-		var request = NSMutableURLRequest(URL: url)
+		let url = NSURL(string: root + api)!
+		let request = NSMutableURLRequest(URL: url)
 		request.HTTPMethod = method.rawValue
 		if content_type == LRest.content.form {
 			let boundary = form_boundary
@@ -159,7 +159,13 @@ class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLSessionT
 			if method != LRest.method.get && parameters != nil {
 
 				var error_ret: NSError?
-				let body = NSJSONSerialization.dataWithJSONObject(parameters!, options: nil, error: &error_ret)
+				let body: NSData?
+				do {
+					body = try NSJSONSerialization.dataWithJSONObject(parameters!, options: [])
+				} catch let error as NSError {
+					error_ret = error
+					body = nil
+				}
 				//	LF.log("REST body", NSString(data: body!, encoding: NSUTF8StringEncoding))
 				if error_ret != nil {
 					error_ret = NSError(domain: LRest.domain, code: LRest.error.invalid_parameter, userInfo:[NSLocalizedDescriptionKey: "LRestKit: invalid parameters"])
@@ -212,12 +218,11 @@ class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLSessionT
 		}
 		if let request = init_request(api_reloaded) {
 
-			var error_ret: NSError?
 			if text != nil && !cache_loaded {
 				text_show()
 			}
 			//	TODO: change data and error to optional - done, need more debugging
-			var func_done = {
+			let func_done = {
 				(response: NSURLResponse?, data: NSData?, error: NSError?) -> Void in
 
 				var error_ret: NSError? = error
@@ -225,7 +230,7 @@ class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLSessionT
 					self.text_hide()
 				}
 
-				var resp = response as! NSHTTPURLResponse?
+				let resp = response as! NSHTTPURLResponse?
 				self.response = resp
 				if error != nil {
 					//	LF.log("CLIENT error", error)
@@ -359,38 +364,49 @@ class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLSessionT
 		return filename.to_filename(directory: .CachesDirectory)
 	}
 	func execute_data(data: NSData!) {
-
 		var error: NSError?
-		let s = NSString(data: data, encoding: NSUTF8StringEncoding)
+		//let s = NSString(data: data, encoding: NSUTF8StringEncoding)
 		let cls = T.self
 		//LF.log("data", s)
-		//	TODO: call func_error if error araises
+		//	TODO: call func_error if error araises; this implementation just
+		//	work, better to utilize try / cache in Swift 2.0 more elegantly.
 		if let func_model = func_model {
-			var dict = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &error) as! LTDictStrObj?
-			//	TODO: support multi-layer path (already implemented in func_array)
-			if let path = self.path {
-				if var dict_tmp = dict?[path] as? LTDictStrObj {
-					dict = dict_tmp
-				}
+			var obj: T?
+			do {
+    			var dict = try NSJSONSerialization.JSONObjectWithData(data, options: []) as? LTDictStrObj
+    			//	TODO: support multi-layer path (already implemented in func_array)
+    			if let path = self.path {
+    				if let dict_tmp = dict?[path] as? LTDictStrObj {
+    					dict = dict_tmp
+    				}
+    			}
+				obj = cls.init(dict: dict)
+			} catch let e as NSError {
+				error = e
 			}
-			if error == nil {
-				let obj = cls(dict: dict)
-				func_model(obj, error)
-			}
+			func_model(obj, error)
 		}
 		if let func_array = self.func_array {
 			var array: [LTDictStrObj]?
 			if let paths = self.paths {
-				if var obj: AnyObject = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &error) {
+				do {
+					var obj: AnyObject = try NSJSONSerialization.JSONObjectWithData(data, options: [])
 					for path in paths {
 						if let obj_new: AnyObject = (obj as? LTDictStrObj)?[path] {
 							obj = obj_new	//(obj as! LTDictStrObj)[path]!
 						}
 					}
 					array = obj as? [LTDictStrObj]
+				} catch let e as NSError {
+					error = e
 				}
-			} else if let array_json = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &error) as? Array<LTDictStrObj> where error == nil {
-				array = array_json
+			} else {
+				do {
+					let array_json = try NSJSONSerialization.JSONObjectWithData(data, options: []) as? Array<LTDictStrObj>
+    				array = array_json
+				} catch let e as NSError {
+					error = e
+				}
 			}
 			if let array = array {
 				var array_obj: Array<T> = []
@@ -401,7 +417,7 @@ class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLSessionT
 							dict = dict[subpath] as! LTDictStrObj	//	TODO: subpath checking
 						}
 					}
-					let obj = cls(dict: dict)
+					let obj = cls.init(dict: dict)
 					array_obj.append(obj)
 				}
 				func_array(array_obj, error)
@@ -410,10 +426,15 @@ class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLSessionT
 			}
 		}
 		if let func_dict = self.func_dict {
+			//	FIXME: this is an example to show how ugly the swift 2.0 code can be :(
 			//let dict = NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments, error: &error) as LTDictStrObj
-			if let dict = NSJSONSerialization.JSONObjectWithData(data, options: nil, error: &error) as? LTDictStrObj {
-				func_dict(dict, error)
+			var dict: LTDictStrObj?
+			do {
+				dict = try NSJSONSerialization.JSONObjectWithData(data, options: []) as? LTDictStrObj
+			} catch let e as NSError {
+				error = e
 			}
+			func_dict(dict, error)
 		}
 	}
 
@@ -483,12 +504,12 @@ class LRestConnectionDelegate: NSObject {
 	var data: NSMutableData = NSMutableData()
 
 	func connection(connection: NSURLConnection, willSendRequestForAuthenticationChallenge challenge: NSURLAuthenticationChallenge) {
-		if challenge.previousFailureCount > 0 {
+		if challenge.previousFailureCount > 0, let sender = challenge.sender {
 			LF.log("challenge cancelled")
-			challenge.sender.cancelAuthenticationChallenge(challenge)
-		} else if let credential = credential {
+			sender.cancelAuthenticationChallenge(challenge)
+		} else if let credential = credential, let sender = challenge.sender {
 			LF.log("challenge added")
-			challenge.sender.useCredential(credential, forAuthenticationChallenge:challenge)
+			sender.useCredential(credential, forAuthenticationChallenge:challenge)
 		} else {
 			LF.log("REST connection will challenge", connection)
 		}
@@ -577,7 +598,7 @@ class LFModel: NSObject {
 			if let dict_parameter = value as? Dictionary<String, AnyObject> {
 				if a_key == key {
 					let a_class = NSClassFromString(type) as! LFModel.Type
-					let obj = a_class(dict: dict_parameter)
+					let obj = a_class.init(dict: dict_parameter)
 					setValue(obj, forKey:key)
 				}
 			} else if let array_parameter = value as? Array<AnyObject> {
@@ -587,7 +608,7 @@ class LFModel: NSObject {
 						if let dict_parameter = obj as? Dictionary<String, AnyObject> {
 							//LF.log(key, obj: dict_parameter)
 							let a_class = NSClassFromString(type) as! LFModel.Type
-							let obj_new = a_class(dict: dict_parameter)
+							let obj_new = a_class.init(dict: dict_parameter)
 							//LF.log(key, obj: obj_new)
 							array_new.append(obj_new)
 						}
@@ -653,7 +674,7 @@ class LFModel: NSObject {
         for var i = 0; i < Int(count); i++ {
             if let key = NSString(CString: property_getName(properties[i]), encoding: NSUTF8StringEncoding) as? String {
 				//LF.log(key, valueForKey(key))
-				if let value: AnyObject? = valueForKey(key) {
+				if let _ = valueForKey(key) {
 					array.append(key)
 				}
 			}
@@ -759,7 +780,7 @@ class LFAutosaveModel: LFModel {
 	static let autosave_prefix = "Autosave_"		//	TODO
 	func autosave_filename() -> String {
         var filename = NSStringFromClass(self.dynamicType)
-		filename = filename.stringByReplacingOccurrencesOfString(".", withString: "_", options:nil, range: nil)
+		filename = filename.stringByReplacingOccurrencesOfString(".", withString: "_", options:[], range: nil)
 		filename = LFAutosaveModel.autosave_prefix + filename + ".xml"
 		return filename.filename_doc()
 	}
@@ -772,7 +793,7 @@ class LFAutosaveModel: LFModel {
 	convenience init(publish: Bool, reload_immediately: Bool = true) {
 		//	TODO: how to call autosave_filename() instead? is double-init a must?
         var filename = NSStringFromClass(self.dynamicType)
-		filename = filename.stringByReplacingOccurrencesOfString(".", withString: "_", options:nil, range: nil)
+		filename = filename.stringByReplacingOccurrencesOfString(".", withString: "_", options:[], range: nil)
 		filename = LFAutosaveModel.autosave_prefix + filename + ".xml"
 		filename = filename.filename_doc()
 

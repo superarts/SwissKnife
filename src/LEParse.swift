@@ -1,10 +1,5 @@
 extension PFAnalytics {
 	class func track(event: String, dimensions: LTDictStrStr = [:], error: NSError? = nil) {
-		var dict = dimensions
-		if let error = error {
-			dict["error-code"] = String(error.code)
-			dict["error-description"] = String(error.localizedDescription)
-		}
 		PFAnalytics.trackEventInBackground(event, dimensions:dimensions, block:nil)
 	}
 }
@@ -68,7 +63,7 @@ class LFParseLocalizable: LFLocalizable {
 		self.init(dict: nil)
 		//self.init(dict: dict as? LTDictStrObj)
 		if let dict = dict as? [String: [AnyObject]] {
-			for key in dict.keys.array {
+			for key in Array(dict.keys) {
 				//LF.log(key, dict[key])
 				if var item = valueForKey(key) as? Item, let array = dict[key] as? [String] {
 					if item.array.count >= array.count {
@@ -84,7 +79,7 @@ class LFParseLocalizable: LFLocalizable {
 	override func autosave_publish() {
 		//LF.log("LOCALIZABLE publishing", self)
 		var count = 0
-        for (key, value) in dictionary {
+        for (_, value) in dictionary {
 			if let array = value as? [String] {
 				count = array.count - 1
 				break
@@ -94,7 +89,7 @@ class LFParseLocalizable: LFLocalizable {
 			var dict = self.dictionary
 			dict["lf_language"] = self.lf_language.array
 			for i in 0 ... count {
-				var object = PFObject(className: self.parse_class())
+				let object = PFObject(className: self.parse_class())
 				for (key, value) in dict {
 					if let array = value as? [String] where array.count > i {
 						let s = array[i]
@@ -102,7 +97,11 @@ class LFParseLocalizable: LFLocalizable {
 						//LF.log(key, s)
 					}
 				}
-				object.save()
+				do {
+    				try object.save()
+				} catch let e as NSError {
+					LF.log("SAVE failed", e)
+				}
 				LF.log("LOCALIZABLE publishing", i)
 			}
 		}
@@ -114,17 +113,15 @@ class LFParseLocalizable: LFLocalizable {
 			(objects, error) -> Void in
 			if error == nil {
 				for object in objects! {
-					if let obj = object as? PFObject {
-						for key in obj.allKeys() {
-							if let key = key as? String where key != "keys" {
-								//LF.log(key, obj[key])
-								if var item = self.valueForKey(key) as? Item, let s = obj[key] as? String {
-									//	TODO: currently a brand new language cannot be added in Parse dashboard
-									if item.array.count >= objects!.count {
-										item.array.removeAll()
-									}
-									item += s
+					for key in object.allKeys() {
+						if key != "keys" {
+							//LF.log(key, object[key])
+							if var item = self.valueForKey(key) as? Item, let s = object[key] as? String {
+								//	TODO: currently a brand new language cannot be added in Parse dashboard
+								if item.array.count >= objects!.count {
+									item.array.removeAll()
 								}
+								item += s
 							}
 						}
 					}
@@ -142,13 +139,13 @@ class LFParseLocalizable: LFLocalizable {
 extension LFModel {
 	func parse_class() -> String {
         var s = NSStringFromClass(self.dynamicType)
-		s = s.stringByReplacingOccurrencesOfString(".", withString: "_", options:nil, range: nil)
+		s = s.stringByReplacingOccurrencesOfString(".", withString: "_", options:[], range: nil)
 		return s
 	}
 	func parse_object() -> PFObject {
 		//LF.log("---- class", s)
 		//LF.log("---- class", self.id)
-		var object = PFObject(className: parse_class())
+		let object = PFObject(className: parse_class())
         for (key, value) in dictionary {
 			object[key] = value
 			/*
@@ -191,7 +188,7 @@ extension LFModel {
 	}
 	func parse_load(object: PFObject) {
 		for key in object.allKeys() {
-			if let key = key as? String where key != "keys" {
+			if key != "keys" {
 				//LF.log(key, object[key])
 				setValue(object[key], forKey:key)
 			}

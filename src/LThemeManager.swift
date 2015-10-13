@@ -14,9 +14,9 @@ struct LTheme {
 			case Spanish				= "es"
 			case SpanishMexico			= "es-MX"
 		}
-		static var language = Language(rawValue: NSLocale.preferredLanguages()[0] as! String)
+		static var language = Language(rawValue: NSLocale.preferredLanguages()[0] )
 		static func language_reload() {
-			language = Language(rawValue: NSLocale.preferredLanguages()[0] as! String)
+			language = Language(rawValue: NSLocale.preferredLanguages()[0] )
 		}
 		static var language_default: Language? = Language.English
 		static var languages = [
@@ -84,12 +84,12 @@ struct LTheme {
 				if lang == nil {
 					return nil
 				}
-				i = find(languages, lang)
+				i = languages.indexOf(lang)
 
 				//	if language is not supported directly, check alias
 				if i == nil {
 					if let lang = languages_alias[lang.rawValue] {
-						i = find(languages, lang)
+						i = languages.indexOf(lang)
 					}
 				}
 			}
@@ -134,7 +134,7 @@ struct LTheme {
 				}
 			}
 			*/
-			if let i = language_current(index: index) {
+			if let i = language_current(index) {
 				if let array = strings[key] where i < array.count {
 					return array[i]
 				}
@@ -167,10 +167,10 @@ extension UIView {
 				return label.font.fontName
 			} else if self is UITextField {
 				let field = self as! UITextField
-				return field.font.fontName
+				return field.font?.fontName
 			} else if self is UITextView {
 				let text = self as! UITextView
-				return text.font.fontName
+				return text.font?.fontName
 			} else if self is UIButton {
 				let button = self as! UIButton
 				return button.titleLabel!.font.fontName
@@ -183,10 +183,10 @@ extension UIView {
 				label.font = UIFont(name: name!, size: label.font.pointSize)
 			} else if self is UITextField {
 				let field = self as! UITextField
-				field.font = UIFont(name: name!, size: field.font.pointSize)
+				field.font = UIFont(name: name!, size: field.font!.pointSize)
 			} else if self is UITextView {
 				let text = self as! UITextView
-				text.font = UIFont(name: name!, size: text.font.pointSize)
+				text.font = UIFont(name: name!, size: text.font!.pointSize)
 			} else if self is UIButton {
 				let button = self as! UIButton
 				button.titleLabel!.font = UIFont(name: name!, size: button.titleLabel!.font.pointSize)
@@ -332,10 +332,10 @@ extension UITextField {
 	}
 	@IBInspectable var text_font_name: String? {
 		get {
-			return font.fontName
+			return font?.fontName
 		}
 		set (name) {
-			font = UIFont(name: name!, size: font.pointSize)
+			font = UIFont(name: name!, size: font!.pointSize)
 		}
 	}
 }
@@ -519,8 +519,8 @@ extension UITextView {
 		NSNotificationCenter.defaultCenter().removeObserver(self, name:UITextViewTextDidEndEditingNotification, object: nil);
 	}
 
-	override public func observeValueForKeyPath(keyPath: String, ofObject object: AnyObject, change: [NSObject:AnyObject], context: UnsafeMutablePointer<Void>) {
-		if let textView = object as? UITextView {
+	override public func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String:AnyObject]?, context: UnsafeMutablePointer<Void>) {
+		if let _ = object as? UITextView {
 			lf_reload_align_middle_vertical()
 		}
 	}
@@ -565,38 +565,47 @@ extension UITextView {
 	}
 	@IBInspectable var text_font_name: String? {
 		get {
-			return font.fontName
+			return font?.fontName
 		}
 		set (name) {
-			font = UIFont(name: name!, size: font.pointSize)
+			font = UIFont(name: name!, size: font!.pointSize)
 		}
 	}
 }
 
 class LFAlertSegue: UIStoryboardSegue {
     override func perform() {
-        let source = sourceViewController as! UIViewController
+        let source = sourceViewController 
         if let navigation = source.navigationController {
-			let alert = UIAlertController(title: "Message", message: identifier, preferredStyle: .Alert)
-			alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: {
-				(action: UIAlertAction!) -> Void in
-			}))
-			navigation.presentViewController(alert, animated: true, completion: nil)
-            //navigation.pushViewController(destinationViewController as UIViewController, animated: false)
+			if #available(iOS 8.0, *) {
+			    let alert = UIAlertController(title: "Message", message: identifier, preferredStyle: .Alert)
+    			alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: {
+    				(action: UIAlertAction) -> Void in
+    			}))
+    			navigation.presentViewController(alert, animated: true, completion: nil)
+                //navigation.pushViewController(destinationViewController as UIViewController, animated: false)
+			} else {
+			    // Fallback on earlier versions
+				LF.log("TODO alert not implemented")
+			}
         }
     }
 }
 
 class LFActionSheetSegue: UIStoryboardSegue {
     override func perform() {
-        let source = sourceViewController as! UIViewController
+        let source = sourceViewController 
         if let navigation = source.navigationController {
-			let alert = UIAlertController(title: "Message", message: identifier, preferredStyle: .ActionSheet)
-			alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: {
-				(action: UIAlertAction!) -> Void in
-			}))
-			navigation.presentViewController(alert, animated: true, completion: nil)
-            //navigation.pushViewController(destinationViewController as UIViewController, animated: false)
+			if #available(iOS 8.0, *) {
+			    let alert = UIAlertController(title: "Message", message: identifier, preferredStyle: .ActionSheet)
+    			alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: {
+    				(action: UIAlertAction) -> Void in
+    			}))
+    			navigation.presentViewController(alert, animated: true, completion: nil)
+                //navigation.pushViewController(destinationViewController as UIViewController, animated: false)
+			} else {
+				LF.log("TODO action not implemented")
+			}
         }
     }
 }
@@ -607,7 +616,7 @@ class LFLocalizable: LFAutosaveModel {
 	class Item: NSObject {
 		var array = [String]()
 		var str: String {
-			if let index = LTheme.localization.language_current(index:nil) {
+			if let index = LTheme.localization.language_current(nil) {
 				return array[index]
 			}
 			return ""

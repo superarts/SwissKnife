@@ -10,17 +10,17 @@ struct LF {
 
     static func log(message: String) {
         #if DEBUG
-            println(message)
+            print(message, terminator: "\n")
         #endif
     }
     static func log(message: String, _ obj: AnyObject?) {
         #if DEBUG
             if let s = obj as? String {
-                println(message + ": '" + s + "'")
+                print(message + ": '" + s + "'", terminator: "\n")
             } else if let desc = obj?.description {
-                println(message + ": '" + desc + "'")
+                print(message + ": '" + desc + "'", terminator: "\n")
             } else {
-                println(message + ": nil")
+                print(message + ": nil", terminator: "\n")
             }
         #endif
     }
@@ -91,7 +91,7 @@ extension NSObject {
 		return objc_getAssociatedObject(self, p)
 	}
 	func associate(p: UnsafePointer<Void>, object: AnyObject) {
-		objc_setAssociatedObject(self, p, object, UInt(OBJC_ASSOCIATION_RETAIN_NONATOMIC))
+		objc_setAssociatedObject(self, p, object, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN_NONATOMIC)
 	}
 	func perform(key: String, value: AnyObject? = nil) {
 		if respondsToSelector(Selector(key)) {
@@ -117,7 +117,7 @@ extension Array {
 	}
 	*/
 	mutating func remove<U: Equatable>(object: U) -> Bool {
-		for (idx, objectToCompare) in enumerate(self) {
+		for (idx, objectToCompare) in self.enumerate() {
 			if let to = objectToCompare as? U {
 				if object == to {
 					self.removeAtIndex(idx)
@@ -140,10 +140,17 @@ extension Array {
 }
 
 extension String {
-//	TODO: not working?
+    //	swift 1.2
+	/*
 	subscript (i: Int) -> String {
-		return String(Array(self)[i])
+		return String(Array(arrayLiteral: self)[i])
 	}
+	*/
+    subscript(integerIndex: Int) -> String {
+        let index = startIndex.advancedBy(integerIndex)
+        return String(self[index])
+    }
+	
 /*
 	subscript (r: Range<Int>) -> String {
 		var start = advance(startIndex, r.startIndex)
@@ -163,15 +170,23 @@ extension String {
 */
 	subscript (r: Range<Int>) -> String {
         get {
-            let startIndex = advance(self.startIndex, r.startIndex)
-            let endIndex = advance(self.startIndex, r.endIndex - 1)
+            let startIndex = self.startIndex.advancedBy(r.startIndex)
+            let endIndex = self.startIndex.advancedBy(r.endIndex - 1)
             
             return self[Range(start: startIndex, end: endIndex)]
         }
     }
+	/*
+    subscript(integerRange: Range<Int>) -> String {
+        let start = startIndex.advancedBy(integerRange.startIndex)
+        let end = startIndex.advancedBy(integerRange.endIndex)
+        let range = start..<end
+        return self[range]
+    }
+    */
 	var length: Int {
 		get {
-			return count(self)
+			return self.characters.count
 		}
 	}
 	var word_count: Int {
@@ -181,7 +196,14 @@ extension String {
 		}
 	}
 	func sub_range(head: Int, _ tail: Int) -> String {
-		return self.substringWithRange(Range<String.Index>(start: advance(self.startIndex, head), end: advance(self.endIndex, tail)))
+		//return self.substringWithRange(Range<String.Index>(start: self.startIndex.advancedBy(head), end: self.endIndex.advancedBy(tail)))
+		return self[head...tail]
+	}
+	func sub_before(sub: String) -> String {
+		if let range = self.rangeOfString(sub), let index: Int = self.startIndex.distanceTo(range.startIndex) {
+			return sub_range(0, index)
+		}
+		return ""
 	}
 	func contains(find: String, case_sensitive: Bool = true) -> Bool {
 		if case_sensitive == false {
@@ -194,12 +216,15 @@ extension String {
 		return true
 	}
 	func is_email() -> Bool {
-        //println("validate calendar: \(self)")
+        //print("validate calendar: \(self)")
         let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}"
-        var emailTest = NSPredicate(format:"SELF MATCHES %@", emailRegEx)
+        let emailTest = NSPredicate(format:"SELF MATCHES %@", emailRegEx)
 		let predicate = emailTest
         return predicate.evaluateWithObject(self)
     }
+	func remove_whitespace() -> String {
+		return self.stringByReplacingOccurrencesOfString(" ", withString:"")
+	}
 	func decode_html() -> String {
 		var s = self
 		s = s.stringByReplacingOccurrencesOfString("&amp;", withString:"&")
@@ -379,20 +404,21 @@ extension UIColor {
 
 //  TODO: make a script to create wrapper classes as above
 extension NSString {
-    func filename_doc(_ namespace: String? = nil) -> String {
+    func filename_doc(namespace: String? = nil) -> String {
 		return self.to_filename(namespace, directory:.DocumentDirectory)
     }
-    func filename_lib(_ namespace: String? = nil) -> String {
+    func filename_lib(namespace: String? = nil) -> String {
 		return self.to_filename(namespace, directory:.LibraryDirectory)
 	}
-    func to_filename(_ namespace: String? = nil, directory: NSSearchPathDirectory) -> String {
+    func to_filename(namespace: String? = nil, directory: NSSearchPathDirectory) -> String {
 		var filename = self
 		if namespace != nil {
 			filename = namespace! + "-" + (self as String)
 		}
         let paths = NSSearchPathForDirectoriesInDomains(directory, .UserDomainMask, true)
-        let dir = paths[0] as! String
-        return dir.stringByAppendingPathComponent(filename as! String)
+        let dir = paths[0]
+		let path = NSURL(fileURLWithPath: dir).URLByAppendingPathComponent(filename as String)
+        return path.absoluteString
     }
     func file_exists_doc(namespace: String? = nil) -> Bool {
         let manager = NSFileManager.defaultManager()
@@ -413,7 +439,7 @@ extension UIImageView {
 		if url == nil {
 			return
 		}
-        var filename = url!.stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet.URLHostAllowedCharacterSet())!	//.lowercaseString
+        let filename = url!.stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet.URLHostAllowedCharacterSet())!	//.lowercaseString
 		//filename = filename.stringByReplacingOccurrencesOfString(".", withString:"")
 		//filename = filename.stringByReplacingOccurrencesOfString("jpeg", withString:"")
 		//filename = filename.stringByReplacingOccurrencesOfString("jpg", withString:"")
@@ -459,7 +485,7 @@ extension UIImage {
 
 	//	TODO: efficiency?
 	convenience init?(color: UIColor) {
-        self.init(data: UIImagePNGRepresentation(UIImage.imageWithColor(color)))
+        self.init(data: UIImagePNGRepresentation(UIImage.imageWithColor(color))!)
 	}
 	class func imageWithColor(color: UIColor) -> UIImage {
 		let rect = CGRectMake(0, 0, 1, 1)
@@ -493,10 +519,10 @@ extension UIFont {
 	class func print_all() {
 		let fontFamilyNames = UIFont.familyNames()
 		for familyName in fontFamilyNames {
-			println("------------------------------")
-			println("Font Family Name = [\(familyName)]")
-			let names = UIFont.fontNamesForFamilyName(familyName as! String)
-			println("Font Names = [\(names)]")
+			print("------------------------------", terminator: "")
+			print("Font Family Name = [\(familyName)]", terminator: "")
+			let names = UIFont.fontNamesForFamilyName(familyName )
+			print("Font Names = [\(names)]", terminator: "")
 		}
 	}
 }
@@ -688,31 +714,37 @@ extension UIViewController {
             if index < 0 {
                 index = controllers.count - 1 + level
             }
-            if let controller = controllers[index] as? UIViewController {
-                navigationController?.popToViewController(controller, animated:animated)
-            }
+            let controller = controllers[index]
+            navigationController?.popToViewController(controller, animated:animated)
         }
     }
   
-	func pushIdentifier(controllerIdentifier: String, animated: Bool = true) -> UIViewController {
+	func pushIdentifier(controllerIdentifier: String, animated: Bool = true) -> UIViewController? {
 		return push_identifier(controllerIdentifier, animated:animated)
 	}
-	func push_identifier(controllerIdentifier: String, animated: Bool = true) -> UIViewController {
-		let controller = storyboard?.instantiateViewControllerWithIdentifier(controllerIdentifier) as! UIViewController
-		navigationController?.pushViewController(controller, animated: animated)
-		return controller
+	func push_identifier(controllerIdentifier: String, animated: Bool = true, hide_bottom: Bool? = nil) -> UIViewController? {
+		if let controller = storyboard?.instantiateViewControllerWithIdentifier(controllerIdentifier) {
+			if let hide = hide_bottom {
+				controller.hidesBottomBarWhenPushed = hide
+			}
+    		navigationController?.pushViewController(controller, animated: animated)
+    		return controller
+		}
+		return nil
 	}
-	func present_identifier(controllerIdentifier: String, animated: Bool = true) -> UIViewController {
-		let controller = storyboard?.instantiateViewControllerWithIdentifier(controllerIdentifier) as! UIViewController
-		self.presentViewController(controller, animated:animated, completion:nil)
-		return controller
+	func present_identifier(controllerIdentifier: String, animated: Bool = true) -> UIViewController? {
+		if let controller = storyboard?.instantiateViewControllerWithIdentifier(controllerIdentifier) {
+    		self.presentViewController(controller, animated:animated, completion:nil)
+    		return controller
+		}
+		return nil
 	}
 }
 
 extension UISearchBar {
 	func set_text_image(text: NSString, icon:UISearchBarIcon, attribute:LTDictStrObj? = nil, state:UIControlState = .Normal) {
-		var textColor: UIColor = UIColor.whiteColor()
-		var textFont: UIFont = UIFont(name: "FontAwesome", size: 15)!
+		let textColor: UIColor = UIColor.whiteColor()
+		let textFont: UIFont = UIFont(name: "FontAwesome", size: 15)!
 		UIGraphicsBeginImageContext(CGSizeMake(15, 15))
 		var attr = attribute
 		if attr == nil {
@@ -722,7 +754,7 @@ extension UISearchBar {
 			]
 		}
 		text.drawInRect(CGRectMake(0, 0, 15, 15), withAttributes: attr)
-		var image: UIImage = UIGraphicsGetImageFromCurrentImageContext()
+		let image: UIImage = UIGraphicsGetImageFromCurrentImageContext()
 		UIGraphicsEndImageContext()
 
 		self.setImage(image, forSearchBarIcon:icon, state:state)
@@ -767,6 +799,7 @@ class LFViewController: UIViewController {
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject!) {
         super.prepareForSegue(segue, sender:sender)
         //  LF.log("LFViewController controller", segue.destinationViewController)
+		/*
         if let controller = segue.destinationViewController as? UIViewController {
             //LF.log("LFViewController segue", segue)
             if let identifier = segue.identifier {
@@ -774,6 +807,11 @@ class LFViewController: UIViewController {
             }
         } else {
             LF.log("LFViewController nil destination", segue.identifier)
+        }
+        */
+        let controller = segue.destinationViewController
+        if let identifier = segue.identifier {
+            containers[identifier] = controller
         }
     }
 
@@ -858,22 +896,22 @@ class LFHorizontalScrollController: UIViewController, UIScrollViewDelegate {
 	}
     func reload() {
 		let w_total = get_total()
-		let repeat = Int(view.w * 2 / w_total + 1)
+		let repeat_count = Int(view.w * 2 / w_total + 1)
 		//LF.log("width", w_total)
-		//LF.log("repeat", repeat)
+		//LF.log("repeat", repeat_count)
 
         //	scroll.frame = CGRectMake(view.w * (1 - page_width) / 2, 0, view.w * page_width, view.h)
         for label in labels {
             label.removeFromSuperview()
         }
         labels.removeAll()
-        let w = view.w
+        //let w = view.w
 		var w_offset: CGFloat = 0
 		var w_delta: CGFloat = 0
-		for ii in 0 ... repeat {
+		for ii in 0 ... repeat_count {
 			for i in 0 ... titles.count - 1 {
 				let title = titles[i]
-				let fi = CGFloat(i)
+				//let fi = CGFloat(i)
 				let w = get_width(i)
 				//let label = UILabel(frame: CGRectMake(w * 0.25 + w * 0.5 * fi, 0, w * 0.5, view.h))
 				//let label = UILabel(frame: CGRectMake(w * page_width * fi, 0, w * page_width, view.h))
@@ -948,7 +986,7 @@ class LFHorizontalScrollController: UIViewController, UIScrollViewDelegate {
 			let dd = abs(label.x + label.w / 2 - scroll.content_x - view.w / 2)
 			if dd < d {
 				d = dd
-				index = find(labels, label)!
+				index = labels.indexOf(label)!
 			}
 		}
 		return index
@@ -1049,14 +1087,14 @@ class LFTableDataSource: NSObject, UITableViewDelegate, UITableViewDataSource {
 
 	func index_alphabet(array: Array<String>) -> Array<Array<String>> {
 		var ret: Array<Array<String>> = []
-		let sorted: Array<String> = array.sorted { $0.localizedCaseInsensitiveCompare($1) == NSComparisonResult.OrderedAscending }
+		let sorted: Array<String> = array.sort { $0.localizedCaseInsensitiveCompare($1) == NSComparisonResult.OrderedAscending }
 		counts.removeAll()
 		headers.removeAll()
 		let alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-		for c in alphabet {
+		for c in alphabet.characters {
 			var a: Array<String> = []
 			for s in sorted {
-				if String(Array(s)[0]).uppercaseString == String(c) {
+				if String(Array(s.characters)[0]).uppercaseString == String(c) {
 					a.append(s)
 				}
 			}
@@ -1149,8 +1187,8 @@ struct LFDebug {
 	static var filename = "LDebug.xml"
 	static var is_appending = true
 
-	static func string(_ namespace: String? = nil) -> String {
-		if let s = String(contentsOfFile:filename.filename_doc(namespace), encoding: NSUTF8StringEncoding, error: nil) {
+	static func string(namespace: String? = nil) -> String {
+		if let s = try? String(contentsOfFile:filename.filename_doc(namespace), encoding: NSUTF8StringEncoding) {
 			return s
 		}
 		LF.log("LDebug file not found", filename.filename_doc(namespace))
@@ -1165,15 +1203,20 @@ struct LFDebug {
 				s = date + ":\t" + msg + "\n" + s
 			}
 		}
-		var error: NSError?
-		s.writeToFile(filename.filename_doc(namespace), atomically:true, encoding:NSUTF8StringEncoding, error:&error)
-		//LF.log("LDebug save error", error)
+		do {
+			try s.writeToFile(filename.filename_doc(namespace), atomically:true, encoding:NSUTF8StringEncoding)
+		} catch _ {
+    		//LF.log("LDebug save error", error)
+		}
 	}
-	static func clear(_ namespace: String? = nil) {
-		"".writeToFile(filename.filename_doc(namespace), atomically:true, encoding:NSUTF8StringEncoding, error:nil)
+	static func clear(namespace: String? = nil) {
+		do {
+			try "".writeToFile(filename.filename_doc(namespace), atomically:true, encoding:NSUTF8StringEncoding)
+		} catch _ {
+		}
 	}
-	static func log_show(_ namespace: String? = nil) {
-		var s = string(namespace)
+	static func log_show(namespace: String? = nil) {
+		let s = string(namespace)
 		LF.log("LDebug", s)
 	}
 }

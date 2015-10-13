@@ -9,7 +9,7 @@ enum TimeIntervalUnit {
     case Seconds, Minutes, Hours, Days, Months, Years
     
     func dateComponents(interval: Int) -> NSDateComponents {
-        var components:NSDateComponents = NSDateComponents()
+        let components:NSDateComponents = NSDateComponents()
         
         switch (self) {
         case .Seconds:
@@ -24,8 +24,8 @@ enum TimeIntervalUnit {
             components.month = interval
         case .Years:
             components.year = interval
-        default:
-            components.day = interval
+        //default:
+        //	components.day = interval
         }
         return components
     }
@@ -36,10 +36,10 @@ struct TimeInterval {
     var unit: TimeIntervalUnit
     
     var ago: NSDate {
-        var calendar = NSCalendar.currentCalendar()
+        let calendar = NSCalendar.currentCalendar()
             let today = NSDate()
-            var components = unit.dateComponents(-self.interval)
-            return calendar.dateByAddingComponents(components, toDate: today, options: nil)!
+            let components = unit.dateComponents(-self.interval)
+            return calendar.dateByAddingComponents(components, toDate: today, options: [])!
     }
     
     init(interval: Int, unit: TimeIntervalUnit) {
@@ -72,15 +72,15 @@ extension Int {
 }
 
 func - (let left:NSDate, let right:TimeInterval) -> NSDate {
-    var calendar = NSCalendar.currentCalendar()
-    var components = right.unit.dateComponents(-right.interval)
-    return calendar.dateByAddingComponents(components, toDate: left, options: nil)!
+    let calendar = NSCalendar.currentCalendar()
+    let components = right.unit.dateComponents(-right.interval)
+    return calendar.dateByAddingComponents(components, toDate: left, options: [])!
 }
 
 func + (let left:NSDate, let right:TimeInterval) -> NSDate {
-    var calendar = NSCalendar.currentCalendar()
-    var components = right.unit.dateComponents(right.interval)
-    return calendar.dateByAddingComponents(components, toDate: left, options: nil)!
+    let calendar = NSCalendar.currentCalendar()
+    let components = right.unit.dateComponents(right.interval)
+    return calendar.dateByAddingComponents(components, toDate: left, options: [])!
 }
 
 var test1 = 2.years.ago
@@ -88,7 +88,7 @@ var test2 = NSDate() - 4.days
 var test3 = NSDate() + 5.months
 
 func < (let left:NSDate, let right: NSDate) -> Bool {
-    var result:NSComparisonResult = left.compare(right)
+    let result:NSComparisonResult = left.compare(right)
     var isEarlier = false
     if (result == NSComparisonResult.OrderedAscending) {
         isEarlier = true
@@ -97,7 +97,7 @@ func < (let left:NSDate, let right: NSDate) -> Bool {
 }
 
 func > (let left:NSDate, let right: NSDate) -> Bool {
-    var result:NSComparisonResult = left.compare(right)
+    let result:NSComparisonResult = left.compare(right)
     var isLater = false
     if (result == NSComparisonResult.OrderedDescending) {
         isLater = true
@@ -106,7 +106,7 @@ func > (let left:NSDate, let right: NSDate) -> Bool {
 }
 
 func == (let left:NSDate, let right: NSDate) -> Bool {
-    var result:NSComparisonResult = left.compare(right)
+    let result:NSComparisonResult = left.compare(right)
     var isEqual = false
     if (result == NSComparisonResult.OrderedSame) {
         isEqual = true
@@ -124,7 +124,7 @@ extension NSDate {
     }
     
     func to_string(let format:String) -> String? {
-        var formatter:NSDateFormatter = NSDateFormatter()
+        let formatter:NSDateFormatter = NSDateFormatter()
         formatter.locale = NSLocale(localeIdentifier: "en_US_POSIX")
         formatter.timeZone = NSTimeZone()
         formatter.dateFormat = format
@@ -142,7 +142,7 @@ extension String {
    
 	//	the original one - we're not going to use it
     func to_date(let format:String = "dd/MM/yyyy") -> NSDate? {
-        var formatter:NSDateFormatter = NSDateFormatter()
+        let formatter:NSDateFormatter = NSDateFormatter()
         formatter.locale = NSLocale(localeIdentifier: "en_US_POSIX")
         formatter.timeZone = NSTimeZone()
         formatter.dateFormat = format
@@ -161,6 +161,6 @@ extension String {
 	}
 }
 
-var test8 = "12/01/2014".to_date(format: "MM/dd/yyyy")
+var test8 = "12/01/2014".to_date("MM/dd/yyyy")
 var test9 = "12/01/2014".to_date()
 
