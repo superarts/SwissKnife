@@ -1,6 +1,6 @@
 import UIKit
 
-class LSDemoLocalizable: LFLocalizable {
+class LSDemoLocalizable: LFParseLocalizable {
 	var test = Item()
 	var test2 = Item()
 	required init(dict: LTDictStrObj?) {
