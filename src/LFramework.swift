@@ -33,7 +33,7 @@ struct LF {
 		dispatch_after(time, dispatch_get_main_queue(), block)
 	}
 	static func dispatch(block: dispatch_block_t) {
-		dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), block)
+		dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), block)
 	}
 	static func dispatch_main(block: dispatch_block_t) {
 		dispatch_async(dispatch_get_main_queue(), block)
@@ -55,6 +55,7 @@ struct LF {
 	struct keys {
 		static var scroll_page = "lf-key-scroll-page"
 		static var text_placeholder = "lf-key-text-placeholder"
+		static var text_color = "lf-key-text-color"
 	}
 }
 
@@ -415,10 +416,17 @@ extension NSString {
 		if namespace != nil {
 			filename = namespace! + "-" + (self as String)
 		}
-        let paths = NSSearchPathForDirectoriesInDomains(directory, .UserDomainMask, true)
-        let dir = paths[0]
-		let path = NSURL(fileURLWithPath: dir).URLByAppendingPathComponent(filename as String)
-        return path.absoluteString
+
+        //let paths = NSSearchPathForDirectoriesInDomains(directory, .AllDomainsMask, true)
+        if let dir = NSSearchPathForDirectoriesInDomains(directory, .UserDomainMask, true).first {
+			let url = NSURL(fileURLWithPath: dir).URLByAppendingPathComponent(filename as String)
+			if let path = url.path {
+				return path
+			}
+		}
+		LF.log("WARNING: failed to get filename", namespace)
+		return ""
+		//return url.absoluteString
     }
     func file_exists_doc(namespace: String? = nil) -> Bool {
         let manager = NSFileManager.defaultManager()
@@ -1219,4 +1227,11 @@ struct LFDebug {
 		let s = string(namespace)
 		LF.log("LDebug", s)
 	}
+}
+
+//	cell
+
+class LFCellTitleDetail: UITableViewCell {
+	@IBOutlet var label_title: UILabel!
+	@IBOutlet var label_detail: UILabel!
 }

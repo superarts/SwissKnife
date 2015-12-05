@@ -97,11 +97,17 @@ class LFParseLocalizable: LFLocalizable {
 						//LF.log(key, s)
 					}
 				}
+				object.saveInBackgroundWithBlock() {
+					(success, error) -> Void in
+					LF.log("PROFILE published, error", error)
+				}
+				/*
 				do {
     				try object.save()
 				} catch let e as NSError {
 					LF.log("SAVE failed", e)
 				}
+				*/
 				LF.log("LOCALIZABLE publishing", i)
 			}
 		}
@@ -111,14 +117,16 @@ class LFParseLocalizable: LFLocalizable {
 		query.orderByAscending("createdAt")
 		query.findObjectsInBackgroundWithBlock() {
 			(objects, error) -> Void in
-			if error == nil {
-				for object in objects! {
+			//LF.log("AUTOSAVE objects", objects)
+			//LF.log("AUTOSAVE error", error)
+			if let objects = objects where error == nil {
+				for object in objects {
 					for key in object.allKeys() {
 						if key != "keys" {
 							//LF.log(key, object[key])
 							if var item = self.valueForKey(key) as? Item, let s = object[key] as? String {
 								//	TODO: currently a brand new language cannot be added in Parse dashboard
-								if item.array.count >= objects!.count {
+								if item.array.count >= objects.count {
 									item.array.removeAll()
 								}
 								item += s
@@ -201,4 +209,3 @@ extension LFModel {
 		return obj
 	}
 }
-

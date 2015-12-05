@@ -500,6 +500,7 @@ extension UITextView {
 		}
 		set (s) {
 			associate(&LF.keys.text_placeholder, object:s)
+			//associate(&LF.keys.text_color, object:textColor!)
 			self.text = s
 			//NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("lf_text_changed:"), name:UITextViewTextDidChangeNotification, object: nil);
 			NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("lf_text_edit_began:"), name:UITextViewTextDidBeginEditingNotification, object: nil);
@@ -535,11 +536,13 @@ extension UITextView {
 	func lf_text_edit_began(notification: NSNotification) {
 		if self.text == self.placeholder {
 			self.text = ""
+            //self.textColor = associated(&LF.keys.text_color) as? UIColor
 		}
 	}
 	func lf_text_edit_ended(notification: NSNotification) {
 		if self.text == "" {
 			self.text = self.placeholder
+            //self.textColor = .grayColor()
 		}
 	}
 	@IBInspectable var text_localized: String? {
@@ -627,6 +630,12 @@ class LFLocalizable: LFAutosaveModel {
 		var Str: String {
 			let s = str
 			return s[0].uppercaseString + s[1...s.length]
+		}
+		var s: String {
+			return str
+		}
+		var S: String {
+			return STR
 		}
 	}
 	required init(dict: LTDictStrObj?) {

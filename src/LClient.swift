@@ -590,8 +590,26 @@ class LFModel: NSObject {
 		//LF.log(filename, dict)
 		self.init(dict: dict as? LTDictStrObj)
 	}
-	func save(filename: String, atomically: Bool = true) {
-		(dictionary as NSDictionary).writeToFile(filename, atomically: atomically)
+	func save(filename: String, atomically: Bool = true) -> Bool {
+		/*
+		let data = NSKeyedArchiver.archivedDataWithRootObject(dictionary)
+		do {
+			try data.writeToFile(filename, options:[])
+			LF.log("save succesx", filename)
+		} catch let e as NSError {
+			LF.log("save failed", e)
+		}
+		if let dict = NSKeyedUnarchiver.unarchiveObjectWithData(data) as? NSDictionary {
+			let success = dict.writeToFile(filename, atomically: atomically)
+			LF.log("dict", dict)
+			LF.log("saving success", success)
+			return success
+		}
+		LF.log("saving success failed: not valid dictionary")
+		*/
+		let success = (dictionary as NSDictionary).writeToFile(filename, atomically: atomically)
+		//LF.log("saving success", success)
+		return success
 	}
 	func reload(key: String, type: String) {
 		for (a_key, value) in dictionary {
