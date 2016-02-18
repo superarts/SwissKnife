@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:LSwiftDemo.xcodeproj">
+      location = "self:LFramework2.xcodeproj">
    </FileRef>
 </Workspace>

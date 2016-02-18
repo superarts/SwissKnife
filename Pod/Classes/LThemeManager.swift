@@ -210,7 +210,7 @@ extension UIView {
 		}
 		set (enabled) {
 			if Bool(enabled) == true {
-				lf_enableBorder(is_circle: true)
+				enable_border(is_circle: true)
 			} else {
 				layer.cornerRadius = 0
 			}
@@ -222,7 +222,7 @@ extension UIView {
 			return 0
 		}
 		set (f) {
-			lf_enableBorder(radius: f)
+			enable_border(radius: f)
 		}
 	}
 	@IBInspectable var border_width: CGFloat {
@@ -231,7 +231,7 @@ extension UIView {
 			return 0
 		}
 		set (f) {
-			lf_enableBorder(width: f)
+			enable_border(width: f)
 		}
 	}
 	@IBInspectable var border_color: UIColor? {
@@ -240,7 +240,7 @@ extension UIView {
 			return nil
 		}
 		set (c) {
-			lf_enableBorder(color: c)
+			enable_border(color: c)
 		}
 	}
 	@IBInspectable var gradient_top: UIColor? {
@@ -580,17 +580,11 @@ class LFAlertSegue: UIStoryboardSegue {
     override func perform() {
         let source = sourceViewController 
         if let navigation = source.navigationController {
-			if #available(iOS 8.0, *) {
-			    let alert = UIAlertController(title: "Message", message: identifier, preferredStyle: .Alert)
-    			alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: {
-    				(action: UIAlertAction) -> Void in
-    			}))
-    			navigation.presentViewController(alert, animated: true, completion: nil)
-                //navigation.pushViewController(destinationViewController as UIViewController, animated: false)
-			} else {
-			    // Fallback on earlier versions
-				LF.log("TODO alert not implemented")
-			}
+		    let alert = UIAlertController(title: "Message", message: identifier, preferredStyle: .Alert)
+			alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: {
+				(action: UIAlertAction) -> Void in
+			}))
+			navigation.presentViewController(alert, animated: true, completion: nil)
         }
     }
 }
@@ -599,16 +593,12 @@ class LFActionSheetSegue: UIStoryboardSegue {
     override func perform() {
         let source = sourceViewController 
         if let navigation = source.navigationController {
-			if #available(iOS 8.0, *) {
-			    let alert = UIAlertController(title: "Message", message: identifier, preferredStyle: .ActionSheet)
-    			alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: {
-    				(action: UIAlertAction) -> Void in
-    			}))
-    			navigation.presentViewController(alert, animated: true, completion: nil)
-                //navigation.pushViewController(destinationViewController as UIViewController, animated: false)
-			} else {
-				LF.log("TODO action not implemented")
-			}
+		    let alert = UIAlertController(title: "Message", message: identifier, preferredStyle: .ActionSheet)
+			alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: {
+				(action: UIAlertAction) -> Void in
+			}))
+			navigation.presentViewController(alert, animated: true, completion: nil)
+            //navigation.pushViewController(destinationViewController as UIViewController, animated: false)
         }
     }
 }

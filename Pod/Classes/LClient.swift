@@ -113,7 +113,7 @@ class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLSessionT
 	func reload_api() -> String {
 		var api_reloaded = api
 		if method.rawValue == "GET" && parameters != nil {
-			if api_reloaded.contains("?") {
+			if api_reloaded.include("?") {
 				api_reloaded = api_reloaded + "&"
 			} else {
 				api_reloaded = api_reloaded + "?"
@@ -682,7 +682,7 @@ class LFModel: NSObject {
 				break
 			}
 			/*
-			if NSStringFromClass(c).contains("LFModel") {
+			if NSStringFromClass(c).include("LFModel") {
 				break
 			}
 			*/
