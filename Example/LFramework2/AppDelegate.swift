@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import LFramework2
+import LFramework
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {

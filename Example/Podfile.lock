@@ -4,7 +4,11 @@ PODS:
   - FBSnapshotTestCase/Core (2.0.7)
   - FBSnapshotTestCase/SwiftSupport (2.0.7):
     - FBSnapshotTestCase/Core
-  - LFramework2 (0.1.0)
+  - LFramework (0.1.0):
+    - LFramework/LFoundation (= 0.1.0)
+  - LFramework/LClient (0.1.0):
+    - LFramework/LFoundation
+  - LFramework/LFoundation (0.1.0)
   - Nimble (3.0.0)
   - Nimble-Snapshots (3.0.0):
     - FBSnapshotTestCase (~> 2.0.7)
@@ -14,18 +18,19 @@ PODS:
 
 DEPENDENCIES:
   - FBSnapshotTestCase
-  - LFramework2 (from `../`)
+  - LFramework (from `../`)
+  - LFramework/LClient (from `../`)
   - Nimble (= 3.0.0)
   - Nimble-Snapshots
   - Quick (~> 0.8.0)
 
 EXTERNAL SOURCES:
-  LFramework2:
+  LFramework:
     :path: ../
 
 SPEC CHECKSUMS:
   FBSnapshotTestCase: 7e85180d0d141a0cf472352edda7e80d7eaeb547
-  LFramework2: 5721cd417b4d70c11cc58521e3ce78d05f6f2c86
+  LFramework: eb2d78a615c4795106ba296b238a334a5236eddf
   Nimble: 4c353d43735b38b545cbb4cb91504588eb5de926
   Nimble-Snapshots: ab41dd737dcd33a0b0cb005a30465fef70b7207a
   Quick: 563d0f6ec5f72e394645adb377708639b7dd38ab

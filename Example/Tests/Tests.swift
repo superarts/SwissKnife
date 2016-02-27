@@ -2,7 +2,7 @@
 
 import Quick
 import Nimble
-import LFramework2
+import LFramework
 
 class TableOfContentsSpec: QuickSpec {
     override func spec() {

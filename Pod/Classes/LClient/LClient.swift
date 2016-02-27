@@ -1018,3 +1018,49 @@ class LFRestTableController: LFTableController {
 		//	override me
 	}
 }
+
+class LFLocalizable: LFAutosaveModel {
+	var lf_language = Item()
+
+	class Item: NSObject {
+		var array = [String]()
+		var str: String {
+			if let index = LTheme.localization.language_current(nil) {
+				return array[index]
+			}
+			return ""
+		}
+		var STR: String {
+			return str.uppercaseString
+		}
+		var Str: String {
+			let s = str
+			return s[0].uppercaseString + s[1...s.length]
+		}
+		var s: String {
+			return str
+		}
+		var S: String {
+			return STR
+		}
+	}
+	required init(dict: LTDictStrObj?) {
+		super.init(dict: dict)
+		for language in LTheme.localization.languages {
+			lf_language += language.rawValue
+		}
+	}
+    override var dictionary: Dictionary<String, AnyObject> {
+		var dict = [String: AnyObject]()
+		for key in keys {
+			if let item = valueForKey(key) as? Item {
+				dict[key] = item.array
+			}
+		}
+		return dict
+	}
+}
+
+func += (inout left: LFLocalizable.Item, right: String) {
+	left.array.append(right)
+}
