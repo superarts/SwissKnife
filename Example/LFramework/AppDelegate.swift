@@ -1,6 +1,6 @@
 //
 //  AppDelegate.swift
-//  LFramework2
+//  LFramework
 //
 //  Created by Leo on 12/19/2015.
 //  Copyright (c) 2015 Leo. All rights reserved.

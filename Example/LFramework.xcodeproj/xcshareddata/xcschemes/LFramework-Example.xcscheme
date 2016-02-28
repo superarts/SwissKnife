@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "607FACCF1AFB9204008FA782"
-               BuildableName = "LFramework2_Example.app"
-               BlueprintName = "LFramework2_Example"
-               ReferencedContainer = "container:LFramework2.xcodeproj">
+               BuildableName = "LFramework_Example.app"
+               BlueprintName = "LFramework_Example"
+               ReferencedContainer = "container:LFramework.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -29,9 +29,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "607FACE41AFB9204008FA782"
-               BuildableName = "LFramework2_Tests.xctest"
-               BlueprintName = "LFramework2_Tests"
-               ReferencedContainer = "container:LFramework2.xcodeproj">
+               BuildableName = "LFramework_Tests.xctest"
+               BlueprintName = "LFramework_Tests"
+               ReferencedContainer = "container:LFramework.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -47,9 +47,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "607FACE41AFB9204008FA782"
-               BuildableName = "LFramework2_Tests.xctest"
-               BlueprintName = "LFramework2_Tests"
-               ReferencedContainer = "container:LFramework2.xcodeproj">
+               BuildableName = "LFramework_Tests.xctest"
+               BlueprintName = "LFramework_Tests"
+               ReferencedContainer = "container:LFramework.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -57,9 +57,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "607FACCF1AFB9204008FA782"
-            BuildableName = "LFramework2_Example.app"
-            BlueprintName = "LFramework2_Example"
-            ReferencedContainer = "container:LFramework2.xcodeproj">
+            BuildableName = "LFramework_Example.app"
+            BlueprintName = "LFramework_Example"
+            ReferencedContainer = "container:LFramework.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -80,9 +80,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "607FACCF1AFB9204008FA782"
-            BuildableName = "LFramework2_Example.app"
-            BlueprintName = "LFramework2_Example"
-            ReferencedContainer = "container:LFramework2.xcodeproj">
+            BuildableName = "LFramework_Example.app"
+            BlueprintName = "LFramework_Example"
+            ReferencedContainer = "container:LFramework.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -99,9 +99,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "607FACCF1AFB9204008FA782"
-            BuildableName = "LFramework2_Example.app"
-            BlueprintName = "LFramework2_Example"
-            ReferencedContainer = "container:LFramework2.xcodeproj">
+            BuildableName = "LFramework_Example.app"
+            BlueprintName = "LFramework_Example"
+            ReferencedContainer = "container:LFramework.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

@@ -1,12 +1,12 @@
 source 'https://github.com/CocoaPods/Specs.git'
 use_frameworks!
 
-target 'LFramework2_Example', :exclusive => true do
+target 'LFramework_Example', :exclusive => true do
   pod "LFramework", :path => "../"
   pod "LFramework/LClient", :path => "../"
 end
 
-target 'LFramework2_Tests', :exclusive => true do
+target 'LFramework_Tests', :exclusive => true do
   pod "LFramework", :path => "../"
   pod "LFramework/LClient", :path => "../"
 
