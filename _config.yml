@@ -8,6 +8,7 @@ baseurl: "/LSwift" # the subpath of your site, e.g. /blog/
 url: "http://superarts.github.com" # the base hostname & protocol for your site
 twitter_username: superarts_org
 github_username:  superarts
+timezone: Australia/Sydney
 
 # Build settings
 markdown: kramdown

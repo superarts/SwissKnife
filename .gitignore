@@ -2,3 +2,5 @@ _site
 .sass-cache
 
 .*.sw*
+Gemfile.lock
+tmp
