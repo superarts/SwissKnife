@@ -39,10 +39,12 @@ Pod::Spec.new do |s|
 	# s.dependency 'AFNetworking', '~> 2.3'
 
 	s.subspec 'LFoundation' do |sp|
+		sp.module_name = 'LFoundation'
 		sp.frameworks = 'UIKit', 'Security'
 		sp.source_files = 'Pod/Classes/LFoundation'
 	end
 	s.subspec 'LClient' do |sp|
+		sp.module_name = 'LClient'
 		sp.source_files = 'Pod/Classes/LClient'
 		sp.dependency 'LFramework/LFoundation'
 	end

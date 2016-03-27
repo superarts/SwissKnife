@@ -105,6 +105,12 @@ class TableOfContentsSpec: QuickSpec {
 				}
 			}
 		}
+        describe("LF") {
+            it("can map dictionary into native class") {
+				let model = LFModel(dict: ["id": 42])
+                expect(model.id) == 42
+			}
+		}
 		/*
         describe("these will fail") {
 

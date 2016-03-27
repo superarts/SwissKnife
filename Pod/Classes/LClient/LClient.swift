@@ -542,11 +542,11 @@ class LRestConnectionDelegate: NSObject {
 
 //	model
 
-class LFModel: NSObject {
+public class LFModel: NSObject {
   
 	//	public & reserved
-    var id: Int = 0
-	var raw: LTDictStrObj?
+    public var id: Int = 0
+	public var raw: LTDictStrObj?
 
 	struct prototype {
 		static var indent: Int = 0
@@ -556,7 +556,7 @@ class LFModel: NSObject {
 	func log_description_not_found(value: AnyObject) {
 		LF.log("WARNING name 'description' is a reserved word", value)
 	}
-    required init(dict: Dictionary<String, AnyObject>?) {
+    required public init(dict: Dictionary<String, AnyObject>?) {
         super.init()
 		raw = dict
 		if dict != nil {
@@ -637,7 +637,7 @@ class LFModel: NSObject {
 		}
 	}
 
-	override func valueForUndefinedKey(key: String) -> AnyObject? {
+	override public func valueForUndefinedKey(key: String) -> AnyObject? {
 		return nil
 	}
     func dictionary(keys: [String]) -> Dictionary<String, AnyObject> {
@@ -748,7 +748,7 @@ class LFModel: NSObject {
         return dict
     }
    
-    override var description: String {
+    override public var description: String {
         var s = NSStringFromClass(self.dynamicType)
         s = NSString(format: "%@ (%p): [\r", s, self) as String
 		LFModel.prototype.indent++

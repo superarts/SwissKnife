@@ -1,17 +1,17 @@
 import UIKit
 
-typealias LTDictStrObj = Dictionary<String, AnyObject>
-typealias LTDictStrStr = Dictionary<String, String>
-typealias LTArrayObj = Array<AnyObject>
-typealias LTArrayInt = Array<Int>
-typealias LTArrayStr = Array<String>
-typealias LTBlockVoid = (() -> Void)
-typealias LTBlockVoidError = ((NSError?) -> Void)
-typealias LTBlockVoidObjError = ((AnyObject?, NSError?) -> Void)
-typealias LTBlockVoidDict = ((LTDictStrObj?) -> Void)
-typealias LTBlockVoidDictError = ((LTDictStrObj?, NSError?) -> Void)
-typealias LTBlockVoidArray = ((LTArrayObj?) -> Void)
-typealias LTBlockVoidArrayError = ((LTArrayObj?, NSError?) -> Void)
+public typealias LTDictStrObj = Dictionary<String, AnyObject>
+public typealias LTDictStrStr = Dictionary<String, String>
+public typealias LTArrayObj = Array<AnyObject>
+public typealias LTArrayInt = Array<Int>
+public typealias LTArrayStr = Array<String>
+public typealias LTBlockVoid = (() -> Void)
+public typealias LTBlockVoidError = ((NSError?) -> Void)
+public typealias LTBlockVoidObjError = ((AnyObject?, NSError?) -> Void)
+public typealias LTBlockVoidDict = ((LTDictStrObj?) -> Void)
+public typealias LTBlockVoidDictError = ((LTDictStrObj?, NSError?) -> Void)
+public typealias LTBlockVoidArray = ((LTArrayObj?) -> Void)
+public typealias LTBlockVoidArrayError = ((LTArrayObj?, NSError?) -> Void)
 
 struct LConst {
 	static func color(name: String, alpha: CGFloat = 1) -> UIColor {
@@ -125,4 +125,3 @@ struct LConst {
 		"win8start-bg-19-4":	0xCEA539,
 	]
 }
-
