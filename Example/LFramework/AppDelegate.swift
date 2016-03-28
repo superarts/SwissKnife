@@ -8,6 +8,22 @@
 
 import UIKit
 import LFramework
+import EVReflection
+
+class UserModel: LFModel {
+	var name: String?
+	var friends: [UserModel] = []
+	required init(dict: LTDictStrObj?) {
+		super.init(dict: dict)
+		reload("friends", type: NSStringFromClass(UserModel))
+	}
+}
+
+class UserObject: EVObject {
+    var id: Int = 0
+    var name: String = ""
+    var friends: [UserObject]? = []
+}
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -16,6 +32,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
 		LF.log("APP launched")
+
+		let model = UserModel(dict: ["id": 42, "name": "Leah Cain", "friends": [["id": 43, "name": "Leo"]]])
+		LF.log("model", model)
+		
+		let json:String = "{\"id\": 24, \"name\": \"Bob Jefferson\", \"friends\": [{\"id\": 29, \"name\": \"Jen Jackson\"}]}"
+		let user = UserObject(json: json)
+		print("user: \(user)")
+
         return true
     }
 

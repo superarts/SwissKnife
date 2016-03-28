@@ -1,4 +1,5 @@
 PODS:
+  - EVReflection (2.22.0)
   - FBSnapshotTestCase (2.0.7):
     - FBSnapshotTestCase/SwiftSupport (= 2.0.7)
   - FBSnapshotTestCase/Core (2.0.7)
@@ -17,6 +18,7 @@ PODS:
   - Quick (0.9.1)
 
 DEPENDENCIES:
+  - EVReflection
   - FBSnapshotTestCase
   - LFramework (from `../`)
   - LFramework/LClient (from `../`)
@@ -29,6 +31,7 @@ EXTERNAL SOURCES:
     :path: ../
 
 SPEC CHECKSUMS:
+  EVReflection: a477e3e8387c720aba2838b0c8efdf62ee15eadb
   FBSnapshotTestCase: 7e85180d0d141a0cf472352edda7e80d7eaeb547
   LFramework: 55761168fba986cc359bc777827a50232962bbdf
   Nimble: 703854335d181df169bbca9c97117b5cf8c47c1d

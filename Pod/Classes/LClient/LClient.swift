@@ -611,7 +611,7 @@ public class LFModel: NSObject {
 		//LF.log("saving success", success)
 		return success
 	}
-	func reload(key: String, type: String) {
+	public func reload(key: String, type: String) {
 		for (a_key, value) in dictionary {
 			if let dict_parameter = value as? Dictionary<String, AnyObject> {
 				if a_key == key {
@@ -658,7 +658,7 @@ public class LFModel: NSObject {
         var array = [String]()
         var count: CUnsignedInt = 0
 		let properties: UnsafeMutablePointer<objc_property_t> = class_copyPropertyList(object_getClass(self), &count)
-   
+  
 		var c: AnyClass! = object_getClass(self)
 		loop: while c != nil {
 			//LF.log("---- class", NSStringFromClass(c))
@@ -679,6 +679,7 @@ public class LFModel: NSObject {
 			}
 			//	TODO: apple's bug
 			if NSStringFromClass(c) == "NSObject" {
+				//LF.log("break")
 				break
 			}
 			/*
@@ -712,11 +713,11 @@ public class LFModel: NSObject {
 			let prop: UnsafeMutablePointer<objc_property_t> = class_copyPropertyList(c, &ct)
 			for var i = 0; i < Int(ct); i++ {
                 if let key = NSString(CString: property_getName(prop[i]), encoding: NSUTF8StringEncoding) {
-    				if key == "dictionary" {
+					if key == "dictionary" || key == "keys" || key == "description" {
     					//LF.log("WARNING model: this condition is not ideal")
-    					break loop
+						break loop
     				}
-    				if let value: AnyObject? = valueForKey(key as String) where key != "raw" && key != "keys" {
+					if let value: AnyObject? = valueForKey(key as String) where key != "raw" {
 						dict[key as String] = value
     				}
                 }
@@ -725,11 +726,19 @@ public class LFModel: NSObject {
 			if NSStringFromClass(c) == "NSObject" {
 				break
 			}
+			/*
+			if NSStringFromClass(c).include("LFModel") {
+				break
+			}
+			*/
 			c = class_getSuperclass(c)
 		}
 
         for var i = 0; i < Int(count); i++ {
             if let key = NSString(CString: property_getName(properties[i]), encoding: NSUTF8StringEncoding) as? String {
+				if key == "description" || key == "keys" || key == "dictionary" {
+					continue
+				}
 				if let value: AnyObject? = valueForKey(key) {
 					if let v = value as? LFModel {
 						dict[key] = v.dictionary
