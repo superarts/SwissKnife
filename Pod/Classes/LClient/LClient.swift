@@ -570,7 +570,30 @@ public class LFModel: NSObject {
 					//	TODO: not working for Int? and Int! in 6.0 GM
 					if respondsToSelector(NSSelectorFromString(key)) && key != "keys" {
 						//LF.log(key, value)
-						setValue(value, forKey:key)
+						if value is [String: AnyObject] || value is [AnyObject] {
+							//	LF.log("reload", key)
+							let type: Mirror = Mirror(reflecting:self)
+							for child in type.children {
+								if let label = child.label where label == key
+								{
+									var type = String(child.value.dynamicType)
+									type = type.stringByReplacingOccurrencesOfString("Optional<", withString: "", options: NSStringCompareOptions.LiteralSearch, range: nil)
+									type = type.stringByReplacingOccurrencesOfString("Array<", withString: "", options: NSStringCompareOptions.LiteralSearch, range: nil)
+									type = type.stringByReplacingOccurrencesOfString(">", withString: "", options: NSStringCompareOptions.LiteralSearch, range: nil)
+
+									let bundle = NSBundle(forClass: self.dynamicType)
+									if let name = bundle.infoDictionary?[kCFBundleNameKey as String] as? String {
+										type = name + "." + type
+									}
+
+									setValue(value, forKey:key)
+									reload(key, type: type)
+									break
+								}
+							}
+						} else {
+							setValue(value, forKey:key)
+						}
 					} else {
     					LF.log("WARNING model ignored", key)
     					LF.log("\tdata", dict)

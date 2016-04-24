@@ -13,10 +13,14 @@ import EVReflection
 class UserModel: LFModel {
 	var name: String?
 	var friends: [UserModel] = []
+	var father: UserModel!
+	/*
 	required init(dict: LTDictStrObj?) {
 		super.init(dict: dict)
+		reload("father", type: NSStringFromClass(UserModel))
 		reload("friends", type: NSStringFromClass(UserModel))
 	}
+	*/
 }
 
 class UserObject: EVObject {
@@ -33,12 +37,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
 		LF.log("APP launched")
 
-		let model = UserModel(dict: ["id": 42, "name": "Leah Cain", "friends": [["id": 43, "name": "Leo"]]])
+		let model = UserModel(dict: [
+			"id": 42, 
+			"name": "Leah Cain", 
+			"friends": [["id": 43, "name": "Leo"]], 
+			"father": ["id": 44, "name": "Deckard Cain"]
+		])
 		LF.log("model", model)
+		//reflect(model)
 		
 		let json:String = "{\"id\": 24, \"name\": \"Bob Jefferson\", \"friends\": [{\"id\": 29, \"name\": \"Jen Jackson\"}]}"
 		let user = UserObject(json: json)
 		print("user: \(user)")
+		print("\(NSBundle(forClass: model.dynamicType))")
+		let bundle = NSBundle(forClass: model.dynamicType)
+		if let name = bundle.infoDictionary?[kCFBundleNameKey as String] as? String {
+			let appName = name.characters.split(isSeparator: {$0 == "."}).map({ String($0) }).last ?? ""
+			print(appName)
+		}
 
         return true
     }
