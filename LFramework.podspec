@@ -9,7 +9,7 @@
 Pod::Spec.new do |s|
 	s.name             = "LFramework"
 	s.version          = "0.1.0"
-	s.summary          = "A short description of LFramework."
+	s.summary          = "Pod version of LSwift."
 
 # This description is used to generate tags and improve search results.
 #   * Think: What does it do? Why did you write it? What is the focus?
@@ -17,6 +17,8 @@ Pod::Spec.new do |s|
 #   * Write the description between the DESC delimiters below.
 #   * Finally, don't worry about the indent, CocoaPods strips it!  
 	s.description      = <<-DESC
+This is the Pod version of LSwift.
+Still in progress.
 	DESC
 
 	s.homepage         = "https://github.com/superarts/LFramework"
@@ -39,12 +41,12 @@ Pod::Spec.new do |s|
 	# s.dependency 'AFNetworking', '~> 2.3'
 
 	s.subspec 'LFoundation' do |sp|
-		sp.module_name = 'LFoundation'
+		# sp.module_name = 'LFoundation'
 		sp.frameworks = 'UIKit', 'Security'
 		sp.source_files = 'Pod/Classes/LFoundation'
 	end
 	s.subspec 'LClient' do |sp|
-		sp.module_name = 'LClient'
+		# sp.module_name = 'LClient'
 		sp.source_files = 'Pod/Classes/LClient'
 		sp.dependency 'LFramework/LFoundation'
 	end

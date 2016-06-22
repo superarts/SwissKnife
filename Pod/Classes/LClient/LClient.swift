@@ -55,7 +55,7 @@ struct LRest {
 	}
 }
 
-class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLSessionTaskDelegate {
+public class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLSessionTaskDelegate {
 	var paths: [String]?		//	to support results like ["user": ["username"="1"], "succuss" = 1]
 	var subpaths: [String]?		//	to support ["users": [ [_source: ["username"="1"] ] ], "success" = 1]
 	var path: String? {			
@@ -78,11 +78,11 @@ class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLSessionT
 	var content_type = LRest.content.json
 	var connection_class = LRest.ConnectionClass.NSURLSession
 	var method = LRest.method.get
-	var root: String!
+	public var root: String!
 	var api: String!
 	var parameters: LTDictStrObj?
 	var func_error: ((NSError) -> Void)?					//	generic error handler
-	var func_model: ((T?, NSError?) -> Void)?				//	parse to model
+	public var func_model: ((T?, NSError?) -> Void)?				//	parse to model
 	var func_array: ((Array<T>?, NSError?) -> Void)?		//	parse to array
 	var func_dict: ((LTDictStrObj?, NSError?) -> Void)?		//	raw dictionary
 	var response: NSHTTPURLResponse?
@@ -92,7 +92,7 @@ class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLSessionT
 	var form_keys = ["file", "file1", "file2"]
 	var form_boundary = "---------------------------14737809831466499882746641449"		//"Boundary-\(NSUUID().UUID().UUIDString)"
 
-	init(api url: String, parameters param: LTDictStrObj? = nil) {
+	public init(api url: String, parameters param: LTDictStrObj? = nil) {
 		api = url
 		parameters = param
 	}
@@ -202,7 +202,7 @@ class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLSessionT
 	}
 	var connection: NSURLConnection?
 	var task: NSURLSessionDataTask?
-	func execute() {
+	public func execute() {
         var cache_loaded = false
 		let api_reloaded = reload_api()
 		if self.cache_policy == .CacheThenNetwork {
@@ -311,10 +311,10 @@ class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLSessionT
 			LF.log("WARNING LClient", "empty request")
 		}
 	}
-	func URLSession(session: NSURLSession, didBecomeInvalidWithError error: NSError?) {
+	public func URLSession(session: NSURLSession, didBecomeInvalidWithError error: NSError?) {
 		LF.log("SESSION invalid", error)
 	}
-	func URLSession(session: NSURLSession, didReceiveChallenge challenge: NSURLAuthenticationChallenge, completionHandler handler: (NSURLSessionAuthChallengeDisposition, NSURLCredential?) -> Void) {
+	public func URLSession(session: NSURLSession, didReceiveChallenge challenge: NSURLAuthenticationChallenge, completionHandler handler: (NSURLSessionAuthChallengeDisposition, NSURLCredential?) -> Void) {
 		//LF.log("SESSION challenge", challenge)
 		if let crt = credential {
 			handler(.UseCredential, crt)
@@ -322,13 +322,13 @@ class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLSessionT
 			handler(.PerformDefaultHandling, nil)
 		}
 	}
-	func URLSessionDidFinishEventsForBackgroundURLSession(session: NSURLSession) {
+	public func URLSessionDidFinishEventsForBackgroundURLSession(session: NSURLSession) {
 		LF.log("SESSION finished")
 	}
-    func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, didReceiveData data: NSData) {
+    public func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, didReceiveData data: NSData) {
 		LF.log("TASK data received")
 	}
-	func URLSession(session: NSURLSession, task: NSURLSessionTask, didReceiveChallenge challenge: NSURLAuthenticationChallenge, completionHandler handler: (NSURLSessionAuthChallengeDisposition, NSURLCredential?) -> Void) {
+	public func URLSession(session: NSURLSession, task: NSURLSessionTask, didReceiveChallenge challenge: NSURLAuthenticationChallenge, completionHandler handler: (NSURLSessionAuthChallengeDisposition, NSURLCredential?) -> Void) {
 		LF.log("TASK challenge", challenge)
 		if let crt = credential {
 			handler(.UseCredential, crt)
@@ -346,7 +346,7 @@ class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLSessionT
 		}
 		*/
 	}
-	func URLSession(session: NSURLSession, task: NSURLSessionTask, didCompleteWithError error: NSError?) {
+	public func URLSession(session: NSURLSession, task: NSURLSessionTask, didCompleteWithError error: NSError?) {
 		LF.log("TASK error", error)
 	}
 	func cancel() {

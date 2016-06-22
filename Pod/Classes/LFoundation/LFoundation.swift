@@ -152,7 +152,7 @@ extension Array {
     */
 }
 
-extension String {
+public extension String {
     //	swift 1.2
 	/*
 	subscript (i: Int) -> String {
@@ -248,7 +248,7 @@ extension String {
 		s = s.stringByReplacingOccurrencesOfString("&gt;", withString:">")
 		return s
 	}
-	func escape() -> String {
+	public func escape() -> String {
 		if let ret = self.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet()) {
 			return ret
 		} else {
@@ -285,7 +285,7 @@ extension Int {
     }
 }
 
-extension NSUserDefaults {
+public extension NSUserDefaults {
 	/*
 	class func object<T: AnyObject>(key: String, _ v: T? = nil) -> T? {
 		if let obj: T = v {
@@ -297,12 +297,12 @@ extension NSUserDefaults {
 		return v
 	}
 	*/
-	class func reset() {
+	public class func reset() {
 		if let domain = NSBundle.mainBundle().bundleIdentifier {
 			NSUserDefaults.standardUserDefaults().removePersistentDomainForName(domain)
 		}
 	}
-	class func object(key: String, _ v: AnyObject? = nil) -> AnyObject? {
+	public class func object(key: String, _ v: AnyObject? = nil) -> AnyObject? {
 		if let obj: AnyObject = v {
 			NSUserDefaults.standardUserDefaults().setObject(obj, forKey: key)
 			NSUserDefaults.standardUserDefaults().synchronize()
@@ -311,7 +311,7 @@ extension NSUserDefaults {
 		}
 		return v
 	}
-	class func bool(key: String, _ v: Bool? = nil) -> Bool? {
+	public class func bool(key: String, _ v: Bool? = nil) -> Bool? {
 		if let obj: Bool = v {
 			NSUserDefaults.standardUserDefaults().setBool(obj, forKey: key)
 			NSUserDefaults.standardUserDefaults().synchronize()
@@ -320,7 +320,7 @@ extension NSUserDefaults {
 		}
 		return v
 	}
-	class func integer(key: String, _ v: Int? = nil) -> Int? {
+	public class func integer(key: String, _ v: Int? = nil) -> Int? {
 		if let obj: Int = v {
 			NSUserDefaults.standardUserDefaults().setInteger(obj, forKey: key)
 			NSUserDefaults.standardUserDefaults().synchronize()
@@ -329,7 +329,7 @@ extension NSUserDefaults {
 		}
 		return v
 	}
-	class func string(key: String, _ v: String? = nil) -> String? {
+	public class func string(key: String, _ v: String? = nil) -> String? {
 		if let obj: String = v {
 			NSUserDefaults.standardUserDefaults().setObject(obj, forKey: key)
 			NSUserDefaults.standardUserDefaults().synchronize()
@@ -340,13 +340,13 @@ extension NSUserDefaults {
 	}
 }
 
-extension UIView {
-    func remove_all_subviews() {
+public extension UIView {
+    public func remove_all_subviews() {
         for view in subviews {
             view.removeFromSuperview()
         }
     }
-	func enable_border(width border_width: CGFloat = -1, color: UIColor? = nil, radius: CGFloat = -1, is_circle: Bool = false) {
+	public func enable_border(width border_width: CGFloat = -1, color: UIColor? = nil, radius: CGFloat = -1, is_circle: Bool = false) {
 		var f = radius
 		if is_circle {
 			f = (w < h ? w : h) / 2
@@ -374,7 +374,7 @@ extension UIView {
 	}
 	*/
 	//	it supports more than 2 colors, and more color formats (UIColor, rgb, name)
-	func insert_gradient(colors:[AnyObject?], point1:CGPoint, point2:CGPoint) {
+	public func insert_gradient(colors:[AnyObject?], point1:CGPoint, point2:CGPoint) {
 		var cg_colors: [CGColor] = []
 		for obj in colors {
 			if let name = obj as? String, let rgb = LConst.rgb[name] {
@@ -397,7 +397,7 @@ extension UIView {
 		gradient.endPoint = point2
 		layer.insertSublayer(gradient, atIndex:0)
 	}
-    func add_shadow(size:CGSize) {
+    public func add_shadow(size:CGSize) {
         let path = UIBezierPath(rect:bounds)
         layer.masksToBounds = false
         layer.shadowColor = UIColor.blackColor().CGColor
@@ -407,7 +407,7 @@ extension UIView {
     }
 }
 
-extension UIColor {
+public extension UIColor {
 	convenience init(rgb:UInt, alpha:CGFloat = 1.0) {
         self.init(
             red: CGFloat((rgb & 0xFF0000) >> 16) / 255.0,
@@ -454,8 +454,8 @@ extension NSString {
 }
 
 //  TODO: it is a temporary solution. I'm going to find a good swift friendly library to do this.
-extension UIImageView {
-    func image_load(url: String?, clear: Bool = false) {
+public extension UIImageView {
+    public func image_load(url: String?, clear: Bool = false) {
 		if clear == true {
 			image = nil
 		}
@@ -636,7 +636,7 @@ extension UIScrollView {
 	}
 }
 
-extension UIView {
+public extension UIView {
     var x: CGFloat {
         set(f) {
             frame.origin.x = f
@@ -718,7 +718,7 @@ properties: containers, followed up with
 class LFViewController: UIViewController, LFViewControllerDelegate {
 */
 
-extension UIViewController {
+public extension UIViewController {
     @IBAction func lf_actionPop() {
         navigationController?.popViewControllerAnimated(true)
     }
@@ -1021,9 +1021,9 @@ class LFLabeledScrollController: UIViewController {
 }
 
 
-class LFMultipleTableController: LFViewController {
-	var sources: [LFTableDataSource] = []
-	var tables: [UITableView]! {
+public class LFMultipleTableController: LFViewController {
+	public var sources: [LFTableDataSource] = []
+	public var tables: [UITableView]! {
 		set(array) {
 			sources.removeAll()
 			_tables.removeAll()
@@ -1044,16 +1044,16 @@ class LFMultipleTableController: LFViewController {
         super.viewDidLoad()
 	}
 	*/
-	@IBAction func lf_actionReload() {
+	@IBAction public func lf_actionReload() {
 		for table in tables {
 			table.reloadData()
 		}
 	}
 }
 
-class LFTableController: LFMultipleTableController {
-	@IBOutlet var table: UITableView!
-	var source: LFTableDataSource! {
+public class LFTableController: LFMultipleTableController {
+	@IBOutlet public var table: UITableView!
+	public var source: LFTableDataSource! {
 		get {
 			return sources[0]
 		}
@@ -1063,7 +1063,7 @@ class LFTableController: LFMultipleTableController {
 	}
 	//var source: LFTableDataSource!
 	
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
 		tables = [table]
 		//source = LFTableDataSource(table: table)
@@ -1086,29 +1086,29 @@ class LFTableController: LFMultipleTableController {
 	*/
 }
 
-class LFTableDataSource: NSObject, UITableViewDelegate, UITableViewDataSource {
+public class LFTableDataSource: NSObject, UITableViewDelegate, UITableViewDataSource {
 
-	var table: UITableView!
-	var counts: Array<Int> = []
-	var headers: Array<String> = []
-	var header_height: CGFloat = 20
+	public var table: UITableView!
+	public var counts: Array<Int> = []
+	public var headers: Array<String> = []
+	public var header_height: CGFloat = 20
 
-	var func_cell: ((NSIndexPath) -> UITableViewCell)! = nil
-	var func_header: ((Int) -> UIView?)? = nil
-	var func_height: ((NSIndexPath) -> CGFloat)? = nil
-	var func_select: ((NSIndexPath) -> Void)? = nil
-	var func_deselect: ((NSIndexPath) -> Void)? = nil
-	var func_select_source: ((NSIndexPath, LFTableDataSource) -> Void)? = nil		//	these 2 will not be called if aboves are not nil
-	var func_deselect_source: ((NSIndexPath, LFTableDataSource) -> Void)? = nil
+	public var func_cell: ((NSIndexPath) -> UITableViewCell)! = nil
+	public var func_header: ((Int) -> UIView?)? = nil
+	public var func_height: ((NSIndexPath) -> CGFloat)? = nil
+	public var func_select: ((NSIndexPath) -> Void)? = nil
+	public var func_deselect: ((NSIndexPath) -> Void)? = nil
+	public var func_select_source: ((NSIndexPath, LFTableDataSource) -> Void)? = nil		//	these 2 will not be called if aboves are not nil
+	public var func_deselect_source: ((NSIndexPath, LFTableDataSource) -> Void)? = nil
 
-	init(table a_table: UITableView) {
+	public init(table a_table: UITableView) {
 		super.init()
 		a_table.dataSource = self
 		a_table.delegate = self
 		table = a_table
 	}
 
-	func index_alphabet(array: Array<String>) -> Array<Array<String>> {
+	public func index_alphabet(array: Array<String>) -> Array<Array<String>> {
 		var ret: Array<Array<String>> = []
 		let sorted: Array<String> = array.sort { $0.localizedCaseInsensitiveCompare($1) == NSComparisonResult.OrderedAscending }
 		counts.removeAll()
@@ -1130,20 +1130,20 @@ class LFTableDataSource: NSObject, UITableViewDelegate, UITableViewDataSource {
 		return ret
 	}
 
-	func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+	public func numberOfSectionsInTableView(tableView: UITableView) -> Int {
 		return counts.count
 	}
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    public func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return counts[section]
     }
-    func tableView(tableView: UITableView, heightForRowAtIndexPath path: NSIndexPath) -> CGFloat {
+    public func tableView(tableView: UITableView, heightForRowAtIndexPath path: NSIndexPath) -> CGFloat {
 		if func_height != nil {
 			return func_height!(path)
 		}
 		return tableView.rowHeight
     }
 	//	header and index
-	func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+	public func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
 		if headers.count > section {
 			return headers[section]
 		} else {
@@ -1165,26 +1165,26 @@ class LFTableDataSource: NSObject, UITableViewDelegate, UITableViewDataSource {
 	*/
 	//	func tableView(tableView: UITableView, sectionForSectionIndexTitle title: String, atIndex index: Int) -> Int { return index / 2 }
 	//	cell and select
-	func tableView(tableView: UITableView, cellForRowAtIndexPath path: NSIndexPath) -> UITableViewCell {
+	public func tableView(tableView: UITableView, cellForRowAtIndexPath path: NSIndexPath) -> UITableViewCell {
 		if func_cell == nil {
 			LF.log("WARNING no func_cell in LFTableDataSource", path)
 		}
         return func_cell(path)
     }
-	func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+	public func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
 		if headers.count <= 0 && func_header == nil {
 			return 0
 		}
 		return header_height
 	}
-	func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+	public func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
 		if func_header != nil {
 			let view = func_header!(section)
 			return view
 		}
 		return nil
 	}
-    func tableView(tableView: UITableView, didSelectRowAtIndexPath path: NSIndexPath) {
+    public func tableView(tableView: UITableView, didSelectRowAtIndexPath path: NSIndexPath) {
 		if func_select != nil {
 			func_select!(path)
 		} else if func_select_source != nil {
@@ -1192,7 +1192,7 @@ class LFTableDataSource: NSObject, UITableViewDelegate, UITableViewDataSource {
 		}
 		return
 	}
-    func tableView(tableView: UITableView, didDeselectRowAtIndexPath path: NSIndexPath) {
+    public func tableView(tableView: UITableView, didDeselectRowAtIndexPath path: NSIndexPath) {
 		if func_deselect != nil {
 			func_deselect!(path)
 		} else if func_deselect_source != nil {
@@ -1200,7 +1200,7 @@ class LFTableDataSource: NSObject, UITableViewDelegate, UITableViewDataSource {
 		}
 		return
 	}
-	func tableView(tableView: UITableView, willDisplayCell cell: UITableViewCell, forRowAtIndexPath indexPath: NSIndexPath) {
+	public func tableView(tableView: UITableView, willDisplayCell cell: UITableViewCell, forRowAtIndexPath indexPath: NSIndexPath) {
 		cell.layoutIfNeeded()
 		cell.backgroundColor = UIColor.clearColor()
 	}
