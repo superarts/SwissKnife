@@ -799,12 +799,12 @@ extension UIDevice {
 	}
 }
 
-class LFViewController: UIViewController {
+public class LFViewController: UIViewController {
     var containers: Dictionary<String, UIViewController> = [:]
     
 	//override func viewDidLoad() {
 	//	super.viewDidLoad()
-	override func viewWillAppear(animated:Bool) {
+	override public func viewWillAppear(animated:Bool) {
 		super.viewWillAppear(animated)
 		NSNotificationCenter.defaultCenter().removeObserver(self, name:UIKeyboardWillShowNotification, object: nil);
 		NSNotificationCenter.defaultCenter().removeObserver(self, name:UIKeyboardWillHideNotification, object: nil);
@@ -812,13 +812,13 @@ class LFViewController: UIViewController {
 		NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("lf_keyboardWillHide:"), name:UIKeyboardWillHideNotification, object: nil);
 	}
 	//deinit {
-	override func viewWillDisappear(animated:Bool) {
+	override public func viewWillDisappear(animated:Bool) {
 		super.viewWillDisappear(animated)
 		//NSNotificationCenter.defaultCenter().removeObserver(self)
 		NSNotificationCenter.defaultCenter().removeObserver(self, name:UIKeyboardWillShowNotification, object: nil);
 		NSNotificationCenter.defaultCenter().removeObserver(self, name:UIKeyboardWillHideNotification, object: nil);
 	}
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject!) {
+    override public func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject!) {
         super.prepareForSegue(segue, sender:sender)
         //  LF.log("LFViewController controller", segue.destinationViewController)
 		/*
