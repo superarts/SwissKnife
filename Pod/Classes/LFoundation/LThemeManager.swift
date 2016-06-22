@@ -503,8 +503,8 @@ extension UITextView {
 			//associate(&LF.keys.text_color, object:textColor!)
 			self.text = s
 			//NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("lf_text_changed:"), name:UITextViewTextDidChangeNotification, object: nil);
-			NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("lf_text_edit_began:"), name:UITextViewTextDidBeginEditingNotification, object: nil);
-			NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("lf_text_edit_ended:"), name:UITextViewTextDidEndEditingNotification, object: nil);
+			NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(UITextView.lf_text_edit_began(_:)), name:UITextViewTextDidBeginEditingNotification, object: nil);
+			NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(UITextView.lf_text_edit_ended(_:)), name:UITextViewTextDidEndEditingNotification, object: nil);
 		}
 	}
 
