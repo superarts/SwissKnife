@@ -13,14 +13,14 @@ public typealias LTBlockVoidDictError = ((LTDictStrObj?, NSError?) -> Void)
 public typealias LTBlockVoidArray = ((LTArrayObj?) -> Void)
 public typealias LTBlockVoidArrayError = ((LTArrayObj?, NSError?) -> Void)
 
-struct LConst {
-	static func color(name: String, alpha: CGFloat = 1) -> UIColor {
+public struct LConst {
+	public static func color(name: String, alpha: CGFloat = 1) -> UIColor {
 		if let rgb = LConst.rgb[name] {
 			return UIColor(rgb: rgb, alpha: alpha)
 		}
 		return .clearColor()
 	}
-	static let rgb: [String:UInt] = [
+	public static let rgb: [String:UInt] = [
 		//	from: http://www.creepyed.com/2012/11/windows-phone-8-theme-colors-hex-rgb/
 		"wp8-lime":		0xA4C400,
 		"wp8-green":	0x60A917,

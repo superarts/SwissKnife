@@ -1,9 +1,9 @@
 import UIKit
 
 //	current you'll have to have UIApplicationMain(C_ARGC, C_ARGV, nil, NSStringFromClass(AppDelegate)) to successfully init the localized strings in storyboard
-struct LTheme {
-	struct localization {
-		enum Language: String {
+public struct LTheme {
+	public struct localization {
+		public enum Language: String {
 			case ChineseSimplified		= "zh-Hans"
 			case ChineseTraditional		= "zh-Hant"
 			case English				= "en"
@@ -14,25 +14,25 @@ struct LTheme {
 			case Spanish				= "es"
 			case SpanishMexico			= "es-MX"
 		}
-		static var language = Language(rawValue: NSLocale.preferredLanguages()[0] )
-		static func language_reload() {
+		public static var language = Language(rawValue: NSLocale.preferredLanguages()[0] )
+		public static func language_reload() {
 			language = Language(rawValue: NSLocale.preferredLanguages()[0] )
 		}
-		static var language_default: Language? = Language.English
-		static var languages = [
+		public static var language_default: Language? = Language.English
+		public static var languages = [
 			Language.English,
 			Language.ChineseSimplified,
 			Language.SpanishMexico,
 		]
-		static var languages_alias = [
+		public static var languages_alias = [
 			Language.EnglishAustralia.rawValue:			Language.English,
 			Language.EnglishUnitedStates.rawValue:		Language.English,
 			Language.EnglishUnitedKingdom.rawValue:		Language.English,
 			Language.ChineseTraditional.rawValue:		Language.ChineseSimplified,
 			Language.Spanish.rawValue:					Language.SpanishMexico,
 		]
-		static var languages_default = "en"
-		static var strings: [String:[String]] = [
+		public static var languages_default = "en"
+		public static var strings: [String:[String]] = [
 			"yes": [
 				"Yes",
 				"是",
@@ -45,14 +45,14 @@ struct LTheme {
 			],
 		]
 		/*
-		class StringPack {
+		public class StringPack {
 			var dictionary: [String:[String]] = [:]
 			var auto_first_language: Bool = false
 			init(auto: Bool = false) {
 				//super.init()
 				auto_first_language = auto
 			}
-			func append(key:String, _ value:String) {
+			public func append(key:String, _ value:String) {
 				if var array = dictionary[key] {
 					array.append(value)
 					dictionary[key] = array
@@ -66,14 +66,14 @@ struct LTheme {
 			}
 		}
 		*/
-		static func strings_append(dict: LTDictStrObj) {//[String:[String]]) {
+		public static func strings_append(dict: LTDictStrObj) {//[String:[String]]) {
 			for (key, value) in dict {
 				if let dict = value as? [String] {
 					strings[key] = dict
 				}
 			}
 		}
-		static func language_current(index: Int? = nil) -> Int? {
+		public static func language_current(index: Int? = nil) -> Int? {
 			var i = index
 			if i == nil {
 				//	if system language is not supported, default language is used
@@ -98,14 +98,14 @@ struct LTheme {
 			}
 			return i
 		}
-		static func STR(key:String, index: Int? = nil) -> String {
+		public static func STR(key:String, index: Int? = nil) -> String {
 			return str(key, index:index).uppercaseString
 		}
-		static func Str(key:String, index: Int? = nil) -> String {
+		public static func Str(key:String, index: Int? = nil) -> String {
 			let s = str(key, index:index)
 			return s[0].uppercaseString + s[1...s.length]
 		}
-		static func str(key:String, index: Int? = nil) -> String {
+		public static func str(key:String, index: Int? = nil) -> String {
 			/*
 			var i = index
 			if i == nil {
@@ -146,7 +146,7 @@ struct LTheme {
 
 //	UIKit + Interface Builder: define various UIView properties in IB
 
-extension UITabBarController {
+public extension UITabBarController {
 	@IBInspectable var selected_index: Int {
 		get {
 			return selectedIndex
@@ -157,7 +157,7 @@ extension UITabBarController {
 	}
 }
 
-extension UIView {
+public extension UIView {
 	//	TODO: add getters when extension property is added - having problem with associating in swift (key cannot be a string variable)
 	//	WARNING: font_name of UIView will be deprecated soon, use text_font_name etc. instead.
 	@IBInspectable var font_name: String? {
@@ -267,7 +267,7 @@ extension UIView {
 	}
 }
 
-extension UILabel {
+public extension UILabel {
 	@IBInspectable var text_localized: String? {
 		get {
 			return self.text
@@ -299,7 +299,7 @@ extension UILabel {
 	}
 }
 
-extension UITextField {
+public extension UITextField {
 	@IBInspectable var padding_left: CGFloat {
 		get {
 			LF.log("WARNING no getter for UITextField.padding_left")
@@ -340,7 +340,7 @@ extension UITextField {
 	}
 }
 
-extension UIScrollView {
+public extension UIScrollView {
 	@IBInspectable var content_width: CGFloat {
 		get {
 			return content_w
@@ -359,7 +359,7 @@ extension UIScrollView {
 	}
 }
 
-extension UIBarItem {
+public extension UIBarItem {
 	@IBInspectable var title_localized: String? {
 		get {
 			return self.title
@@ -382,7 +382,7 @@ extension UIBarItem {
 	}
 }
 
-extension UIButton {
+public extension UIButton {
 	@IBInspectable var title_align_center: Bool {
 		get {
 			if let label = titleLabel {
@@ -482,7 +482,7 @@ extension UIButton {
 	}
 }
 
-extension UITextView {
+public extension UITextView {
 	@IBInspectable var align_middle_vertical: Bool {
 		get {
 			return false	//	TODO
@@ -509,12 +509,12 @@ extension UITextView {
 	}
 
 	//	observers should be removed manually. TODO: find a better solution
-	func remove_observer_alignment() {
+	public func remove_observer_alignment() {
 		//NSNotificationCenter.defaultCenter().removeObserver(self)
 		self.removeObserver(self, forKeyPath:"frame")
 		self.removeObserver(self, forKeyPath:"contentSize")
 	}
-	func remove_observer_placeholder() {
+	public func remove_observer_placeholder() {
 		//NSNotificationCenter.defaultCenter().removeObserver(self, name:UITextViewTextDidChangeNotification, object: nil);
 		NSNotificationCenter.defaultCenter().removeObserver(self, name:UITextViewTextDidBeginEditingNotification, object: nil);
 		NSNotificationCenter.defaultCenter().removeObserver(self, name:UITextViewTextDidEndEditingNotification, object: nil);
@@ -525,7 +525,7 @@ extension UITextView {
 			lf_reload_align_middle_vertical()
 		}
 	}
-	func lf_reload_align_middle_vertical() {
+	public func lf_reload_align_middle_vertical() {
 		var y: CGFloat = (self.bounds.size.height - self.contentSize.height * self.zoomScale)/2.0;
 		if y < 0 {
 			y = 0
@@ -533,13 +533,13 @@ extension UITextView {
 		self.content_y = -y
 	}
 	//func lf_text_changed(notification: NSNotification) { }
-	func lf_text_edit_began(notification: NSNotification) {
+	public func lf_text_edit_began(notification: NSNotification) {
 		if self.text == self.placeholder {
 			self.text = ""
             //self.textColor = associated(&LF.keys.text_color) as? UIColor
 		}
 	}
-	func lf_text_edit_ended(notification: NSNotification) {
+	public func lf_text_edit_ended(notification: NSNotification) {
 		if self.text == "" {
 			self.text = self.placeholder
             //self.textColor = .grayColor()
@@ -576,8 +576,8 @@ extension UITextView {
 	}
 }
 
-class LFAlertSegue: UIStoryboardSegue {
-    override func perform() {
+public class LFAlertSegue: UIStoryboardSegue {
+    public override func perform() {
         let source = sourceViewController 
         if let navigation = source.navigationController {
 		    let alert = UIAlertController(title: "Message", message: identifier, preferredStyle: .Alert)
@@ -589,8 +589,8 @@ class LFAlertSegue: UIStoryboardSegue {
     }
 }
 
-class LFActionSheetSegue: UIStoryboardSegue {
-    override func perform() {
+public class LFActionSheetSegue: UIStoryboardSegue {
+    public override func perform() {
         let source = sourceViewController 
         if let navigation = source.navigationController {
 		    let alert = UIAlertController(title: "Message", message: identifier, preferredStyle: .ActionSheet)

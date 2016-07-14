@@ -1,14 +1,14 @@
 import Foundation
 
-struct LTime {
-    static var format = "YYYY-MM-dd'T'HH:mm:ss.SSSZZZZ"
+public struct LTime {
+    public static var format = "YYYY-MM-dd'T'HH:mm:ss.SSSZZZZ"
     //static var format = "YYYY-MM-dd'T'HH:mm:ss"
 }
 
-enum TimeIntervalUnit {
+public enum TimeIntervalUnit {
     case Seconds, Minutes, Hours, Days, Months, Years
     
-    func dateComponents(interval: Int) -> NSDateComponents {
+    public func dateComponents(interval: Int) -> NSDateComponents {
         let components:NSDateComponents = NSDateComponents()
         
         switch (self) {
@@ -31,11 +31,11 @@ enum TimeIntervalUnit {
     }
 }
 
-struct TimeInterval {
+public struct TimeInterval {
     var interval: Int
     var unit: TimeIntervalUnit
     
-    var ago: NSDate {
+    public var ago: NSDate {
         let calendar = NSCalendar.currentCalendar()
             let today = NSDate()
             let components = unit.dateComponents(-self.interval)
@@ -50,34 +50,34 @@ struct TimeInterval {
 
 var a = TimeInterval(interval: 10, unit: TimeIntervalUnit.Months)
 
-extension Int {
-    var seconds: TimeInterval {
+public extension Int {
+    public var seconds: TimeInterval {
         return TimeInterval(interval: self, unit: TimeIntervalUnit.Seconds)
     }
-    var minutes: TimeInterval {
+    public var minutes: TimeInterval {
         return TimeInterval(interval: self, unit: TimeIntervalUnit.Minutes)
     }
-    var hours: TimeInterval {
+    public var hours: TimeInterval {
         return TimeInterval(interval: self, unit: TimeIntervalUnit.Hours)
     }
-    var days: TimeInterval {
+    public var days: TimeInterval {
         return TimeInterval(interval: self, unit: TimeIntervalUnit.Days)
     }
-    var months: TimeInterval {
+    public var months: TimeInterval {
         return TimeInterval(interval: self, unit: TimeIntervalUnit.Months);
     }
-    var years: TimeInterval {
+    public var years: TimeInterval {
         return TimeInterval(interval: self, unit: TimeIntervalUnit.Years)
     }
 }
 
-func - (let left:NSDate, let right:TimeInterval) -> NSDate {
+public func - (let left:NSDate, let right:TimeInterval) -> NSDate {
     let calendar = NSCalendar.currentCalendar()
     let components = right.unit.dateComponents(-right.interval)
     return calendar.dateByAddingComponents(components, toDate: left, options: [])!
 }
 
-func + (let left:NSDate, let right:TimeInterval) -> NSDate {
+public func + (let left:NSDate, let right:TimeInterval) -> NSDate {
     let calendar = NSCalendar.currentCalendar()
     let components = right.unit.dateComponents(right.interval)
     return calendar.dateByAddingComponents(components, toDate: left, options: [])!
@@ -87,7 +87,7 @@ var test1 = 2.years.ago
 var test2 = NSDate() - 4.days
 var test3 = NSDate() + 5.months
 
-func < (let left:NSDate, let right: NSDate) -> Bool {
+public func < (let left:NSDate, let right: NSDate) -> Bool {
     let result:NSComparisonResult = left.compare(right)
     var isEarlier = false
     if (result == NSComparisonResult.OrderedAscending) {
@@ -96,7 +96,7 @@ func < (let left:NSDate, let right: NSDate) -> Bool {
     return isEarlier
 }
 
-func > (let left:NSDate, let right: NSDate) -> Bool {
+public func > (let left:NSDate, let right: NSDate) -> Bool {
     let result:NSComparisonResult = left.compare(right)
     var isLater = false
     if (result == NSComparisonResult.OrderedDescending) {
@@ -105,7 +105,7 @@ func > (let left:NSDate, let right: NSDate) -> Bool {
     return isLater
 }
 
-func == (let left:NSDate, let right: NSDate) -> Bool {
+public func == (let left:NSDate, let right: NSDate) -> Bool {
     let result:NSComparisonResult = left.compare(right)
     var isEqual = false
     if (result == NSComparisonResult.OrderedSame) {
@@ -118,12 +118,12 @@ var test4 = test2 < test3
 var test5 = test3 > test1
 var test6 = NSDate() == test1
 
-extension NSDate {
-    class func yesterday() -> NSDate {
+public extension NSDate {
+    public class func yesterday() -> NSDate {
         return NSDate() - 1.days
     }
     
-    func to_string(let format:String) -> String? {
+    public func to_string(let format:String) -> String? {
         let formatter:NSDateFormatter = NSDateFormatter()
         formatter.locale = NSLocale(localeIdentifier: "en_US_POSIX")
         formatter.timeZone = NSTimeZone()
@@ -131,17 +131,17 @@ extension NSDate {
        
         return formatter.stringFromDate(self)
     }
-    func to_string() -> String? {
+    public func to_string() -> String? {
 		return to_string("YYYY-MM-dd HH:mm:ss.SSS")
 	}
 }
 
 var test7 = NSDate.yesterday().to_string("MM/dd")
 
-extension String {
+public extension String {
    
 	//	the original one - we're not going to use it
-    func to_date(let format:String = "dd/MM/yyyy") -> NSDate? {
+    public func to_date(let format:String = "dd/MM/yyyy") -> NSDate? {
         let formatter:NSDateFormatter = NSDateFormatter()
         formatter.locale = NSLocale(localeIdentifier: "en_US_POSIX")
         formatter.timeZone = NSTimeZone()
@@ -151,7 +151,7 @@ extension String {
     }
 
 	//	with timezone - it's makes more sense in API calls
-	var date: NSDate? {
+	public var date: NSDate? {
 		get {
 			let format = LTime.format
 			let formatter = NSDateFormatter()
