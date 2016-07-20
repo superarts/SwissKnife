@@ -2,52 +2,52 @@ import Foundation
 import UIKit
 
 //	client
-struct LRest {
-	static let domain = "LRestKit"
-	struct error {
-		static let invalid_parameter = 10000001
-		static let empty_response = 10000002
+public struct LRest {
+	public static let domain = "LRestKit"
+	public struct error {
+		public static let invalid_parameter = 10000001
+		public static let empty_response = 10000002
 	}
-	struct content {
-		static let json = "application/json"
-		static let form = "multipart/form-data"
+	public struct content {
+		public static let json = "application/json"
+		public static let form = "multipart/form-data"
 	}
-	enum HTTPMethod: String {
+	public enum HTTPMethod: String {
 		case Get = "GET"
 		case Put = "PUT"
 		case Post = "POST"
 		case Delete = "DELETE"
 	}
-	struct method {
-		static let get = HTTPMethod.Get
-		static let put = HTTPMethod.Put
-		static let post = HTTPMethod.Post
-		static let delete = HTTPMethod.Delete
+	public struct method {
+		public static let get = HTTPMethod.Get
+		public static let put = HTTPMethod.Put
+		public static let post = HTTPMethod.Post
+		public static let delete = HTTPMethod.Delete
 	}
-	enum ConnectionClass {
+	public enum ConnectionClass {
 		case NSURLSession
 		case NSURLConnection
 	}
-	struct cache {
-		enum Policy {
+	public struct cache {
+		public enum Policy {
 			case None
 			case CacheThenNetwork
 		}
 	}
-	struct pagination {
-		enum Method {
+	public struct pagination {
+		public enum Method {
 			case None
 			case LastID
 			case Page
 		}
 	}
-	struct ui {
-		enum Load {
+	public struct ui {
+		public enum Load {
 			case None
 			case Reload
 			case More
 		}
-		enum Reload {
+		public enum Reload {
 			case None
 			case First
 			case Always
@@ -56,9 +56,9 @@ struct LRest {
 }
 
 public class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLSessionTaskDelegate {
-	var paths: [String]?		//	to support results like ["user": ["username"="1"], "succuss" = 1]
-	var subpaths: [String]?		//	to support ["users": [ [_source: ["username"="1"] ] ], "success" = 1]
-	var path: String? {			
+	public var paths: [String]?		//	to support results like ["user": ["username"="1"], "succuss" = 1]
+	public var subpaths: [String]?		//	to support ["users": [ [_source: ["username"="1"] ] ], "success" = 1]
+	public var path: String? {			
 		get {
 			if let paths = paths where paths.count > 0 {
 				return paths[0]
@@ -73,24 +73,24 @@ public class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLS
 			}
 		}
 	}
-	var text: String?
-	var show_error = false
-	var content_type = LRest.content.json
-	var connection_class = LRest.ConnectionClass.NSURLSession
-	var method = LRest.method.get
+	public var text: String?
+	public var show_error = false
+	public var content_type = LRest.content.json
+	public var connection_class = LRest.ConnectionClass.NSURLSession
+	public var method = LRest.method.get
 	public var root: String!
-	var api: String!
-	var parameters: LTDictStrObj?
-	var func_error: ((NSError) -> Void)?					//	generic error handler
+	public var api: String!
+	public var parameters: LTDictStrObj?
+	public var func_error: ((NSError) -> Void)?					//	generic error handler
 	public var func_model: ((T?, NSError?) -> Void)?				//	parse to model
-	var func_array: ((Array<T>?, NSError?) -> Void)?		//	parse to array
-	var func_dict: ((LTDictStrObj?, NSError?) -> Void)?		//	raw dictionary
-	var response: NSHTTPURLResponse?
-	var credential: NSURLCredential?
-	var cache_policy = LRest.cache.Policy.None
-	var form_data: [NSData]?
-	var form_keys = ["file", "file1", "file2"]
-	var form_boundary = "---------------------------14737809831466499882746641449"		//"Boundary-\(NSUUID().UUID().UUIDString)"
+	public var func_array: ((Array<T>?, NSError?) -> Void)?		//	parse to array
+	public var func_dict: ((LTDictStrObj?, NSError?) -> Void)?		//	raw dictionary
+	public var response: NSHTTPURLResponse?
+	public var credential: NSURLCredential?
+	public var cache_policy = LRest.cache.Policy.None
+	public var form_data: [NSData]?
+	public var form_keys = ["file", "file1", "file2"]
+	public var form_boundary = "---------------------------14737809831466499882746641449"		//"Boundary-\(NSUUID().UUID().UUIDString)"
 
 	public init(api url: String, parameters param: LTDictStrObj? = nil) {
 		api = url
@@ -98,19 +98,19 @@ public class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLS
 	}
 
 	//	TODO: create a protocol
-	func reload_authentication() {
+	public func reload_authentication() {
 		//	override me
 	}
-	func text_show() {
+	public func text_show() {
 		//	override mes
 	}
-	func text_hide() {
+	public func text_hide() {
 		//	override me
 	}
-	func error_show(error: NSError) {
+	public func error_show(error: NSError) {
 		//	override mes
 	}
-	func reload_api() -> String {
+	public func reload_api() -> String {
 		var api_reloaded = api
 		if method.rawValue == "GET" && parameters != nil {
 			if api_reloaded.include("?") {
@@ -134,7 +134,7 @@ public class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLS
 		}
 		return api_reloaded
 	}
-	func init_request(api: String) -> NSMutableURLRequest? {
+	public func init_request(api: String) -> NSMutableURLRequest? {
 		let url = NSURL(string: root + api)!
 		let request = NSMutableURLRequest(URL: url)
 		request.HTTPMethod = method.rawValue
@@ -200,8 +200,8 @@ public class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLS
         */
         return request
 	}
-	var connection: NSURLConnection?
-	var task: NSURLSessionDataTask?
+	public var connection: NSURLConnection?
+	public var task: NSURLSessionDataTask?
 	public func execute() {
         var cache_loaded = false
 		let api_reloaded = reload_api()
@@ -349,7 +349,7 @@ public class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLS
 	public func URLSession(session: NSURLSession, task: NSURLSessionTask, didCompleteWithError error: NSError?) {
 		LF.log("TASK error", error)
 	}
-	func cancel() {
+	public func cancel() {
 		connection?.cancel()
 		task?.cancel()
 	}
@@ -357,7 +357,7 @@ public class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLS
         //LF.log("CLIENT deinit", self)
     }
 
-	func get_filename(api: String) -> String {
+	public func get_filename(api: String) -> String {
 		var param_hash = self.parameters?.description.hash
 		if param_hash == nil {
 			param_hash = 0
@@ -366,7 +366,7 @@ public class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLS
 			self.root.to_filename(), api.to_filename(), param_hash!)
 		return filename.to_filename(directory: .CachesDirectory)
 	}
-	func execute_data(data: NSData!) {
+	public func execute_data(data: NSData!) {
 		var error: NSError?
 		//let s = NSString(data: data, encoding: NSUTF8StringEncoding)
 		let cls = T.self
@@ -441,13 +441,13 @@ public class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLS
 		}
 	}
 
-	func form_append(body: NSMutableData, key: String, value: String) {
+	public func form_append(body: NSMutableData, key: String, value: String) {
 		let boundary = form_boundary
 		body.append_string("--\(boundary)\r\n")
 		body.append_string("Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n")
 		body.append_string("\(value)\r\n")
 	}
-	func form_append_dict(body: NSMutableData, param: LTDictStrObj, prefix: String = "") {
+	public func form_append_dict(body: NSMutableData, param: LTDictStrObj, prefix: String = "") {
 		for (key, value) in param {
 			var key_nested = key
 			if prefix != "" {
@@ -467,7 +467,7 @@ public class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLS
 			//LF.log(key, value.description)
 		}
 	}
-	func form_body(parameters: [String: AnyObject]?, array_data: [NSData]?) -> NSData {
+	public func form_body(parameters: [String: AnyObject]?, array_data: [NSData]?) -> NSData {
 		let boundary = form_boundary
 		let body = NSMutableData()
 
@@ -499,14 +499,14 @@ public class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLS
 	}
 }
 
-class LRestConnectionDelegate: NSObject {
+public class LRestConnectionDelegate: NSObject {
 
-	var func_done: ((NSURLResponse?, NSData?, NSError!) -> Void)?   //  TODO: make response/data non-nullable
-	var credential: NSURLCredential?
-	var response: NSURLResponse?
-	var data: NSMutableData = NSMutableData()
+	public var func_done: ((NSURLResponse?, NSData?, NSError!) -> Void)?   //  TODO: make response/data non-nullable
+	public var credential: NSURLCredential?
+	public var response: NSURLResponse?
+	public var data: NSMutableData = NSMutableData()
 
-	func connection(connection: NSURLConnection, willSendRequestForAuthenticationChallenge challenge: NSURLAuthenticationChallenge) {
+	public func connection(connection: NSURLConnection, willSendRequestForAuthenticationChallenge challenge: NSURLAuthenticationChallenge) {
 		if challenge.previousFailureCount > 0, let sender = challenge.sender {
 			LF.log("challenge cancelled")
 			sender.cancelAuthenticationChallenge(challenge)
@@ -517,22 +517,22 @@ class LRestConnectionDelegate: NSObject {
 			LF.log("REST connection will challenge", connection)
 		}
 	}
-	func connection(connection: NSURLConnection, didReceiveResponse a_response: NSURLResponse) {
+	public func connection(connection: NSURLConnection, didReceiveResponse a_response: NSURLResponse) {
 		//LF.log("CONNECTION response", response)
 		response = a_response
 	}
-	func connection(connection: NSURLConnection, didReceiveData data_received: NSData) {
+	public func connection(connection: NSURLConnection, didReceiveData data_received: NSData) {
 		//LF.log("CONNECTION data", data.length)
 		data.appendData(data_received)
 	}
-	func connectionDidFinishLoading(connection: NSURLConnection) {
+	public func connectionDidFinishLoading(connection: NSURLConnection) {
 		//LF.log("CONNECTION finished", connection)
 		//LF.log("CONNECTION finished", data.to_string())
 		if func_done != nil {
 			func_done!(response, data, nil)
 		}
 	}
-	func connection(connection: NSURLConnection, didFailWithError error: NSError) {
+	public func connection(connection: NSURLConnection, didFailWithError error: NSError) {
 		//LF.log("CONNECTION failed", error)
 		if let func_done = func_done {
 			func_done(response, data, error)
@@ -552,12 +552,12 @@ public class LFModel: NSObject {
     public var id: String = ""
 	public var raw: LTDictStrObj?
 
-	struct prototype {
-		static var indent: Int = 0
+	public struct prototype {
+		public static var indent: Int = 0
 	}
 
 	//	override this function to disable this log. TODO: find a better way.
-	func log_description_not_found(value: AnyObject) {
+	public func log_description_not_found(value: AnyObject) {
 		LF.log("WARNING name 'description' is a reserved word", value)
 	}
     required public init(dict: Dictionary<String, AnyObject>?) {
@@ -619,7 +619,7 @@ public class LFModel: NSObject {
 		//LF.log(filename, dict)
 		self.init(dict: dict as? LTDictStrObj)
 	}
-	func save(filename: String, atomically: Bool = true) -> Bool {
+	public func save(filename: String, atomically: Bool = true) -> Bool {
 		/*
 		let data = NSKeyedArchiver.archivedDataWithRootObject(dictionary)
 		do {
@@ -669,7 +669,7 @@ public class LFModel: NSObject {
 	override public func valueForUndefinedKey(key: String) -> AnyObject? {
 		return nil
 	}
-    func dictionary(keys: [String]) -> Dictionary<String, AnyObject> {
+    public func dictionary(keys: [String]) -> Dictionary<String, AnyObject> {
         var dict: Dictionary<String, AnyObject> = [:]
         for key in keys {
             if let value: AnyObject = valueForKeyPath(key) {
@@ -683,7 +683,7 @@ public class LFModel: NSObject {
         return dict
     }
 	//	TODO: refactor me - should be method instead of property
-	var keys: [String] {
+	public var keys: [String] {
         var array = [String]()
         var count: CUnsignedInt = 0
 		let properties: UnsafeMutablePointer<objc_property_t> = class_copyPropertyList(object_getClass(self), &count)
@@ -730,7 +730,7 @@ public class LFModel: NSObject {
         return array
 	}
     //  Nesting is supported. You can also use dictionary(keys) to make dictionary from selected keys.
-    var dictionary: Dictionary<String, AnyObject> {
+    public var dictionary: Dictionary<String, AnyObject> {
         var dict: Dictionary<String, AnyObject> = [:]
         var count: CUnsignedInt = 0
 		let properties: UnsafeMutablePointer<objc_property_t> = class_copyPropertyList(object_getClass(self), &count)
@@ -818,7 +818,7 @@ public class LFModel: NSObject {
         return s
     }
 
-	func append_indent(str: String) -> String {
+	public func append_indent(str: String) -> String {
 		var s = str
 		for _ in 0 ..< LFModel.prototype.indent {
 			//s = s.stringByAppendingString("\t")
@@ -828,13 +828,13 @@ public class LFModel: NSObject {
 	}
 }
 
-class LFAutosaveModel: LFModel {
+public class LFAutosaveModel: LFModel {
 	//	autosave only makes sense when a back-end service is enabled e.g. Parse, see LFProfile
 
-	var lf_version = NSBundle.mainBundle().infoDictionary?["CFBundleVersion"] as? String
+	public var lf_version = NSBundle.mainBundle().infoDictionary?["CFBundleVersion"] as? String
 
-	static let autosave_prefix = "Autosave_"		//	TODO
-	func autosave_filename() -> String {
+	public static let autosave_prefix = "Autosave_"		//	TODO
+	public func autosave_filename() -> String {
         var filename = NSStringFromClass(self.dynamicType)
 		filename = filename.stringByReplacingOccurrencesOfString(".", withString: "_", options:[], range: nil)
 		filename = LFAutosaveModel.autosave_prefix + filename + ".xml"
@@ -860,10 +860,10 @@ class LFAutosaveModel: LFModel {
 			autosave_reload()
 		}
 	}
-	func autosave_publish() {
+	public func autosave_publish() {
 		LF.log("TODO save", "override me")
 	}
-	func autosave_reload() {
+	public func autosave_reload() {
 		LF.log("TODO load", "override me")
 	}
 }
@@ -875,7 +875,7 @@ class LRestObject: LFModel {
 }
 */
 
-protocol LTableClient {
+public protocol LTableClient {
 	func reload()
 	func load_more()
 	//func reload_table()
@@ -886,30 +886,30 @@ protocol LTableClient {
 	var pagination_index: Int { get set }
 }
 
-class LArrayClient<T: LFModel>: LRestClient<T>, LTableClient {
-	var items = Array<T>()
-	var func_reload: ([T] -> Void)?
+public class LArrayClient<T: LFModel>: LRestClient<T>, LTableClient {
+	public var items = Array<T>()
+	public var func_reload: ([T] -> Void)?
 	//var func_error: (NSError -> Void)?
-	var func_done: (Void -> Void)?
-	var is_loaded = false
-	var is_loading = false
+	public var func_done: (Void -> Void)?
+	public var is_loaded = false
+	public var is_loading = false
 
-	var last_loaded = 0
-	var pagination_method = LRest.pagination.Method.None
-	var pagination_key: String!
-	var pagination_index = 0
+	public var last_loaded = 0
+	public var pagination_method = LRest.pagination.Method.None
+	public var pagination_key: String!
+	public var pagination_index = 0
 
-	override init(api url: String, parameters param: LTDictStrObj? = nil) {
+	public override init(api url: String, parameters param: LTDictStrObj? = nil) {
 		super.init(api:url, parameters:param)
 		show_error = true
 	}
-	func reload() {
+	public func reload() {
 		pagination_index = 0
 		parameters?.removeValueForKey(pagination_key)
 		items.removeAll()
 		load_more()
 	}
-	func load_more() {
+	public func load_more() {
 		if is_loading {
 			return
 		}
@@ -963,16 +963,16 @@ class LArrayClient<T: LFModel>: LRestClient<T>, LTableClient {
 	*/
 }
 
-class LFRestTableController: LFTableController {
-	var client: LTableClient!
-	var reload_table = LRest.ui.Reload.First
-	var refresh_reload: UIRefreshControl?
-	var refresh_more: UIRefreshControl?
-	var pull_down = LRest.ui.Load.None
-	var pull_up = LRest.ui.Load.None
-	var func_done: (Void -> Void)?
+public class LFRestTableController: LFTableController {
+	public var client: LTableClient!
+	public var reload_table = LRest.ui.Reload.First
+	public var refresh_reload: UIRefreshControl?
+	public var refresh_more: UIRefreshControl?
+	public var pull_down = LRest.ui.Load.None
+	public var pull_up = LRest.ui.Load.None
+	public var func_done: (Void -> Void)?
 
-	override func awakeFromNib() {
+	public override func awakeFromNib() {
 		super.awakeFromNib()
 		/*
 		let c = ICMyComplaintClient<ICComplaintModel>()
@@ -983,21 +983,21 @@ class LFRestTableController: LFTableController {
 		client = c
 		*/
 	}
-	override func viewDidLoad() {
+	public override func viewDidLoad() {
 		super.viewDidLoad()
 		reload_refresh()
 		if reload_table != .None {
 			client_reload()
 		}
 	}
-	override func viewWillAppear(animated: Bool) {
+	public override func viewWillAppear(animated: Bool) {
 		super.viewWillAppear(animated)
 		if reload_table == .Always {
 			client_reload()
 		}
 	}
 
-	func reload_refresh() {
+	public func reload_refresh() {
 		//	TODO: refactor
 		if refresh_reload != nil {
 			refresh_reload!.removeFromSuperview()
@@ -1035,7 +1035,7 @@ class LFRestTableController: LFTableController {
 			}
 		}
 	}
-	func refresh_end() {
+	public func refresh_end() {
 		if let refresh = refresh_reload where self.pull_down != .None {
 			refresh.endRefreshing()
 		}
@@ -1043,53 +1043,53 @@ class LFRestTableController: LFTableController {
 			refresh.endRefreshing()
 		}
 	}
-	func client_reload() {
+	public func client_reload() {
 		client.reload()
 	}
-	func client_more() {
+	public func client_more() {
 		client.load_more()
 	}
-	func clear() {
+	public func clear() {
 		source.counts = [0]
 		source.table.reloadData()
 	}
-	func show_no_more_items() {
+	public func show_no_more_items() {
 		//	override me
 	}
 }
 
-class LFLocalizable: LFAutosaveModel {
-	var lf_language = Item()
+public class LFLocalizable: LFAutosaveModel {
+	public var lf_language = Item()
 
-	class Item: NSObject {
+	public class Item: NSObject {
 		var array = [String]()
-		var str: String {
+		public var str: String {
 			if let index = LTheme.localization.language_current(nil) {
 				return array[index]
 			}
 			return ""
 		}
-		var STR: String {
+		public var STR: String {
 			return str.uppercaseString
 		}
-		var Str: String {
+		public var Str: String {
 			let s = str
 			return s[0].uppercaseString + s[1...s.length]
 		}
-		var s: String {
+		public var s: String {
 			return str
 		}
-		var S: String {
+		public var S: String {
 			return STR
 		}
 	}
-	required init(dict: LTDictStrObj?) {
+	public required init(dict: LTDictStrObj?) {
 		super.init(dict: dict)
 		for language in LTheme.localization.languages {
 			lf_language += language.rawValue
 		}
 	}
-    override var dictionary: Dictionary<String, AnyObject> {
+    public override var dictionary: Dictionary<String, AnyObject> {
 		var dict = [String: AnyObject]()
 		for key in keys {
 			if let item = valueForKey(key) as? Item {
@@ -1100,6 +1100,6 @@ class LFLocalizable: LFAutosaveModel {
 	}
 }
 
-func += (inout left: LFLocalizable.Item, right: String) {
+public func += (inout left: LFLocalizable.Item, right: String) {
 	left.array.append(right)
 }
