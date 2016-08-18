@@ -2,7 +2,7 @@ import Foundation
 import UIKit
 
 //	client
-public struct LRest {
+public struct SAREST {
 	public static let domain = "LRestKit"
 	public struct error {
 		public static let invalid_parameter = 10000001
@@ -55,7 +55,7 @@ public struct LRest {
 	}
 }
 
-public class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLSessionTaskDelegate {
+public class SARESTClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLSessionTaskDelegate {
 	public var paths: [String]?		//	to support results like ["user": ["username"="1"], "succuss" = 1]
 	public var subpaths: [String]?		//	to support ["users": [ [_source: ["username"="1"] ] ], "success" = 1]
 	public var path: String? {			
@@ -75,9 +75,9 @@ public class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLS
 	}
 	public var text: String?
 	public var show_error = false
-	public var content_type = LRest.content.json
-	public var connection_class = LRest.ConnectionClass.NSURLSession
-	public var method = LRest.method.get
+	public var content_type = SAREST.content.json
+	public var connection_class = SAREST.ConnectionClass.NSURLSession
+	public var method = SAREST.method.get
 	public var root: String!
 	public var api: String!
 	public var parameters: LTDictStrObj?
@@ -87,7 +87,7 @@ public class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLS
 	public var func_dict: ((LTDictStrObj?, NSError?) -> Void)?		//	raw dictionary
 	public var response: NSHTTPURLResponse?
 	public var credential: NSURLCredential?
-	public var cache_policy = LRest.cache.Policy.None
+	public var cache_policy = SAREST.cache.Policy.None
 	public var form_data: [NSData]?
 	public var form_keys = ["file", "file1", "file2"]
 	public var form_boundary = "---------------------------14737809831466499882746641449"		//"Boundary-\(NSUUID().UUID().UUIDString)"
@@ -138,10 +138,10 @@ public class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLS
 		let url = NSURL(string: root + api)!
 		let request = NSMutableURLRequest(URL: url)
 		request.HTTPMethod = method.rawValue
-		if content_type == LRest.content.form {
+		if content_type == SAREST.content.form {
 			let boundary = form_boundary
 			request.HTTPBody = form_body(parameters, array_data:form_data)
-			request.setValue(LRest.content.json, forHTTPHeaderField:"Accept")
+			request.setValue(SAREST.content.json, forHTTPHeaderField:"Accept")
 			request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
 			if let data = request.HTTPBody {
 				request.setValue(String(data.length), forHTTPHeaderField: "Content-Length")
@@ -150,13 +150,13 @@ public class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLS
 			//LF.log("request", request)
 			//LF.log("headers", request.allHTTPHeaderFields)
 			//LF.log("method", request.HTTPMethod)
-		} else if content_type == LRest.content.json {
+		} else if content_type == SAREST.content.json {
 			request.addValue(content_type, forHTTPHeaderField:"Content-Type")
 			request.addValue(content_type, forHTTPHeaderField:"Accept")
 
 			//LF.log("REST method", method.rawValue)
 			//LF.log("REST param", parameters)
-			if method != LRest.method.get && parameters != nil {
+			if method != SAREST.method.get && parameters != nil {
 
 				var error_ret: NSError?
 				let body: NSData?
@@ -168,7 +168,7 @@ public class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLS
 				}
 				//	LF.log("REST body", NSString(data: body!, encoding: NSUTF8StringEncoding))
 				if error_ret != nil {
-					error_ret = NSError(domain: LRest.domain, code: LRest.error.invalid_parameter, userInfo:[NSLocalizedDescriptionKey: "LRestKit: invalid parameters"])
+					error_ret = NSError(domain: SAREST.domain, code: SAREST.error.invalid_parameter, userInfo:[NSLocalizedDescriptionKey: "LRestKit: invalid parameters"])
 					if show_error == true {
 						error_show(error_ret!)
 					}
@@ -236,7 +236,7 @@ public class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLS
 					//	LF.log("CLIENT error", error)
 				} else if resp == nil {
 					//	LF.log("url empty response", data)
-					error_ret = NSError(domain: LRest.domain, code: LRest.error.empty_response, userInfo:[NSLocalizedDescriptionKey: "LRestKit: empty response"])
+					error_ret = NSError(domain: SAREST.domain, code: SAREST.error.empty_response, userInfo:[NSLocalizedDescriptionKey: "LRestKit: empty response"])
 				} else if resp!.statusCode < 200 || resp!.statusCode >= 300 {
 					//	LF.log("url failed", data?.to_string())
 					let code = resp!.statusCode
@@ -245,7 +245,7 @@ public class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLS
 						//	TODO: this is a temporary solution
 						info["LRestClientResponseData"] = str
 					}
-					error_ret = NSError(domain: LRest.domain, code: code, userInfo:info)
+					error_ret = NSError(domain: SAREST.domain, code: code, userInfo:info)
 				} else {
 					if self.cache_policy != .None {
 						let filename = self.get_filename(api_reloaded)
@@ -308,7 +308,7 @@ public class LRestClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLS
                 forProtectionSpace:space)
             */
 		} else {
-			LF.log("WARNING LClient", "empty request")
+			LF.log("WARNING SARESTClient", "empty request")
 		}
 	}
 	public func URLSession(session: NSURLSession, didBecomeInvalidWithError error: NSError?) {
@@ -871,7 +871,7 @@ public class LFAutosaveModel: LFModel {
 /*
 class LRestObject: LFModel {
 	var items: [LRestObject] = []	//	impossible to make it dynamic?
-	let client = LRestClient<LFModel>()
+	let client = SARESTClient<LFModel>()
 }
 */
 
@@ -886,7 +886,7 @@ public protocol LTableClient {
 	var pagination_index: Int { get set }
 }
 
-public class LArrayClient<T: LFModel>: LRestClient<T>, LTableClient {
+public class LArrayClient<T: LFModel>: SARESTClient<T>, LTableClient {
 	public var items = Array<T>()
 	public var func_reload: ([T] -> Void)?
 	//var func_error: (NSError -> Void)?
@@ -895,7 +895,7 @@ public class LArrayClient<T: LFModel>: LRestClient<T>, LTableClient {
 	public var is_loading = false
 
 	public var last_loaded = 0
-	public var pagination_method = LRest.pagination.Method.None
+	public var pagination_method = SAREST.pagination.Method.None
 	public var pagination_key: String!
 	public var pagination_index = 0
 
@@ -965,11 +965,11 @@ public class LArrayClient<T: LFModel>: LRestClient<T>, LTableClient {
 
 public class LFRestTableController: LFTableController {
 	public var client: LTableClient!
-	public var reload_table = LRest.ui.Reload.First
+	public var reload_table = SAREST.ui.Reload.First
 	public var refresh_reload: UIRefreshControl?
 	public var refresh_more: UIRefreshControl?
-	public var pull_down = LRest.ui.Load.None
-	public var pull_up = LRest.ui.Load.None
+	public var pull_down = SAREST.ui.Load.None
+	public var pull_up = SAREST.ui.Load.None
 	public var func_done: (Void -> Void)?
 
 	public override func awakeFromNib() {
