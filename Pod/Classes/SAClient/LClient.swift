@@ -55,7 +55,7 @@ public struct SAREST {
 	}
 }
 
-public class SARESTClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURLSessionTaskDelegate {
+public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURLSessionTaskDelegate {
 	public var paths: [String]?		//	to support results like ["user": ["username"="1"], "succuss" = 1]
 	public var subpaths: [String]?		//	to support ["users": [ [_source: ["username"="1"] ] ], "success" = 1]
 	public var path: String? {			
@@ -288,7 +288,7 @@ public class SARESTClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURL
 				}
 				task!.resume()
 			} else if connection_class == .NSURLConnection {
-				let delegate = LRestConnectionDelegate()
+				let delegate = SARestConnectionDelegate()
 				delegate.credential = credential
 				delegate.func_done = func_done
 				//	XXX: NSURLConnection support will be removed when iOS 8 support is stopped
@@ -499,7 +499,7 @@ public class SARESTClient<T: LFModel>: NSObject, NSURLSessionDataDelegate, NSURL
 	}
 }
 
-public class LRestConnectionDelegate: NSObject {
+public class SARestConnectionDelegate: NSObject {
 
 	public var func_done: ((NSURLResponse?, NSData?, NSError!) -> Void)?   //  TODO: make response/data non-nullable
 	public var credential: NSURLCredential?
@@ -545,7 +545,7 @@ public class LRestConnectionDelegate: NSObject {
 
 //	model
 
-public class LFModel: NSObject {
+public class SAModel: NSObject {
   
 	//	public & reserved
     //public var id: Int = 0
@@ -610,7 +610,7 @@ public class LFModel: NSObject {
 				}
 			}
 		} else {
-			//LF.log("LFModel empty dict")
+			//LF.log("SAModel empty dict")
 		}
     }
 
@@ -644,7 +644,7 @@ public class LFModel: NSObject {
 		for (a_key, value) in dictionary {
 			if let dict_parameter = value as? Dictionary<String, AnyObject> {
 				if a_key == key {
-					let a_class = NSClassFromString(type) as! LFModel.Type
+					let a_class = NSClassFromString(type) as! SAModel.Type
 					let obj = a_class.init(dict: dict_parameter)
 					setValue(obj, forKey:key)
 				}
@@ -654,7 +654,7 @@ public class LFModel: NSObject {
 					for obj in array_parameter {
 						if let dict_parameter = obj as? Dictionary<String, AnyObject> {
 							//LF.log(key, obj: dict_parameter)
-							let a_class = NSClassFromString(type) as! LFModel.Type
+							let a_class = NSClassFromString(type) as! SAModel.Type
 							let obj_new = a_class.init(dict: dict_parameter)
 							//LF.log(key, obj: obj_new)
 							array_new.append(obj_new)
@@ -673,7 +673,7 @@ public class LFModel: NSObject {
         var dict: Dictionary<String, AnyObject> = [:]
         for key in keys {
             if let value: AnyObject = valueForKeyPath(key) {
-				if let v = value as? LFModel {
+				if let v = value as? SAModel {
 					dict[key] = v.dictionary
 				} else {
 					dict[key] = value
@@ -712,7 +712,7 @@ public class LFModel: NSObject {
 				break
 			}
 			/*
-			if NSStringFromClass(c).include("LFModel") {
+			if NSStringFromClass(c).include("SAModel") {
 				break
 			}
 			*/
@@ -756,7 +756,7 @@ public class LFModel: NSObject {
 				break
 			}
 			/*
-			if NSStringFromClass(c).include("LFModel") {
+			if NSStringFromClass(c).include("SAModel") {
 				break
 			}
 			*/
@@ -769,9 +769,9 @@ public class LFModel: NSObject {
 					continue
 				}
 				if let value: AnyObject? = valueForKey(key) {
-					if let v = value as? LFModel {
+					if let v = value as? SAModel {
 						dict[key] = v.dictionary
-					} else if let a = value as? [LFModel] {
+					} else if let a = value as? [SAModel] {
 						var array = [AnyObject]()
 						for v in a {
 							array.append(v.dictionary)
@@ -789,7 +789,7 @@ public class LFModel: NSObject {
     override public var description: String {
         var s = NSStringFromClass(self.dynamicType)
         s = NSString(format: "%@ (%p): [\r", s, self) as String
-		LFModel.prototype.indent += 1
+		SAModel.prototype.indent += 1
         for (key, value) in dictionary {
 			if key == "raw" {
 				continue
@@ -797,12 +797,12 @@ public class LFModel: NSObject {
 			s = append_indent(s)
 			if let array = value as? Array<AnyObject> {
 				s = s.stringByAppendingFormat("%@: [\r", key)
-				LFModel.prototype.indent += 1
+				SAModel.prototype.indent += 1
 				for obj in array {
 					s = append_indent(s)
 					s = s.stringByAppendingFormat("%@\r", obj.description)
 				}
-				LFModel.prototype.indent -= 1
+				SAModel.prototype.indent -= 1
 				s = append_indent(s)
 				s = s.stringByAppendingString("]\r")
 			}
@@ -812,7 +812,7 @@ public class LFModel: NSObject {
 				s = s.stringByAppendingFormat("%@: '%@'\r", key, value.description)
 			}
         }
-		LFModel.prototype.indent -= 1
+		SAModel.prototype.indent -= 1
 		s = append_indent(s)
         s = s.stringByAppendingString("]")
         return s
@@ -820,7 +820,7 @@ public class LFModel: NSObject {
 
 	public func append_indent(str: String) -> String {
 		var s = str
-		for _ in 0 ..< LFModel.prototype.indent {
+		for _ in 0 ..< SAModel.prototype.indent {
 			//s = s.stringByAppendingString("\t")
 			s = s.stringByAppendingString("    ")
 		}
@@ -828,7 +828,7 @@ public class LFModel: NSObject {
 	}
 }
 
-public class LFAutosaveModel: LFModel {
+public class SAAutosaveModel: SAModel {
 	//	autosave only makes sense when a back-end service is enabled e.g. Parse, see LFProfile
 
 	public var lf_version = NSBundle.mainBundle().infoDictionary?["CFBundleVersion"] as? String
@@ -837,7 +837,7 @@ public class LFAutosaveModel: LFModel {
 	public func autosave_filename() -> String {
         var filename = NSStringFromClass(self.dynamicType)
 		filename = filename.stringByReplacingOccurrencesOfString(".", withString: "_", options:[], range: nil)
-		filename = LFAutosaveModel.autosave_prefix + filename + ".xml"
+		filename = SAAutosaveModel.autosave_prefix + filename + ".xml"
 		return filename.filename_doc()
 	}
 	//	publish
@@ -850,7 +850,7 @@ public class LFAutosaveModel: LFModel {
 		//	TODO: how to call autosave_filename() instead? is double-init a must?
         var filename = NSStringFromClass(self.dynamicType)
 		filename = filename.stringByReplacingOccurrencesOfString(".", withString: "_", options:[], range: nil)
-		filename = LFAutosaveModel.autosave_prefix + filename + ".xml"
+		filename = SAAutosaveModel.autosave_prefix + filename + ".xml"
 		filename = filename.filename_doc()
 
 		self.init(filename: filename)
@@ -869,24 +869,24 @@ public class LFAutosaveModel: LFModel {
 }
 
 /*
-class LRestObject: LFModel {
+class LRestObject: SAModel {
 	var items: [LRestObject] = []	//	impossible to make it dynamic?
-	let client = SARESTClient<LFModel>()
+	let client = SARESTClient<SAModel>()
 }
 */
 
-public protocol LTableClient {
+public protocol SATableClient {
 	func reload()
 	func load_more()
 	//func reload_table()
-	//var func_reload: ([LFModel] -> Void)? { get set }
+	//var func_reload: ([SAModel] -> Void)? { get set }
 	//var func_error: (NSError -> Void)? { get set }
 	var func_done: (Void -> Void)? { get set }		//	rename me
 	var last_loaded: Int { get set }
 	var pagination_index: Int { get set }
 }
 
-public class LArrayClient<T: LFModel>: SARESTClient<T>, LTableClient {
+public class SAArrayClient<T: SAModel>: SARESTClient<T>, SATableClient {
 	public var items = Array<T>()
 	public var func_reload: ([T] -> Void)?
 	//var func_error: (NSError -> Void)?
@@ -964,7 +964,7 @@ public class LArrayClient<T: LFModel>: SARESTClient<T>, LTableClient {
 }
 
 public class LFRestTableController: LFTableController {
-	public var client: LTableClient!
+	public var client: SATableClient!
 	public var reload_table = SAREST.ui.Reload.First
 	public var refresh_reload: UIRefreshControl?
 	public var refresh_more: UIRefreshControl?
@@ -1058,7 +1058,7 @@ public class LFRestTableController: LFTableController {
 	}
 }
 
-public class LFLocalizable: LFAutosaveModel {
+public class LFLocalizable: SAAutosaveModel {
 	public var lf_language = Item()
 
 	public class Item: NSObject {
