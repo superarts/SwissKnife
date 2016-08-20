@@ -13,9 +13,9 @@ public typealias LTBlockVoidDictError = ((LTDictStrObj?, NSError?) -> Void)
 public typealias LTBlockVoidArray = ((LTArrayObj?) -> Void)
 public typealias LTBlockVoidArrayError = ((LTArrayObj?, NSError?) -> Void)
 
-public struct LConst {
+public struct SAConst {
 	public static func color(name: String, alpha: CGFloat = 1) -> UIColor {
-		if let rgb = LConst.rgb[name] {
+		if let rgb = SAConst.rgb[name] {
 			return UIColor(rgb: rgb, alpha: alpha)
 		}
 		return .clearColor()

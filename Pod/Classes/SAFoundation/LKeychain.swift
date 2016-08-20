@@ -3,36 +3,36 @@ import Security
 
 // Identifiers
 //let serviceIdentifier = "MySerivice"
-let userAccount = "LKeychain"
+let userAccount = "SAKeychain"
 //let accessGroup = "MySerivice"
 
 // Arguments for the keychain queries
 /*
-let kSecClassValue = kSecClass.takeRetainedValue() as NSString
-let kSecAttrAccountValue = kSecAttrAccount.takeRetainedValue() as NSString
-let kSecValueDataValue = kSecValueData.takeRetainedValue() as NSString
-let kSecClassGenericPasswordValue = kSecClassGenericPassword.takeRetainedValue() as NSString
-let kSecAttrServiceValue = kSecAttrService.takeRetainedValue() as NSString
-let kSecMatchLimitValue = kSecMatchLimit.takeRetainedValue() as NSString
-let kSecReturnDataValue = kSecReturnData.takeRetainedValue() as NSString
-let kSecMatchLimitOneValue = kSecMatchLimitOne.takeRetainedValue() as NSString
+let kSASecClassValue = kSASecClass.takeRetainedValue() as NSString
+let kSASecAttrAccountValue = kSASecAttrAccount.takeRetainedValue() as NSString
+let kSASecValueDataValue = kSASecValueData.takeRetainedValue() as NSString
+let kSASecClassGenericPasswordValue = kSASecClassGenericPassword.takeRetainedValue() as NSString
+let kSASecAttrServiceValue = kSASecAttrService.takeRetainedValue() as NSString
+let kSASecMatchLimitValue = kSASecMatchLimit.takeRetainedValue() as NSString
+let kSASecReturnDataValue = kSASecReturnData.takeRetainedValue() as NSString
+let kSASecMatchLimitOneValue = kSASecMatchLimitOne.takeRetainedValue() as NSString
 */
-let kSecClassValue = NSString(format:kSecClass)
-let kSecAttrAccountValue = NSString(format:kSecAttrAccount)
-let kSecValueDataValue = NSString(format:kSecValueData)
-let kSecClassGenericPasswordValue = NSString(format:kSecClassGenericPassword)
-let kSecAttrServiceValue = NSString(format:kSecAttrService)
-let kSecMatchLimitValue = NSString(format:kSecMatchLimit)
-let kSecReturnDataValue = NSString(format:kSecReturnData)
-let kSecMatchLimitOneValue = NSString(format:kSecMatchLimitOne)
+let kSASecClassValue				= NSString(format:kSecClass)
+let kSASecAttrAccountValue			= NSString(format:kSecAttrAccount)
+let kSASecValueDataValue			= NSString(format:kSecValueData)
+let kSASecClassGenericPasswordValue	= NSString(format:kSecClassGenericPassword)
+let kSASecAttrServiceValue			= NSString(format:kSecAttrService)
+let kSASecMatchLimitValue			= NSString(format:kSecMatchLimit)
+let kSASecReturnDataValue			= NSString(format:kSecReturnData)
+let kSASecMatchLimitOneValue		= NSString(format:kSecMatchLimitOne)
 
-public class LKeychain: NSObject {
+public class SAKeychain: NSObject {
 
   public class func save(key: String, _ data: NSString) {
     let dataFromString: NSData = data.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)!
 
     // Instantiate a new default keychain query
-    let keychainQuery: NSMutableDictionary = NSMutableDictionary(objects: [kSecClassGenericPasswordValue, key, userAccount, dataFromString], forKeys: [kSecClassValue, kSecAttrServiceValue, kSecAttrAccountValue, kSecValueDataValue])
+    let keychainQuery: NSMutableDictionary = NSMutableDictionary(objects: [kSASecClassGenericPasswordValue, key, userAccount, dataFromString], forKeys: [kSASecClassValue, kSASecAttrServiceValue, kSASecAttrAccountValue, kSASecValueDataValue])
 
     // Delete any existing items
     SecItemDelete(keychainQuery as CFDictionaryRef)
@@ -45,7 +45,7 @@ public class LKeychain: NSObject {
     // Instantiate a new default keychain query
     // Tell the query to return a result
     // Limit our results to one item
-    let keychainQuery: NSMutableDictionary = NSMutableDictionary(objects: [kSecClassGenericPasswordValue, key, userAccount, kCFBooleanTrue, kSecMatchLimitOneValue], forKeys: [kSecClassValue, kSecAttrServiceValue, kSecAttrAccountValue, kSecReturnDataValue, kSecMatchLimitValue])
+    let keychainQuery: NSMutableDictionary = NSMutableDictionary(objects: [kSASecClassGenericPasswordValue, key, userAccount, kCFBooleanTrue, kSASecMatchLimitOneValue], forKeys: [kSASecClassValue, kSASecAttrServiceValue, kSASecAttrAccountValue, kSASecReturnDataValue, kSASecMatchLimitValue])
 
     /*
     var dataTypeRef :Unmanaged<AnyObject>?

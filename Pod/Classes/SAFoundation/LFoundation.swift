@@ -377,7 +377,7 @@ public extension UIView {
 	public func insert_gradient(colors:[AnyObject?], point1:CGPoint, point2:CGPoint) {
 		var cg_colors: [CGColor] = []
 		for obj in colors {
-			if let name = obj as? String, let rgb = LConst.rgb[name] {
+			if let name = obj as? String, let rgb = SAConst.rgb[name] {
 				cg_colors.append(UIColor(rgb: rgb).CGColor)
 			} else if let rgb = obj as? UInt {
 				cg_colors.append(UIColor(rgb: rgb).CGColor)

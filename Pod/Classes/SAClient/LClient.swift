@@ -963,7 +963,7 @@ public class SAArrayClient<T: SAModel>: SARESTClient<T>, SATableClient {
 	*/
 }
 
-public class LFRestTableController: LFTableController {
+public class SARESTTableController: SATableController {
 	public var client: SATableClient!
 	public var reload_table = SAREST.ui.Reload.First
 	public var refresh_reload: UIRefreshControl?
@@ -1010,19 +1010,19 @@ public class LFRestTableController: LFTableController {
 		if pull_down == .Reload {
 			refresh_reload = UIRefreshControl()
 			refresh_reload!.perform("triggerVerticalOffset", value:60)
-			refresh_reload!.addTarget(self, action: #selector(LFRestTableController.client_reload), forControlEvents: .ValueChanged)
+			refresh_reload!.addTarget(self, action: #selector(SARESTTableController.client_reload), forControlEvents: .ValueChanged)
 			table.addSubview(refresh_reload!)
 		} else if pull_down == .More {
 			refresh_reload = UIRefreshControl()
 			refresh_reload!.perform("triggerVerticalOffset", value:60)
-			refresh_reload!.addTarget(self, action: #selector(LFRestTableController.client_more), forControlEvents: .ValueChanged)
+			refresh_reload!.addTarget(self, action: #selector(SARESTTableController.client_more), forControlEvents: .ValueChanged)
 			table.addSubview(refresh_reload!)
 		}
 		//	XXX: pod integration
 		if pull_up == .More && table.respondsToSelector(Selector("bottomRefreshControl")) {
 			refresh_more = UIRefreshControl()
 			refresh_more!.perform("triggerVerticalOffset", value:60)
-			refresh_more!.addTarget(self, action:#selector(LFRestTableController.client_more), forControlEvents:.ValueChanged)
+			refresh_more!.addTarget(self, action:#selector(SARESTTableController.client_more), forControlEvents:.ValueChanged)
 			table.perform("bottomRefreshControl", value:refresh_more!)
 		}
 		client.func_done = {
@@ -1058,7 +1058,7 @@ public class LFRestTableController: LFTableController {
 	}
 }
 
-public class LFLocalizable: SAAutosaveModel {
+public class SALocalizable: SAAutosaveModel {
 	public var lf_language = Item()
 
 	public class Item: NSObject {
@@ -1100,6 +1100,6 @@ public class LFLocalizable: SAAutosaveModel {
 	}
 }
 
-public func += (inout left: LFLocalizable.Item, right: String) {
+public func += (inout left: SALocalizable.Item, right: String) {
 	left.array.append(right)
 }
