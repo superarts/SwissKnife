@@ -126,11 +126,11 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
 				} else if value is Int {
 					api_reloaded = api_reloaded + key + "=" + String(value as! Int) + "&"
 				} else {
-					LF.log("WARNING unknown parameter type", value)
+					SA.log("WARNING unknown parameter type", value)
 				}
 			}
 			api_reloaded = api_reloaded.sub_range(0, -1)
-			//LF.log(api_reloaded, parameters)
+			//SA.log(api_reloaded, parameters)
 		}
 		return api_reloaded
 	}
@@ -146,16 +146,16 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
 			if let data = request.HTTPBody {
 				request.setValue(String(data.length), forHTTPHeaderField: "Content-Length")
 			}
-			LF.log("body length", request.HTTPBody?.length)
-			//LF.log("request", request)
-			//LF.log("headers", request.allHTTPHeaderFields)
-			//LF.log("method", request.HTTPMethod)
+			SA.log("body length", request.HTTPBody?.length)
+			//SA.log("request", request)
+			//SA.log("headers", request.allHTTPHeaderFields)
+			//SA.log("method", request.HTTPMethod)
 		} else if content_type == SAREST.content.json {
 			request.addValue(content_type, forHTTPHeaderField:"Content-Type")
 			request.addValue(content_type, forHTTPHeaderField:"Accept")
 
-			//LF.log("REST method", method.rawValue)
-			//LF.log("REST param", parameters)
+			//SA.log("REST method", method.rawValue)
+			//SA.log("REST param", parameters)
 			if method != SAREST.method.get && parameters != nil {
 
 				var error_ret: NSError?
@@ -166,7 +166,7 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
 					error_ret = error
 					body = nil
 				}
-				//	LF.log("REST body", NSString(data: body!, encoding: NSUTF8StringEncoding))
+				//	SA.log("REST body", NSString(data: body!, encoding: NSUTF8StringEncoding))
 				if error_ret != nil {
 					error_ret = NSError(domain: SAREST.domain, code: SAREST.error.invalid_parameter, userInfo:[NSLocalizedDescriptionKey: "LRestKit: invalid parameters"])
 					if show_error == true {
@@ -189,7 +189,7 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
 				request.HTTPBody = body
 			}
 		} else {
-			LF.log("WARNING unknown content type", content_type)
+			SA.log("WARNING unknown content type", content_type)
 		}
         //  add credential manually
         /*
@@ -208,8 +208,8 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
 		if self.cache_policy == .CacheThenNetwork {
 			let filename = self.get_filename(api_reloaded)
 			if let data = NSData(contentsOfFile:filename) {
-				//LF.log("CACHE loaded")
-				//LF.dispatch() { }
+				//SA.log("CACHE loaded")
+				//SA.dispatch() { }
                 cache_loaded = true
 				self.execute_data(data)
                 //  TODO: save content hash and execute_data only if downlaoded
@@ -233,12 +233,12 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
 				let resp = response as! NSHTTPURLResponse?
 				self.response = resp
 				if error != nil {
-					//	LF.log("CLIENT error", error)
+					//	SA.log("CLIENT error", error)
 				} else if resp == nil {
-					//	LF.log("url empty response", data)
+					//	SA.log("url empty response", data)
 					error_ret = NSError(domain: SAREST.domain, code: SAREST.error.empty_response, userInfo:[NSLocalizedDescriptionKey: "LRestKit: empty response"])
 				} else if resp!.statusCode < 200 || resp!.statusCode >= 300 {
-					//	LF.log("url failed", data?.to_string())
+					//	SA.log("url failed", data?.to_string())
 					let code = resp!.statusCode
 					var info = [NSLocalizedDescriptionKey: NSHTTPURLResponse.localizedStringForStatusCode(code)]
 					if let str = data?.to_string() {
@@ -250,7 +250,7 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
 					if self.cache_policy != .None {
 						let filename = self.get_filename(api_reloaded)
 						data?.writeToFile(filename, atomically:true)
-						LF.log("CACHE saved")
+						SA.log("CACHE saved")
 					}
 					self.execute_data(data!)
 				}
@@ -279,9 +279,9 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
 				//task = session.dataTaskWithRequest(request, completionHandler:nil)
 				task = session.dataTaskWithRequest(request) {
 					(data, response, error) -> Void in
-					//LF.log("SESSION response", response)
+					//SA.log("SESSION response", response)
 					if let error = error where error.code == -999 {
-						//LF.log("SESSION cancelled")
+						//SA.log("SESSION cancelled")
 					} else {
 						func_done(response, data, error)
 					}
@@ -295,8 +295,8 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
 				connection = NSURLConnection(request:request, delegate:delegate, startImmediately:true)
 			}
 
-			//LF.log("CONNECTION started", connection!)
-			//LF.log("REQUEST headers", request.allHTTPHeaderFields)
+			//SA.log("CONNECTION started", connection!)
+			//SA.log("REQUEST headers", request.allHTTPHeaderFields)
             /*
             let url = request.URL
             let space = NSURLProtectionSpace(host:url.host,
@@ -308,14 +308,14 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
                 forProtectionSpace:space)
             */
 		} else {
-			LF.log("WARNING SARESTClient", "empty request")
+			SA.log("WARNING SARESTClient", "empty request")
 		}
 	}
 	public func URLSession(session: NSURLSession, didBecomeInvalidWithError error: NSError?) {
-		LF.log("SESSION invalid", error)
+		SA.log("SESSION invalid", error)
 	}
 	public func URLSession(session: NSURLSession, didReceiveChallenge challenge: NSURLAuthenticationChallenge, completionHandler handler: (NSURLSessionAuthChallengeDisposition, NSURLCredential?) -> Void) {
-		//LF.log("SESSION challenge", challenge)
+		//SA.log("SESSION challenge", challenge)
 		if let crt = credential {
 			handler(.UseCredential, crt)
 		} else {
@@ -323,38 +323,38 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
 		}
 	}
 	public func URLSessionDidFinishEventsForBackgroundURLSession(session: NSURLSession) {
-		LF.log("SESSION finished")
+		SA.log("SESSION finished")
 	}
     public func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, didReceiveData data: NSData) {
-		LF.log("TASK data received")
+		SA.log("TASK data received")
 	}
 	public func URLSession(session: NSURLSession, task: NSURLSessionTask, didReceiveChallenge challenge: NSURLAuthenticationChallenge, completionHandler handler: (NSURLSessionAuthChallengeDisposition, NSURLCredential?) -> Void) {
-		LF.log("TASK challenge", challenge)
+		SA.log("TASK challenge", challenge)
 		if let crt = credential {
 			handler(.UseCredential, crt)
 		}
 		return
 		/*
 		if challenge.previousFailureCount > 0 {
-			//LF.log("challenge cancelled")
+			//SA.log("challenge cancelled")
 			challenge.sender.cancelAuthenticationChallenge(challenge)
 		} else if let credential = credential {
-			//LF.log("challenge added")
+			//SA.log("challenge added")
 			challenge.sender.useCredential(credential, forAuthenticationChallenge:challenge)
 		} else {
-			LF.log("REST connection will challenge", connection)
+			SA.log("REST connection will challenge", connection)
 		}
 		*/
 	}
 	public func URLSession(session: NSURLSession, task: NSURLSessionTask, didCompleteWithError error: NSError?) {
-		LF.log("TASK error", error)
+		SA.log("TASK error", error)
 	}
 	public func cancel() {
 		connection?.cancel()
 		task?.cancel()
 	}
     deinit {
-        //LF.log("CLIENT deinit", self)
+        //SA.log("CLIENT deinit", self)
     }
 
 	public func get_filename(api: String) -> String {
@@ -370,7 +370,7 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
 		var error: NSError?
 		//let s = NSString(data: data, encoding: NSUTF8StringEncoding)
 		let cls = T.self
-		//LF.log("data", s)
+		//SA.log("data", s)
 		//	TODO: call func_error if error araises; this implementation just
 		//	work, better to utilize try / cache in Swift 2.0 more elegantly.
 		if let func_model = func_model {
@@ -464,7 +464,7 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
 			} else {
 				form_append(body, key:key_nested, value:value.description)
 			}
-			//LF.log(key, value.description)
+			//SA.log(key, value.description)
 		}
 	}
 	public func form_body(parameters: [String: AnyObject]?, array_data: [NSData]?) -> NSData {
@@ -475,7 +475,7 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
 		if let param = parameters {
 			form_append_dict(body, param:param)
 		}
-		LF.log("body", body.to_string())
+		SA.log("body", body.to_string())
 
 		if let array = array_data {
 			var index = 0
@@ -494,7 +494,7 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
 		}
 
 		body.append_string("--\(boundary)--\r\n")
-		LF.log("body", body.to_string())
+		SA.log("body", body.to_string())
 		return body
 	}
 }
@@ -508,38 +508,38 @@ public class SARestConnectionDelegate: NSObject {
 
 	public func connection(connection: NSURLConnection, willSendRequestForAuthenticationChallenge challenge: NSURLAuthenticationChallenge) {
 		if challenge.previousFailureCount > 0, let sender = challenge.sender {
-			LF.log("challenge cancelled")
+			SA.log("challenge cancelled")
 			sender.cancelAuthenticationChallenge(challenge)
 		} else if let credential = credential, let sender = challenge.sender {
-			LF.log("challenge added")
+			SA.log("challenge added")
 			sender.useCredential(credential, forAuthenticationChallenge:challenge)
 		} else {
-			LF.log("REST connection will challenge", connection)
+			SA.log("REST connection will challenge", connection)
 		}
 	}
 	public func connection(connection: NSURLConnection, didReceiveResponse a_response: NSURLResponse) {
-		//LF.log("CONNECTION response", response)
+		//SA.log("CONNECTION response", response)
 		response = a_response
 	}
 	public func connection(connection: NSURLConnection, didReceiveData data_received: NSData) {
-		//LF.log("CONNECTION data", data.length)
+		//SA.log("CONNECTION data", data.length)
 		data.appendData(data_received)
 	}
 	public func connectionDidFinishLoading(connection: NSURLConnection) {
-		//LF.log("CONNECTION finished", connection)
-		//LF.log("CONNECTION finished", data.to_string())
+		//SA.log("CONNECTION finished", connection)
+		//SA.log("CONNECTION finished", data.to_string())
 		if func_done != nil {
 			func_done!(response, data, nil)
 		}
 	}
 	public func connection(connection: NSURLConnection, didFailWithError error: NSError) {
-		//LF.log("CONNECTION failed", error)
+		//SA.log("CONNECTION failed", error)
 		if let func_done = func_done {
 			func_done(response, data, error)
 		}
 	}
 	deinit {
-		//LF.log("DELEGATE deinit", self)
+		//SA.log("DELEGATE deinit", self)
 	}
 }
 
@@ -558,24 +558,24 @@ public class SAModel: NSObject {
 
 	//	override this function to disable this log. TODO: find a better way.
 	public func log_description_not_found(value: AnyObject) {
-		LF.log("WARNING name 'description' is a reserved word", value)
+		SA.log("WARNING name 'description' is a reserved word", value)
 	}
     required public init(dict: Dictionary<String, AnyObject>?) {
         super.init()
 		raw = dict
 		if dict != nil {
 			for (key, value) in dict! {
-				//	LF.log(key, value)
+				//	SA.log(key, value)
 				if key == "description" {
 					log_description_not_found(value)
 				} else if value is NSNull {
-					//LF.log("WARNING null value", key)
+					//SA.log("WARNING null value", key)
 				} else {
 					//	TODO: not working for Int? and Int! in 6.0 GM
 					if respondsToSelector(NSSelectorFromString(key)) && key != "keys" {
-						//LF.log(key, value)
+						//SA.log(key, value)
 						if value is [String: AnyObject] || value is [AnyObject] {
-							//	LF.log("reload", key)
+							//	SA.log("reload", key)
 							let type: Mirror = Mirror(reflecting:self)
 							for child in type.children {
 								if let label = child.label where label == key
@@ -600,23 +600,23 @@ public class SAModel: NSObject {
 						}
 					} else {
 						/*
-    					LF.log("WARNING model ignored", key)
-    					LF.log("\tdata", dict)
-    					LF.log("\tmodel", self)
-    					LF.log("WARNING model ignored end of", key)
+    					SA.log("WARNING model ignored", key)
+    					SA.log("\tdata", dict)
+    					SA.log("\tmodel", self)
+    					SA.log("WARNING model ignored end of", key)
 						*/
 					}
-					//else { LF.log("no selector", key) }
+					//else { SA.log("no selector", key) }
 				}
 			}
 		} else {
-			//LF.log("SAModel empty dict")
+			//SA.log("SAModel empty dict")
 		}
     }
 
 	convenience init(filename: String) {
 		let dict = NSDictionary(contentsOfFile: filename)
-		//LF.log(filename, dict)
+		//SA.log(filename, dict)
 		self.init(dict: dict as? LTDictStrObj)
 	}
 	public func save(filename: String, atomically: Bool = true) -> Bool {
@@ -624,20 +624,20 @@ public class SAModel: NSObject {
 		let data = NSKeyedArchiver.archivedDataWithRootObject(dictionary)
 		do {
 			try data.writeToFile(filename, options:[])
-			LF.log("save succesx", filename)
+			SA.log("save succesx", filename)
 		} catch let e as NSError {
-			LF.log("save failed", e)
+			SA.log("save failed", e)
 		}
 		if let dict = NSKeyedUnarchiver.unarchiveObjectWithData(data) as? NSDictionary {
 			let success = dict.writeToFile(filename, atomically: atomically)
-			LF.log("dict", dict)
-			LF.log("saving success", success)
+			SA.log("dict", dict)
+			SA.log("saving success", success)
 			return success
 		}
-		LF.log("saving success failed: not valid dictionary")
+		SA.log("saving success failed: not valid dictionary")
 		*/
 		let success = (dictionary as NSDictionary).writeToFile(filename, atomically: atomically)
-		//LF.log("saving success", success)
+		//SA.log("saving success", success)
 		return success
 	}
 	public func reload(key: String, type: String) {
@@ -653,10 +653,10 @@ public class SAModel: NSObject {
 					var array_new: Array<AnyObject> = []
 					for obj in array_parameter {
 						if let dict_parameter = obj as? Dictionary<String, AnyObject> {
-							//LF.log(key, obj: dict_parameter)
+							//SA.log(key, obj: dict_parameter)
 							let a_class = NSClassFromString(type) as! SAModel.Type
 							let obj_new = a_class.init(dict: dict_parameter)
-							//LF.log(key, obj: obj_new)
+							//SA.log(key, obj: obj_new)
 							array_new.append(obj_new)
 						}
 					}
@@ -690,13 +690,13 @@ public class SAModel: NSObject {
   
 		var c: AnyClass! = object_getClass(self)
 		loop: while c != nil {
-			//LF.log("---- class", NSStringFromClass(c))
+			//SA.log("---- class", NSStringFromClass(c))
 			var ct: CUnsignedInt = 0
 			let prop: UnsafeMutablePointer<objc_property_t> = class_copyPropertyList(c, &ct)
 			for i in 0 ..< Int(ct) {
                 if let key = NSString(CString: property_getName(prop[i]), encoding: NSUTF8StringEncoding) {
     				if key == "dictionary" {
-    					//LF.log("WARNING model: this condition is not ideal")
+    					//SA.log("WARNING model: this condition is not ideal")
     					break loop
     				}
 					/*
@@ -708,7 +708,7 @@ public class SAModel: NSObject {
 			}
 			//	TODO: apple's bug
 			if NSStringFromClass(c) == "NSObject" {
-				//LF.log("break")
+				//SA.log("break")
 				break
 			}
 			/*
@@ -721,7 +721,7 @@ public class SAModel: NSObject {
 
         for i in 0 ..< Int(count) {
             if let key = NSString(CString: property_getName(properties[i]), encoding: NSUTF8StringEncoding) as? String {
-				//LF.log(key, valueForKey(key))
+				//SA.log(key, valueForKey(key))
 				if let _ = valueForKey(key) {
 					array.append(key)
 				}
@@ -737,13 +737,13 @@ public class SAModel: NSObject {
    
 		var c: AnyClass! = object_getClass(self)
 		loop: while c != nil {
-			//	LF.log("---- class", NSStringFromClass(c))
+			//	SA.log("---- class", NSStringFromClass(c))
 			var ct: CUnsignedInt = 0
 			let prop: UnsafeMutablePointer<objc_property_t> = class_copyPropertyList(c, &ct)
 			for i in 0 ..< Int(ct) {
                 if let key = NSString(CString: property_getName(prop[i]), encoding: NSUTF8StringEncoding) {
 					if key == "dictionary" || key == "keys" || key == "description" {
-    					//LF.log("WARNING model: this condition is not ideal")
+    					//SA.log("WARNING model: this condition is not ideal")
 						break loop
     				}
 					if let value: AnyObject? = valueForKey(key as String) where key != "raw" {
@@ -861,10 +861,10 @@ public class SAAutosaveModel: SAModel {
 		}
 	}
 	public func autosave_publish() {
-		LF.log("TODO save", "override me")
+		SA.log("TODO save", "override me")
 	}
 	public func autosave_reload() {
-		LF.log("TODO load", "override me")
+		SA.log("TODO load", "override me")
 	}
 }
 
@@ -916,7 +916,7 @@ public class SAArrayClient<T: SAModel>: SARESTClient<T>, SATableClient {
 		if pagination_method == .LastID {
 			if pagination_index != 0 {
 				if let last = items.last {
-					LF.log("last", last.id)
+					SA.log("last", last.id)
 					if parameters != nil {
 						parameters![pagination_key] = last.id
 					} else {
@@ -937,7 +937,7 @@ public class SAArrayClient<T: SAModel>: SARESTClient<T>, SATableClient {
 					for _ in 0 ..< self.last_loaded {
 						self.items.removeLast()
 					}
-					//LF.log("last items removed", self.last_loaded)
+					//SA.log("last items removed", self.last_loaded)
 				}
 
 				if objs.count > 0 {

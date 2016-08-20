@@ -1,6 +1,6 @@
 import UIKit
 
-public struct LF {
+public struct SAKit {
 	public static let domain = "LFramework"
 	public static var version: String {
 		get {
@@ -65,9 +65,9 @@ public struct LF {
 
 	//	TODO: replace with category property when swift supports it
 	public struct keys {
-		public static var scroll_page = "lf-key-scroll-page"
-		public static var text_placeholder = "lf-key-text-placeholder"
-		public static var text_color = "lf-key-text-color"
+		public static var scroll_page = "sakit-key-scroll-page"
+		public static var text_placeholder = "sakit-key-text-placeholder"
+		public static var text_color = "sakit-key-text-color"
 	}
 }
 
@@ -386,10 +386,10 @@ public extension UIView {
 			//} else if let color = obj as? CGColor {
 			//	cg_colors.append(color)
 			} else {
-				LF.log("WARNING unknown color class", obj)
+				SA.log("WARNING unknown color class", obj)
 			}
 		}
-		//LF.log("colors", cg_colors)
+		//SA.log("colors", cg_colors)
 		let gradient = CAGradientLayer()
 		gradient.frame = bounds
 		gradient.colors = cg_colors
@@ -406,6 +406,8 @@ public extension UIView {
         layer.shadowPath = path.CGPath
     }
 }
+
+public typealias SA = SAKit
 
 public extension UIColor {
 	convenience init(rgb:UInt, alpha:CGFloat = 1.0) {
@@ -439,7 +441,7 @@ public extension NSString {
 				return path
 			}
 		}
-		LF.log("WARNING: failed to get filename", namespace)
+		SA.log("WARNING: failed to get filename", namespace)
 		return ""
 		//return url.absoluteString
     }
@@ -472,15 +474,15 @@ public extension UIImageView {
 
         //if false {
         if filename.file_exists_doc() {
-			//LF.log("IMAGE load from file", filename.filename_doc())
+			//SA.log("IMAGE load from file", filename.filename_doc())
             //image = UIImage(named: filename.filename_doc())
             image = UIImage(contentsOfFile: filename.filename_doc())
         } else {
             //dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), {
-            LF.dispatch_delay(0, {
-				//LF.log(url!)
+            SA.dispatch_delay(0, {
+				//SA.log(url!)
                 if let data = NSData(contentsOfURL: NSURL(string: url!)!) {
-					//LF.log(url!, data.length)
+					//SA.log(url!, data.length)
                     self.image = UIImage(data: data)
                     data.writeToFile(filename.filename_doc(), atomically: true)
                 }
@@ -602,17 +604,17 @@ public extension UIScrollView {
 
     public var pageControl: UIPageControl? {
         get {
-            //return objc_getAssociatedObject(self, &LF.keys.page) as? UIPageControl
-            return associated(&LF.keys.scroll_page) as? UIPageControl
+            //return objc_getAssociatedObject(self, &SA.keys.page) as? UIPageControl
+            return associated(&SA.keys.scroll_page) as? UIPageControl
         }
         set {
             if let newValue = newValue {
-				associate(&LF.keys.scroll_page, object:newValue)
+				associate(&SA.keys.scroll_page, object:newValue)
 				page_reload()
 				//	TODO: casting failed
 				//self.delegate = self as? UIScrollViewDelegate
             } else {
-				LF.log("WARNING: setting pageControl failed", newValue)
+				SA.log("WARNING: setting pageControl failed", newValue)
 			}
         }
     }
@@ -623,7 +625,7 @@ public extension UIScrollView {
 			page.hidesForSinglePage = false
 			page.addTarget(self, action:#selector(UIScrollView.page_changed(_:)), forControlEvents:.ValueChanged)
 		} else {
-			LF.log("WARNING: pageControl not found")
+			SA.log("WARNING: pageControl not found")
 		}
 	}
 	public func page_changed(page: UIPageControl) {
@@ -712,10 +714,10 @@ properties: containers, followed up with
 */
 //	TODO: why protocol here?
 /*
-@objc protocol LFViewControllerDelegate {
+@objc protocol SAViewControllerDelegate {
 	optional func lf_keyboardHeightChanged(height: CGFloat)
 }
-public class LFViewController: UIViewController, LFViewControllerDelegate {
+public class SAViewController: UIViewController, SAViewControllerDelegate {
 */
 
 public extension UIViewController {
@@ -800,7 +802,7 @@ public extension UIDevice {
 	}
 }
 
-public class LFViewController: UIViewController {
+public class SAViewController: UIViewController {
     var containers: Dictionary<String, UIViewController> = [:]
     
 	//override func viewDidLoad() {
@@ -809,8 +811,8 @@ public class LFViewController: UIViewController {
 		super.viewWillAppear(animated)
 		NSNotificationCenter.defaultCenter().removeObserver(self, name:UIKeyboardWillShowNotification, object: nil);
 		NSNotificationCenter.defaultCenter().removeObserver(self, name:UIKeyboardWillHideNotification, object: nil);
-		NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(LFViewController.lf_keyboardWillShow(_:)), name:UIKeyboardWillShowNotification, object: nil);
-		NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(LFViewController.lf_keyboardWillHide(_:)), name:UIKeyboardWillHideNotification, object: nil);
+		NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(SAViewController.lf_keyboardWillShow(_:)), name:UIKeyboardWillShowNotification, object: nil);
+		NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(SAViewController.lf_keyboardWillHide(_:)), name:UIKeyboardWillHideNotification, object: nil);
 	}
 	//deinit {
 	override public func viewWillDisappear(animated:Bool) {
@@ -821,15 +823,15 @@ public class LFViewController: UIViewController {
 	}
     override public func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject!) {
         super.prepareForSegue(segue, sender:sender)
-        //  LF.log("LFViewController controller", segue.destinationViewController)
+        //  SA.log("SAViewController controller", segue.destinationViewController)
 		/*
         if let controller = segue.destinationViewController as? UIViewController {
-            //LF.log("LFViewController segue", segue)
+            //SA.log("SAViewController segue", segue)
             if let identifier = segue.identifier {
                 containers[identifier] = controller
             }
         } else {
-            LF.log("LFViewController nil destination", segue.identifier)
+            SA.log("SAViewController nil destination", segue.identifier)
         }
         */
         let controller = segue.destinationViewController
@@ -853,7 +855,7 @@ public class LFViewController: UIViewController {
 }
 
 
-public class LFHorizontalScrollController: UIViewController, UIScrollViewDelegate {
+public class SAHorizontalScrollController: UIViewController, UIScrollViewDelegate {
 
 	var font_active: UIFont?
 	var font_inactive: UIFont!
@@ -920,8 +922,8 @@ public class LFHorizontalScrollController: UIViewController, UIScrollViewDelegat
     public func reload() {
 		let w_total = get_total()
 		let repeat_count = Int(view.w * 2 / w_total + 1)
-		//LF.log("width", w_total)
-		//LF.log("repeat", repeat_count)
+		//SA.log("width", w_total)
+		//SA.log("repeat", repeat_count)
 
         //	scroll.frame = CGRectMake(view.w * (1 - page_width) / 2, 0, view.w * page_width, view.h)
         for label in labels {
@@ -943,7 +945,7 @@ public class LFHorizontalScrollController: UIViewController, UIScrollViewDelegat
 
 				if ii == 0 && i == index {
 					w_delta = w_offset - label.w / 2
-					//LF.log("default", title)
+					//SA.log("default", title)
 				}
 
 				label.text = title
@@ -1016,19 +1018,19 @@ public class LFHorizontalScrollController: UIViewController, UIScrollViewDelegat
 	}
 }
 
-public class LFLabeledScrollController: UIViewController {
+public class SALabeledScrollController: UIViewController {
     
 }
 
 
-public class LFMultipleTableController: LFViewController {
-	public var sources: [LFTableDataSource] = []
+public class SAMultipleTableController: SAViewController {
+	public var sources: [SATableDataSource] = []
 	public var tables: [UITableView]! {
 		set(array) {
 			sources.removeAll()
 			_tables.removeAll()
 			for table in array {
-				let source = LFTableDataSource(table: table)
+				let source = SATableDataSource(table: table)
 				sources.append(source)
 				_tables.append(table)
 			}
@@ -1051,9 +1053,9 @@ public class LFMultipleTableController: LFViewController {
 	}
 }
 
-public class LFTableController: LFMultipleTableController {
+public class SATableController: SAMultipleTableController {
 	@IBOutlet public var table: UITableView!
-	public var source: LFTableDataSource! {
+	public var source: SATableDataSource! {
 		get {
 			return sources[0]
 		}
@@ -1061,12 +1063,12 @@ public class LFTableController: LFMultipleTableController {
 			sources = [obj]
 		}
 	}
-	//var source: LFTableDataSource!
+	//var source: SATableDataSource!
 	
     public override func viewDidLoad() {
         super.viewDidLoad()
 		tables = [table]
-		//source = LFTableDataSource(table: table)
+		//source = SATableDataSource(table: table)
 	}
 	/*
 	public override func awakeFromNib() {
@@ -1086,7 +1088,7 @@ public class LFTableController: LFMultipleTableController {
 	*/
 }
 
-public class LFTableDataSource: NSObject, UITableViewDelegate, UITableViewDataSource {
+public class SATableDataSource: NSObject, UITableViewDelegate, UITableViewDataSource {
 
 	public var table: UITableView!
 	public var counts: Array<Int> = []
@@ -1098,8 +1100,8 @@ public class LFTableDataSource: NSObject, UITableViewDelegate, UITableViewDataSo
 	public var func_height: ((NSIndexPath) -> CGFloat)? = nil
 	public var func_select: ((NSIndexPath) -> Void)? = nil
 	public var func_deselect: ((NSIndexPath) -> Void)? = nil
-	public var func_select_source: ((NSIndexPath, LFTableDataSource) -> Void)? = nil		//	these 2 will not be called if aboves are not nil
-	public var func_deselect_source: ((NSIndexPath, LFTableDataSource) -> Void)? = nil
+	public var func_select_source: ((NSIndexPath, SATableDataSource) -> Void)? = nil		//	these 2 will not be called if aboves are not nil
+	public var func_deselect_source: ((NSIndexPath, SATableDataSource) -> Void)? = nil
 
 	public init(table a_table: UITableView) {
 		super.init()
@@ -1167,7 +1169,7 @@ public class LFTableDataSource: NSObject, UITableViewDelegate, UITableViewDataSo
 	//	cell and select
 	public func tableView(tableView: UITableView, cellForRowAtIndexPath path: NSIndexPath) -> UITableViewCell {
 		if func_cell == nil {
-			LF.log("WARNING no func_cell in LFTableDataSource", path)
+			SA.log("WARNING no func_cell in SATableDataSource", path)
 		}
         return func_cell(path)
     }
@@ -1214,7 +1216,7 @@ public struct LFDebug {
 		if let s = try? String(contentsOfFile:filename.filename_doc(namespace), encoding: NSUTF8StringEncoding) {
 			return s
 		}
-		LF.log("LDebug file not found", filename.filename_doc(namespace))
+		SA.log("LDebug file not found", filename.filename_doc(namespace))
 		return ""
 	}
 	public static func log(msg: String, _ namespace: String? = nil) {
@@ -1229,7 +1231,7 @@ public struct LFDebug {
 		do {
 			try s.writeToFile(filename.filename_doc(namespace), atomically:true, encoding:NSUTF8StringEncoding)
 		} catch _ {
-    		//LF.log("LDebug save error", error)
+    		//SA.log("LDebug save error", error)
 		}
 	}
 	public static func clear(namespace: String? = nil) {
@@ -1240,13 +1242,13 @@ public struct LFDebug {
 	}
 	public static func log_show(namespace: String? = nil) {
 		let s = string(namespace)
-		LF.log("LDebug", s)
+		SA.log("LDebug", s)
 	}
 }
 
 //	cell
 
-public class LFCellTitleDetail: UITableViewCell {
+public class SACellTitleDetail: UITableViewCell {
 	@IBOutlet public var label_title: UILabel!
 	@IBOutlet public var label_detail: UILabel!
 }

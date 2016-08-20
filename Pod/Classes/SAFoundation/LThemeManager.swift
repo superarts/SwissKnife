@@ -199,13 +199,13 @@ public extension UIView {
 				let attr = [NSFontAttributeName: UIFont(name: name!, size: font_size)!]
 				segment.setTitleTextAttributes(attr, forState: .Normal)
 			} else {
-				LF.log("WARNING unknown type for font_name in Interface Builder", self)
+				SA.log("WARNING unknown type for font_name in Interface Builder", self)
 			}
 		}
 	}
 	@IBInspectable var enable_mask_circle: Bool {
 		get {
-			LF.log("WARNING no getter for UIView.enable_mask_circle")
+			SA.log("WARNING no getter for UIView.enable_mask_circle")
 			return false
 		}
 		set (enabled) {
@@ -218,7 +218,7 @@ public extension UIView {
 	}
 	@IBInspectable var mask_radius: CGFloat {
 		get {
-			LF.log("WARNING no getter for UIView.mask_radius")
+			SA.log("WARNING no getter for UIView.mask_radius")
 			return 0
 		}
 		set (f) {
@@ -227,7 +227,7 @@ public extension UIView {
 	}
 	@IBInspectable var border_width: CGFloat {
 		get {
-			LF.log("WARNING no getter for UIView.border_width")
+			SA.log("WARNING no getter for UIView.border_width")
 			return 0
 		}
 		set (f) {
@@ -236,7 +236,7 @@ public extension UIView {
 	}
 	@IBInspectable var border_color: UIColor? {
 		get {
-			LF.log("WARNING no getter for UIView.border_color")
+			SA.log("WARNING no getter for UIView.border_color")
 			return nil
 		}
 		set (c) {
@@ -245,7 +245,7 @@ public extension UIView {
 	}
 	@IBInspectable var gradient_top: UIColor? {
 		get {
-			LF.log("WARNING no getter for UIView.gradient_top")
+			SA.log("WARNING no getter for UIView.gradient_top")
 			return nil
 		}
 		set (c) {
@@ -256,11 +256,11 @@ public extension UIView {
 	}
 	@IBInspectable var shadow_down: CGFloat {
 		get {
-			LF.log("WARNING no getter for UIView.shadow_down")
+			SA.log("WARNING no getter for UIView.shadow_down")
 			return 0
 		}
 		set (f) {
-            LF.dispatch_delay(0.1, {
+            SA.dispatch_delay(0.1, {
                 self.add_shadow(CGSizeMake(0, f))
             })
 		}
@@ -278,7 +278,7 @@ public extension UILabel {
 	}
 	@IBInspectable var text_auto_localized: Bool {
 		get {
-			LF.log("WARNING: getter not implemented")
+			SA.log("WARNING: getter not implemented")
 			return false
 		}
 		set (b) {
@@ -302,7 +302,7 @@ public extension UILabel {
 public extension UITextField {
 	@IBInspectable var padding_left: CGFloat {
 		get {
-			LF.log("WARNING no getter for UITextField.padding_left")
+			SA.log("WARNING no getter for UITextField.padding_left")
 			return 0
 		}
 		set (f) {
@@ -319,7 +319,7 @@ public extension UITextField {
 	}
 	@IBInspectable var text_auto_localized: Bool {
 		get {
-			LF.log("WARNING: getter not implemented")
+			SA.log("WARNING: getter not implemented")
 			return false
 		}
 		set (b) {
@@ -435,7 +435,7 @@ public extension UIButton {
 	}
 	@IBInspectable var normal_text_auto_localized: Bool {
 		get {
-			LF.log("WARNING: getter not implemented")
+			SA.log("WARNING: getter not implemented")
 			return false
 		}
 		set (b) {
@@ -456,7 +456,7 @@ public extension UIButton {
 	}
 	@IBInspectable var highlighted_text_auto_localized: Bool {
 		get {
-			LF.log("WARNING: getter not implemented")
+			SA.log("WARNING: getter not implemented")
 			return false
 		}
 		set (b) {
@@ -496,11 +496,11 @@ public extension UITextView {
 	}
 	@IBInspectable var placeholder: String {
 		get {
-            return associated(&LF.keys.text_placeholder) as! String     //  TODO: make sure it's nil.. for now
+            return associated(&SA.keys.text_placeholder) as! String     //  TODO: make sure it's nil.. for now
 		}
 		set (s) {
-			associate(&LF.keys.text_placeholder, object:s)
-			//associate(&LF.keys.text_color, object:textColor!)
+			associate(&SA.keys.text_placeholder, object:s)
+			//associate(&SA.keys.text_color, object:textColor!)
 			self.text = s
 			//NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("lf_text_changed:"), name:UITextViewTextDidChangeNotification, object: nil);
 			NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(UITextView.lf_text_edit_began(_:)), name:UITextViewTextDidBeginEditingNotification, object: nil);
@@ -536,7 +536,7 @@ public extension UITextView {
 	public func lf_text_edit_began(notification: NSNotification) {
 		if self.text == self.placeholder {
 			self.text = ""
-            //self.textColor = associated(&LF.keys.text_color) as? UIColor
+            //self.textColor = associated(&SA.keys.text_color) as? UIColor
 		}
 	}
 	public func lf_text_edit_ended(notification: NSNotification) {
@@ -555,7 +555,7 @@ public extension UITextView {
 	}
 	@IBInspectable var text_auto_localized: Bool {
 		get {
-			LF.log("WARNING: getter not implemented")
+			SA.log("WARNING: getter not implemented")
 			return false
 		}
 		set (b) {
