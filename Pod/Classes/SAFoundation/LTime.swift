@@ -1,11 +1,11 @@
 import Foundation
 
-public struct LTime {
+public struct SATime {
     public static var format = "YYYY-MM-dd'T'HH:mm:ss.SSSZZZZ"
     //static var format = "YYYY-MM-dd'T'HH:mm:ss"
 }
 
-public enum TimeIntervalUnit {
+public enum SATimeIntervalUnit {
     case Seconds, Minutes, Hours, Days, Months, Years
     
     public func dateComponents(interval: Int) -> NSDateComponents {
@@ -31,9 +31,9 @@ public enum TimeIntervalUnit {
     }
 }
 
-public struct TimeInterval {
+public struct SATimeInterval {
     var interval: Int
-    var unit: TimeIntervalUnit
+    var unit: SATimeIntervalUnit
     
     public var ago: NSDate {
         let calendar = NSCalendar.currentCalendar()
@@ -42,42 +42,42 @@ public struct TimeInterval {
             return calendar.dateByAddingComponents(components, toDate: today, options: [])!
     }
     
-    init(interval: Int, unit: TimeIntervalUnit) {
+    init(interval: Int, unit: SATimeIntervalUnit) {
         self.interval = interval
         self.unit = unit
     }
 }
 
-var a = TimeInterval(interval: 10, unit: TimeIntervalUnit.Months)
+var a = SATimeInterval(interval: 10, unit: SATimeIntervalUnit.Months)
 
 public extension Int {
-    public var seconds: TimeInterval {
-        return TimeInterval(interval: self, unit: TimeIntervalUnit.Seconds)
+    public var seconds: SATimeInterval {
+        return SATimeInterval(interval: self, unit: SATimeIntervalUnit.Seconds)
     }
-    public var minutes: TimeInterval {
-        return TimeInterval(interval: self, unit: TimeIntervalUnit.Minutes)
+    public var minutes: SATimeInterval {
+        return SATimeInterval(interval: self, unit: SATimeIntervalUnit.Minutes)
     }
-    public var hours: TimeInterval {
-        return TimeInterval(interval: self, unit: TimeIntervalUnit.Hours)
+    public var hours: SATimeInterval {
+        return SATimeInterval(interval: self, unit: SATimeIntervalUnit.Hours)
     }
-    public var days: TimeInterval {
-        return TimeInterval(interval: self, unit: TimeIntervalUnit.Days)
+    public var days: SATimeInterval {
+        return SATimeInterval(interval: self, unit: SATimeIntervalUnit.Days)
     }
-    public var months: TimeInterval {
-        return TimeInterval(interval: self, unit: TimeIntervalUnit.Months);
+    public var months: SATimeInterval {
+        return SATimeInterval(interval: self, unit: SATimeIntervalUnit.Months);
     }
-    public var years: TimeInterval {
-        return TimeInterval(interval: self, unit: TimeIntervalUnit.Years)
+    public var years: SATimeInterval {
+        return SATimeInterval(interval: self, unit: SATimeIntervalUnit.Years)
     }
 }
 
-public func - (let left:NSDate, let right:TimeInterval) -> NSDate {
+public func - (let left:NSDate, let right:SATimeInterval) -> NSDate {
     let calendar = NSCalendar.currentCalendar()
     let components = right.unit.dateComponents(-right.interval)
     return calendar.dateByAddingComponents(components, toDate: left, options: [])!
 }
 
-public func + (let left:NSDate, let right:TimeInterval) -> NSDate {
+public func + (let left:NSDate, let right:SATimeInterval) -> NSDate {
     let calendar = NSCalendar.currentCalendar()
     let components = right.unit.dateComponents(right.interval)
     return calendar.dateByAddingComponents(components, toDate: left, options: [])!
@@ -153,7 +153,7 @@ public extension String {
 	//	with timezone - it's makes more sense in API calls
 	public var date: NSDate? {
 		get {
-			let format = LTime.format
+			let format = SATime.format
 			let formatter = NSDateFormatter()
 			formatter.dateFormat = format
 			return formatter.dateFromString(self)
@@ -163,4 +163,3 @@ public extension String {
 
 var test8 = "12/01/2014".to_date("MM/dd/yyyy")
 var test9 = "12/01/2014".to_date()
-

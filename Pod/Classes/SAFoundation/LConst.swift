@@ -1,17 +1,17 @@
 import UIKit
 
-public typealias LTDictStrObj = Dictionary<String, AnyObject>
-public typealias LTDictStrStr = Dictionary<String, String>
-public typealias LTArrayObj = Array<AnyObject>
-public typealias LTArrayInt = Array<Int>
-public typealias LTArrayStr = Array<String>
-public typealias LTBlockVoid = (() -> Void)
-public typealias LTBlockVoidError = ((NSError?) -> Void)
-public typealias LTBlockVoidObjError = ((AnyObject?, NSError?) -> Void)
-public typealias LTBlockVoidDict = ((LTDictStrObj?) -> Void)
-public typealias LTBlockVoidDictError = ((LTDictStrObj?, NSError?) -> Void)
-public typealias LTBlockVoidArray = ((LTArrayObj?) -> Void)
-public typealias LTBlockVoidArrayError = ((LTArrayObj?, NSError?) -> Void)
+public typealias SADictStrObj = Dictionary<String, AnyObject>
+public typealias SADictStrStr = Dictionary<String, String>
+public typealias SAArrayObj = Array<AnyObject>
+public typealias SAArrayInt = Array<Int>
+public typealias SAArrayStr = Array<String>
+public typealias SABlockVoid = (() -> Void)
+public typealias SABlockVoidError = ((NSError?) -> Void)
+public typealias SABlockVoidObjError = ((AnyObject?, NSError?) -> Void)
+public typealias SABlockVoidDict = ((SADictStrObj?) -> Void)
+public typealias SABlockVoidDictError = ((SADictStrObj?, NSError?) -> Void)
+public typealias SABlockVoidArray = ((SAArrayObj?) -> Void)
+public typealias SABlockVoidArrayError = ((SAArrayObj?, NSError?) -> Void)
 
 public struct SAConst {
 	public static func color(name: String, alpha: CGFloat = 1) -> UIColor {

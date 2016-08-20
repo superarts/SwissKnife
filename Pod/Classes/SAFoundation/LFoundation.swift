@@ -767,7 +767,7 @@ public extension UIViewController {
 }
 
 public extension UISearchBar {
-	public func set_text_image(text: NSString, icon:UISearchBarIcon, attribute:LTDictStrObj? = nil, state:UIControlState = .Normal) {
+	public func set_text_image(text: NSString, icon:UISearchBarIcon, attribute:SADictStrObj? = nil, state:UIControlState = .Normal) {
 		let textColor: UIColor = UIColor.whiteColor()
 		let textFont: UIFont = UIFont(name: "FontAwesome", size: 15)!
 		UIGraphicsBeginImageContext(CGSizeMake(15, 15))

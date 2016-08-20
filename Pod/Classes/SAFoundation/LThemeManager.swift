@@ -1,7 +1,7 @@
 import UIKit
 
 //	current you'll have to have UIApplicationMain(C_ARGC, C_ARGV, nil, NSStringFromClass(AppDelegate)) to successfully init the localized strings in storyboard
-public struct LTheme {
+public struct SATheme {
 	public struct localization {
 		public enum Language: String {
 			case ChineseSimplified		= "zh-Hans"
@@ -66,7 +66,7 @@ public struct LTheme {
 			}
 		}
 		*/
-		public static func strings_append(dict: LTDictStrObj) {//[String:[String]]) {
+		public static func strings_append(dict: SADictStrObj) {//[String:[String]]) {
 			for (key, value) in dict {
 				if let dict = value as? [String] {
 					strings[key] = dict
@@ -273,7 +273,7 @@ public extension UILabel {
 			return self.text
 		}
 		set (s) {
-			self.text = LTheme.localization.Str(s!)
+			self.text = SATheme.localization.Str(s!)
 		}
 	}
 	@IBInspectable var text_auto_localized: Bool {
@@ -284,7 +284,7 @@ public extension UILabel {
 		set (b) {
 			if b {
 				if let text = self.text {
-					self.text = LTheme.localization.Str(text)
+					self.text = SATheme.localization.Str(text)
 				}
 			}
 		}
@@ -314,7 +314,7 @@ public extension UITextField {
 			return self.text
 		}
 		set (s) {
-			self.text = LTheme.localization.Str(s!)
+			self.text = SATheme.localization.Str(s!)
 		}
 	}
 	@IBInspectable var text_auto_localized: Bool {
@@ -325,7 +325,7 @@ public extension UITextField {
 		set (b) {
 			if b {
 				if let text = self.text {
-					self.text = LTheme.localization.Str(text)
+					self.text = SATheme.localization.Str(text)
 				}
 			}
 		}
@@ -365,7 +365,7 @@ public extension UIBarItem {
 			return self.title
 		}
 		set (s) {
-			self.title = LTheme.localization.Str(s!)
+			self.title = SATheme.localization.Str(s!)
 		}
 	}
 	@IBInspectable var auto_localized: Bool {
@@ -375,7 +375,7 @@ public extension UIBarItem {
 		set (b) {
 			if b {
 				if let title = self.title {
-					self.title = LTheme.localization.Str(title)
+					self.title = SATheme.localization.Str(title)
 				}
 			}
 		}
@@ -430,7 +430,7 @@ public extension UIButton {
 			return titleForState(.Normal)
 		}
 		set (s) {
-			setTitle(LTheme.localization.Str(s!), forState:.Normal)
+			setTitle(SATheme.localization.Str(s!), forState:.Normal)
 		}
 	}
 	@IBInspectable var normal_text_auto_localized: Bool {
@@ -441,7 +441,7 @@ public extension UIButton {
 		set (b) {
 			if b {
 				if let title = titleForState(.Normal) {
-					setTitle(LTheme.localization.Str(title), forState:.Normal)
+					setTitle(SATheme.localization.Str(title), forState:.Normal)
 				}
 			}
 		}
@@ -451,7 +451,7 @@ public extension UIButton {
 			return titleForState(.Highlighted)
 		}
 		set (s) {
-			setTitle(LTheme.localization.Str(s!), forState:.Highlighted)
+			setTitle(SATheme.localization.Str(s!), forState:.Highlighted)
 		}
 	}
 	@IBInspectable var highlighted_text_auto_localized: Bool {
@@ -462,7 +462,7 @@ public extension UIButton {
 		set (b) {
 			if b {
 				if let title = titleForState(.Highlighted) {
-					setTitle(LTheme.localization.Str(title), forState:.Highlighted)
+					setTitle(SATheme.localization.Str(title), forState:.Highlighted)
 				}
 			}
 		}
@@ -550,7 +550,7 @@ public extension UITextView {
 			return self.text
 		}
 		set (s) {
-			self.text = LTheme.localization.Str(s!)
+			self.text = SATheme.localization.Str(s!)
 		}
 	}
 	@IBInspectable var text_auto_localized: Bool {
@@ -561,7 +561,7 @@ public extension UITextView {
 		set (b) {
 			if b {
 				if let text = self.text {
-					self.text = LTheme.localization.Str(text)
+					self.text = SATheme.localization.Str(text)
 				}
 			}
 		}
@@ -576,7 +576,7 @@ public extension UITextView {
 	}
 }
 
-public class LFAlertSegue: UIStoryboardSegue {
+public class SAAlertSegue: UIStoryboardSegue {
     public override func perform() {
         let source = sourceViewController 
         if let navigation = source.navigationController {
@@ -589,7 +589,7 @@ public class LFAlertSegue: UIStoryboardSegue {
     }
 }
 
-public class LFActionSheetSegue: UIStoryboardSegue {
+public class SAActionSheetSegue: UIStoryboardSegue {
     public override func perform() {
         let source = sourceViewController 
         if let navigation = source.navigationController {
@@ -602,4 +602,3 @@ public class LFActionSheetSegue: UIStoryboardSegue {
         }
     }
 }
-

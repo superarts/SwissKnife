@@ -80,11 +80,11 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
 	public var method = SAREST.method.get
 	public var root: String!
 	public var api: String!
-	public var parameters: LTDictStrObj?
+	public var parameters: SADictStrObj?
 	public var func_error: ((NSError) -> Void)?					//	generic error handler
 	public var func_model: ((T?, NSError?) -> Void)?				//	parse to model
 	public var func_array: ((Array<T>?, NSError?) -> Void)?		//	parse to array
-	public var func_dict: ((LTDictStrObj?, NSError?) -> Void)?		//	raw dictionary
+	public var func_dict: ((SADictStrObj?, NSError?) -> Void)?		//	raw dictionary
 	public var response: NSHTTPURLResponse?
 	public var credential: NSURLCredential?
 	public var cache_policy = SAREST.cache.Policy.None
@@ -92,7 +92,7 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
 	public var form_keys = ["file", "file1", "file2"]
 	public var form_boundary = "---------------------------14737809831466499882746641449"		//"Boundary-\(NSUUID().UUID().UUIDString)"
 
-	public init(api url: String, parameters param: LTDictStrObj? = nil) {
+	public init(api url: String, parameters param: SADictStrObj? = nil) {
 		api = url
 		parameters = param
 	}
@@ -376,10 +376,10 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
 		if let func_model = func_model {
 			var obj: T?
 			do {
-    			var dict = try NSJSONSerialization.JSONObjectWithData(data, options: []) as? LTDictStrObj
+    			var dict = try NSJSONSerialization.JSONObjectWithData(data, options: []) as? SADictStrObj
     			//	TODO: support multi-layer path (already implemented in func_array)
     			if let path = self.path {
-    				if let dict_tmp = dict?[path] as? LTDictStrObj {
+    				if let dict_tmp = dict?[path] as? SADictStrObj {
     					dict = dict_tmp
     				}
     			}
@@ -390,22 +390,22 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
 			func_model(obj, error)
 		}
 		if let func_array = self.func_array {
-			var array: [LTDictStrObj]?
+			var array: [SADictStrObj]?
 			if let paths = self.paths {
 				do {
 					var obj: AnyObject = try NSJSONSerialization.JSONObjectWithData(data, options: [])
 					for path in paths {
-						if let obj_new: AnyObject = (obj as? LTDictStrObj)?[path] {
-							obj = obj_new	//(obj as! LTDictStrObj)[path]!
+						if let obj_new: AnyObject = (obj as? SADictStrObj)?[path] {
+							obj = obj_new	//(obj as! SADictStrObj)[path]!
 						}
 					}
-					array = obj as? [LTDictStrObj]
+					array = obj as? [SADictStrObj]
 				} catch let e as NSError {
 					error = e
 				}
 			} else {
 				do {
-					let array_json = try NSJSONSerialization.JSONObjectWithData(data, options: []) as? Array<LTDictStrObj>
+					let array_json = try NSJSONSerialization.JSONObjectWithData(data, options: []) as? Array<SADictStrObj>
     				array = array_json
 				} catch let e as NSError {
 					error = e
@@ -417,7 +417,7 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
 					var dict = a_dict
 					if let subpaths = self.subpaths {
 						for subpath in subpaths {
-							dict = dict[subpath] as! LTDictStrObj	//	TODO: subpath checking
+							dict = dict[subpath] as! SADictStrObj	//	TODO: subpath checking
 						}
 					}
 					let obj = cls.init(dict: dict)
@@ -430,10 +430,10 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
 		}
 		if let func_dict = self.func_dict {
 			//	FIXME: this is an example to show how ugly the swift 2.0 code can be :(
-			//let dict = NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments, error: &error) as LTDictStrObj
-			var dict: LTDictStrObj?
+			//let dict = NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments, error: &error) as SADictStrObj
+			var dict: SADictStrObj?
 			do {
-				dict = try NSJSONSerialization.JSONObjectWithData(data, options: []) as? LTDictStrObj
+				dict = try NSJSONSerialization.JSONObjectWithData(data, options: []) as? SADictStrObj
 			} catch let e as NSError {
 				error = e
 			}
@@ -447,7 +447,7 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
 		body.append_string("Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n")
 		body.append_string("\(value)\r\n")
 	}
-	public func form_append_dict(body: NSMutableData, param: LTDictStrObj, prefix: String = "") {
+	public func form_append_dict(body: NSMutableData, param: SADictStrObj, prefix: String = "") {
 		for (key, value) in param {
 			var key_nested = key
 			if prefix != "" {
@@ -457,7 +457,7 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
 				for item in array {
 					form_append(body, key:key_nested + "[]", value:item.description)
 				}
-			} else if let dict = value as? LTDictStrObj {
+			} else if let dict = value as? SADictStrObj {
 				form_append_dict(body, param:dict, prefix:key_nested)
 			//} else if value is Int || value is Float || value is Double {
 			//	form_append(body, key:key_nested, value:value)
@@ -550,7 +550,7 @@ public class SAModel: NSObject {
 	//	public & reserved
     //public var id: Int = 0
     public var id: String = ""
-	public var raw: LTDictStrObj?
+	public var raw: SADictStrObj?
 
 	public struct prototype {
 		public static var indent: Int = 0
@@ -617,7 +617,7 @@ public class SAModel: NSObject {
 	convenience init(filename: String) {
 		let dict = NSDictionary(contentsOfFile: filename)
 		//SA.log(filename, dict)
-		self.init(dict: dict as? LTDictStrObj)
+		self.init(dict: dict as? SADictStrObj)
 	}
 	public func save(filename: String, atomically: Bool = true) -> Bool {
 		/*
@@ -899,7 +899,7 @@ public class SAArrayClient<T: SAModel>: SARESTClient<T>, SATableClient {
 	public var pagination_key: String!
 	public var pagination_index = 0
 
-	public override init(api url: String, parameters param: LTDictStrObj? = nil) {
+	public override init(api url: String, parameters param: SADictStrObj? = nil) {
 		super.init(api:url, parameters:param)
 		show_error = true
 	}
@@ -1064,7 +1064,7 @@ public class SALocalizable: SAAutosaveModel {
 	public class Item: NSObject {
 		var array = [String]()
 		public var str: String {
-			if let index = LTheme.localization.language_current(nil) {
+			if let index = SATheme.localization.language_current(nil) {
 				return array[index]
 			}
 			return ""
@@ -1083,9 +1083,9 @@ public class SALocalizable: SAAutosaveModel {
 			return STR
 		}
 	}
-	public required init(dict: LTDictStrObj?) {
+	public required init(dict: SADictStrObj?) {
 		super.init(dict: dict)
-		for language in LTheme.localization.languages {
+		for language in SATheme.localization.languages {
 			lf_language += language.rawValue
 		}
 	}
