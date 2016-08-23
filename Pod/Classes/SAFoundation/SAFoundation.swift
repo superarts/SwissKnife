@@ -1229,3 +1229,14 @@ public class SACellTitleDetail: UITableViewCell {
 	@IBOutlet public var label_title: UILabel!
 	@IBOutlet public var label_detail: UILabel!
 }
+
+extension SACellTitleDetail {
+	@IBOutlet public var labelTitle: UILabel! {
+		get {
+			return label_title
+		}
+		set (v) {
+			label_title = v
+		}
+	}
+}

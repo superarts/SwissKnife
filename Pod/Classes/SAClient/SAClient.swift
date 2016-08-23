@@ -75,9 +75,9 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
 	}
 	public var text: String?
 	public var show_error = false
-	public var content_type = SAREST.content.json
-	public var connection_class = SAREST.ConnectionClass.NSURLSession
-	public var method = SAREST.method.get
+	public var content_type: String = SAREST.content.json
+	public var connection_class: SAREST.ConnectionClass = .NSURLSession
+	public var method: SAREST.HTTPMethod = .Get
 	public var root: String!
 	public var api: String!
 	public var parameters: SADictStrObj?
@@ -87,10 +87,10 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
 	public var func_dict: ((SADictStrObj?, NSError?) -> Void)?		//	raw dictionary
 	public var response: NSHTTPURLResponse?
 	public var credential: NSURLCredential?
-	public var cache_policy = SAREST.cache.Policy.None
+	public var cache_policy: SAREST.cache.Policy = .None
 	public var form_data: [NSData]?
-	public var form_keys = ["file", "file1", "file2"]
-	public var form_boundary = "---------------------------14737809831466499882746641449"		//"Boundary-\(NSUUID().UUID().UUIDString)"
+	public var form_keys: SAArrayStr = ["file", "file1", "file2"]
+	public var form_boundary: String = "---------------------------14737809831466499882746641449"		//"Boundary-\(NSUUID().UUID().UUIDString)"
 
 	public init(api url: String, parameters param: SADictStrObj? = nil) {
 		api = url
@@ -831,7 +831,7 @@ public class SAModel: NSObject {
 public class SAAutosaveModel: SAModel {
 	//	autosave only makes sense when a back-end service is enabled e.g. Parse, see LFProfile
 
-	public var lf_version = NSBundle.mainBundle().infoDictionary?["CFBundleVersion"] as? String
+	public var lf_version: String? = NSBundle.mainBundle().infoDictionary?["CFBundleVersion"] as? String
 
 	public static let autosave_prefix = "Autosave_"		//	TODO
 	public func autosave_filename() -> String {
@@ -887,7 +887,7 @@ public protocol SATableClient {
 }
 
 public class SAArrayClient<T: SAModel>: SARESTClient<T>, SATableClient {
-	public var items = Array<T>()
+	public var items: Array<T> = Array<T>()
 	public var func_reload: ([T] -> Void)?
 	//var func_error: (NSError -> Void)?
 	public var func_done: (Void -> Void)?
@@ -895,7 +895,7 @@ public class SAArrayClient<T: SAModel>: SARESTClient<T>, SATableClient {
 	public var is_loading = false
 
 	public var last_loaded = 0
-	public var pagination_method = SAREST.pagination.Method.None
+	public var pagination_method: SAREST.pagination.Method = .None
 	public var pagination_key: String!
 	public var pagination_index = 0
 
@@ -965,11 +965,11 @@ public class SAArrayClient<T: SAModel>: SARESTClient<T>, SATableClient {
 
 public class SARESTTableController: SATableController {
 	public var client: SATableClient!
-	public var reload_table = SAREST.ui.Reload.First
+	public var reload_table: SAREST.ui.Reload = .First
 	public var refresh_reload: UIRefreshControl?
 	public var refresh_more: UIRefreshControl?
-	public var pull_down = SAREST.ui.Load.None
-	public var pull_up = SAREST.ui.Load.None
+	public var pull_down: SAREST.ui.Load = .None
+	public var pull_up: SAREST.ui.Load = .None
 	public var func_done: (Void -> Void)?
 
 	public override func awakeFromNib() {
@@ -1059,7 +1059,7 @@ public class SARESTTableController: SATableController {
 }
 
 public class SALocalizable: SAAutosaveModel {
-	public var lf_language = Item()
+	public var lf_language: Item = Item()
 
 	public class Item: NSObject {
 		var array = [String]()
