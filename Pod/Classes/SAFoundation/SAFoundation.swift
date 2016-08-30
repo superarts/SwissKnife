@@ -701,16 +701,16 @@ public class SAViewController: UIViewController, SAViewControllerDelegate {
 */
 
 public extension UIViewController {
-	@IBAction public func lf_actionPop() {
+	@IBAction public func sakitActionPop() {
 		navigationController?.popViewControllerAnimated(true)
 	}
-	@IBAction public func lf_actionPopToRoot() {
+	@IBAction public func sakitActionPopToRoot() {
 		navigationController?.popToRootViewControllerAnimated(true)
 	}
-	@IBAction public func lf_actionDismiss() {
+	@IBAction public func sakitActionDismiss() {
 		dismissViewControllerAnimated(true, completion: nil)
 	}
-	@IBAction public func lf_actionEndEditing() {
+	@IBAction public func sakitActionEndEditing() {
 		view.endEditing(true)
 	}
 	public func pop_to(level:Int, animated:Bool = true) {
@@ -1023,7 +1023,7 @@ public class SAMultipleTableController: SAViewController {
 		super.viewDidLoad()
 	}
 	*/
-	@IBAction public func lf_actionReload() {
+	@IBAction public func sakitActionReload() {
 		for table in tables {
 			table.reloadData()
 		}

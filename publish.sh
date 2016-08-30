@@ -1,0 +1,2 @@
+~/prj/gem/swift-source-kit/swift-wrap-underscore.rb -i ./SAFoundation/ -o SAFoundation/SAFoundationWrapper.swift
+~/prj/gem/swift-source-kit/swift-wrap-underscore.rb -i ./SAClient/ -o SAClient/SAClientWrapper.swift
