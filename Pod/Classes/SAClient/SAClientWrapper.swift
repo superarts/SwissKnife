@@ -1,4 +1,4 @@
-// ./SAClient//SAClient.swift {
+// Pod/Classes/SAClient//SAClient.swift {
 extension SARESTClient {
 	public var showError: Bool {
 		get {
@@ -304,4 +304,7 @@ extension SALocalizable {
 			lf_language = v
 		}
 	}
+}
+// Pod/Classes/SAClient//SAClientWrapper.swift {
+extension SARESTClient {
 }

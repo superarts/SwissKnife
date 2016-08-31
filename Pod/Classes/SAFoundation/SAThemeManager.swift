@@ -502,9 +502,9 @@ public extension UITextView {
 			associate(&SA.keys.text_placeholder, object:s)
 			//associate(&SA.keys.text_color, object:textColor!)
 			self.text = s
-			//NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("lf_text_changed:"), name:UITextViewTextDidChangeNotification, object: nil);
-			NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(UITextView.lf_text_edit_began(_:)), name:UITextViewTextDidBeginEditingNotification, object: nil);
-			NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(UITextView.lf_text_edit_ended(_:)), name:UITextViewTextDidEndEditingNotification, object: nil);
+			//NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("sa_text_changed:"), name:UITextViewTextDidChangeNotification, object: nil);
+			NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(UITextView.sa_text_edit_began(_:)), name:UITextViewTextDidBeginEditingNotification, object: nil);
+			NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(UITextView.sa_text_edit_ended(_:)), name:UITextViewTextDidEndEditingNotification, object: nil);
 		}
 	}
 
@@ -522,24 +522,24 @@ public extension UITextView {
 
 	override public func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String:AnyObject]?, context: UnsafeMutablePointer<Void>) {
 		if let _ = object as? UITextView {
-			lf_reload_align_middle_vertical()
+			sa_reload_align_middle_vertical()
 		}
 	}
-	public func lf_reload_align_middle_vertical() {
+	public func sa_reload_align_middle_vertical() {
 		var y: CGFloat = (self.bounds.size.height - self.contentSize.height * self.zoomScale)/2.0;
 		if y < 0 {
 			y = 0
 		}
 		self.content_y = -y
 	}
-	//func lf_text_changed(notification: NSNotification) { }
-	public func lf_text_edit_began(notification: NSNotification) {
+	//func sa_text_changed(notification: NSNotification) { }
+	public func sa_text_edit_began(notification: NSNotification) {
 		if self.text == self.placeholder {
 			self.text = ""
             //self.textColor = associated(&SA.keys.text_color) as? UIColor
 		}
 	}
-	public func lf_text_edit_ended(notification: NSNotification) {
+	public func sa_text_edit_ended(notification: NSNotification) {
 		if self.text == "" {
 			self.text = self.placeholder
             //self.textColor = .grayColor()

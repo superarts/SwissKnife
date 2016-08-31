@@ -1,5 +1,5 @@
-// ./SAFoundation//SAConst.swift {
-// ./SAFoundation//SAFoundation.swift {
+// Pod/Classes/SAFoundation//SAConst.swift {
+// Pod/Classes/SAFoundation//SAFoundation.swift {
 extension SAKit {
 }
 extension UIApplication {
@@ -31,14 +31,14 @@ extension UIWebView {
 extension UIDevice {
 }
 extension SAViewController {
-	public func lfKeyboardwillshow(notification: NSNotification) {
-		lf_keyboardWillShow(notification)
+	public func saKeyboardWillShow(notification: NSNotification) {
+		sa_keyboard_will_show(notification)
 	}
-	public func lfKeyboardwillhide(notification: NSNotification) {
-		lf_keyboardWillHide(notification)
+	public func saKeyboardWillHide(notification: NSNotification) {
+		sa_keyboard_will_hide(notification)
 	}
-	public func lfKeyboardheightchanged(height: CGFloat) {
-		lf_keyboardHeightChanged(height)
+	public func saKeyboardHeightChanged(height: CGFloat) {
+		sa_keyboard_height_changed(height)
 	}
 }
 extension SAHorizontalScrollController {
@@ -61,9 +61,6 @@ extension SAHorizontalScrollController {
 	}
 }
 extension SAMultipleTableController {
-	public func lfActionreload() {
-		lf_actionReload()
-	}
 }
 extension SATableDataSource {
 	public var headerHeight: CGFloat  {
@@ -154,10 +151,11 @@ extension SACellTitleDetail {
 		}
 	}
 }
-// ./SAFoundation//SAKeychain.swift {
+// Pod/Classes/SAFoundation//SAFoundationWrapper.swift {
+// Pod/Classes/SAFoundation//SAKeychain.swift {
 extension SAKeychain {
 }
-// ./SAFoundation//SAThemeManager.swift {
+// Pod/Classes/SAFoundation//SAThemeManager.swift {
 extension UITabBarController {
 }
 extension UIView {
@@ -174,7 +172,7 @@ extension UIButton {
 }
 extension UITextView {
 }
-// ./SAFoundation//SATime.swift {
+// Pod/Classes/SAFoundation//SATime.swift {
 extension NSDate {
 }
 extension String {

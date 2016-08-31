@@ -677,13 +677,13 @@ public extension MBProgressHUD {
 features
 
 build-in IB actions
-	lf_actionPop
-	lf_actionPopToRoot
-	lf_actionDismiss
-	lf_actionEndEditing
+	sakitActionPop
+	sakitActionPopToRoot
+	sakitActionDismiss
+	sakitActionEndEditing
 
 build-in delegates
-	lf_keyboardHeightChanged(height: CGFloat)
+	sa_keyboard_height_changed(height: CGFloat)
 
 properties: containers, followed up with
 	public override func viewDidLoad() {
@@ -695,7 +695,7 @@ properties: containers, followed up with
 //	TODO: why protocol here?
 /*
 @objc protocol SAViewControllerDelegate {
-	optional func lf_keyboardHeightChanged(height: CGFloat)
+	optional func sa_keyboard_height_changed(height: CGFloat)
 }
 public class SAViewController: UIViewController, SAViewControllerDelegate {
 */
@@ -789,8 +789,8 @@ public class SAViewController: UIViewController {
 		super.viewWillAppear(animated)
 		NSNotificationCenter.defaultCenter().removeObserver(self, name:UIKeyboardWillShowNotification, object: nil);
 		NSNotificationCenter.defaultCenter().removeObserver(self, name:UIKeyboardWillHideNotification, object: nil);
-		NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(SAViewController.lf_keyboardWillShow(_:)), name:UIKeyboardWillShowNotification, object: nil);
-		NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(SAViewController.lf_keyboardWillHide(_:)), name:UIKeyboardWillHideNotification, object: nil);
+		NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(SAViewController.sa_keyboard_will_show(_:)), name:UIKeyboardWillShowNotification, object: nil);
+		NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(SAViewController.sa_keyboard_will_hide(_:)), name:UIKeyboardWillHideNotification, object: nil);
 	}
 	override public func viewWillDisappear(animated:Bool) {
 		super.viewWillDisappear(animated)
@@ -817,17 +817,17 @@ public class SAViewController: UIViewController {
 		}
 	}
 
-	public func lf_keyboardWillShow(notification: NSNotification) {
+	public func sa_keyboard_will_show(notification: NSNotification) {
 		if let info: NSDictionary = notification.userInfo {
 			let value: NSValue = info.valueForKey(UIKeyboardFrameEndUserInfoKey) as! NSValue
 			let rect: CGRect = value.CGRectValue()
-			lf_keyboardHeightChanged(rect.height)
+			sa_keyboard_height_changed(rect.height)
 		}
 	}
-	public func lf_keyboardWillHide(notification: NSNotification) {
-		lf_keyboardHeightChanged(0)
+	public func sa_keyboard_will_hide(notification: NSNotification) {
+		sa_keyboard_height_changed(0)
 	}
-	public func lf_keyboardHeightChanged(height: CGFloat) {
+	public func sa_keyboard_height_changed(height: CGFloat) {
 	}
 }
 
@@ -874,8 +874,8 @@ public class SAHorizontalScrollController: UIViewController, UIScrollViewDelegat
 		let view_overlay = UIView(frame: view.frame)
 		view_overlay.addGestureRecognizer(scroll.panGestureRecognizer)
 		//view_overlay.backgroundColor = view.backgroundColor
-		//view_overlay.lf_insertGradient(color1: view.backgroundColor!, tail: CGPointMake(0.25, 0))
-		//view_overlay.lf_insertGradient(color2: view.backgroundColor!, head: CGPointMake(0.75, 0), tail: CGPointMake(1, 0))
+		//view_overlay.insert_gradient(color1: view.backgroundColor!, tail: CGPointMake(0.25, 0))
+		//view_overlay.insert_gradient(color2: view.backgroundColor!, head: CGPointMake(0.75, 0), tail: CGPointMake(1, 0))
 		view.addSubview(view_overlay)
 
 		//view.backgroundColor = .clearColor()
@@ -1051,7 +1051,7 @@ public class SATableController: SAMultipleTableController {
 	public override func awakeFromNib() {
 		super.awakeFromNib()
 	}
-	@IBAction public func lf_actionReload() {
+	@IBAction public func sakitActionReload() {
 		table.reloadData()
 	}
 	*/
