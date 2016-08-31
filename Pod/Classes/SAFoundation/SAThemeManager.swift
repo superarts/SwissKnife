@@ -147,7 +147,7 @@ public struct SATheme {
 //	UIKit + Interface Builder: define various UIView properties in IB
 
 public extension UITabBarController {
-	@IBInspectable var selected_index: Int {
+	@IBInspectable var selectedTabIndex: Int {
 		get {
 			return selectedIndex
 		}
@@ -159,8 +159,8 @@ public extension UITabBarController {
 
 public extension UIView {
 	//	TODO: add getters when extension property is added - having problem with associating in swift (key cannot be a string variable)
-	//	WARNING: font_name of UIView will be deprecated soon, use text_font_name etc. instead.
-	@IBInspectable var font_name: String? {
+	//	WARNING: fontName of UIView will be deprecated soon, use textFontName etc. instead.
+	@IBInspectable var fontName: String? {
 		get {
 			if self is UILabel {
 				let label = self as! UILabel
@@ -199,13 +199,13 @@ public extension UIView {
 				let attr = [NSFontAttributeName: UIFont(name: name!, size: font_size)!]
 				segment.setTitleTextAttributes(attr, forState: .Normal)
 			} else {
-				SA.log("WARNING unknown type for font_name in Interface Builder", self)
+				SA.log("WARNING unknown type for fontName in Interface Builder", self)
 			}
 		}
 	}
-	@IBInspectable var enable_mask_circle: Bool {
+	@IBInspectable var enableMaskCircle: Bool {
 		get {
-			SA.log("WARNING no getter for UIView.enable_mask_circle")
+			SA.log("WARNING no getter for UIView.enableMaskCircle")
 			return false
 		}
 		set (enabled) {
@@ -216,36 +216,36 @@ public extension UIView {
 			}
 		}
 	}
-	@IBInspectable var mask_radius: CGFloat {
+	@IBInspectable var maskRadius: CGFloat {
 		get {
-			SA.log("WARNING no getter for UIView.mask_radius")
+			SA.log("WARNING no getter for UIView.maskRadius")
 			return 0
 		}
 		set (f) {
 			enable_border(radius: f)
 		}
 	}
-	@IBInspectable var border_width: CGFloat {
+	@IBInspectable var borderWidth: CGFloat {
 		get {
-			SA.log("WARNING no getter for UIView.border_width")
+			SA.log("WARNING no getter for UIView.borderWidth")
 			return 0
 		}
 		set (f) {
 			enable_border(width: f)
 		}
 	}
-	@IBInspectable var border_color: UIColor? {
+	@IBInspectable var borderColor: UIColor? {
 		get {
-			SA.log("WARNING no getter for UIView.border_color")
+			SA.log("WARNING no getter for UIView.borderColor")
 			return nil
 		}
 		set (c) {
 			enable_border(color: c)
 		}
 	}
-	@IBInspectable var gradient_top: UIColor? {
+	@IBInspectable var gradientTop: UIColor? {
 		get {
-			SA.log("WARNING no getter for UIView.gradient_top")
+			SA.log("WARNING no getter for UIView.gradientTop")
 			return nil
 		}
 		set (c) {
@@ -254,9 +254,9 @@ public extension UIView {
 					point2:CGPointMake(0, 1))
 		}
 	}
-	@IBInspectable var shadow_down: CGFloat {
+	@IBInspectable var shadowDown: CGFloat {
 		get {
-			SA.log("WARNING no getter for UIView.shadow_down")
+			SA.log("WARNING no getter for UIView.shadowDown")
 			return 0
 		}
 		set (f) {
@@ -268,7 +268,7 @@ public extension UIView {
 }
 
 public extension UILabel {
-	@IBInspectable var text_localized: String? {
+	@IBInspectable var textLocalized: String? {
 		get {
 			return self.text
 		}
@@ -276,7 +276,7 @@ public extension UILabel {
 			self.text = SATheme.localization.Str(s!)
 		}
 	}
-	@IBInspectable var text_auto_localized: Bool {
+	@IBInspectable var textAutoLocalized: Bool {
 		get {
 			SA.log("WARNING: getter not implemented")
 			return false
@@ -289,7 +289,7 @@ public extension UILabel {
 			}
 		}
 	}
-	@IBInspectable var text_font_name: String? {
+	@IBInspectable var textFontName: String? {
 		get {
 			return font.fontName
 		}
@@ -300,16 +300,16 @@ public extension UILabel {
 }
 
 public extension UITextField {
-	@IBInspectable var padding_left: CGFloat {
+	@IBInspectable var paddingLeft: CGFloat {
 		get {
-			SA.log("WARNING no getter for UITextField.padding_left")
+			SA.log("WARNING no getter for UITextField.paddingLeft")
 			return 0
 		}
 		set (f) {
 			layer.sublayerTransform = CATransform3DMakeTranslation(f, 0, 0)
 		}
 	}
-	@IBInspectable var text_localized: String? {
+	@IBInspectable var textLocalized: String? {
 		get {
 			return self.text
 		}
@@ -317,7 +317,7 @@ public extension UITextField {
 			self.text = SATheme.localization.Str(s!)
 		}
 	}
-	@IBInspectable var text_auto_localized: Bool {
+	@IBInspectable var textAutoLocalized: Bool {
 		get {
 			SA.log("WARNING: getter not implemented")
 			return false
@@ -330,7 +330,7 @@ public extension UITextField {
 			}
 		}
 	}
-	@IBInspectable var text_font_name: String? {
+	@IBInspectable var textFontName: String? {
 		get {
 			return font?.fontName
 		}
@@ -341,7 +341,7 @@ public extension UITextField {
 }
 
 public extension UIScrollView {
-	@IBInspectable var content_width: CGFloat {
+	@IBInspectable var contentWidth: CGFloat {
 		get {
 			return content_w
 		}
@@ -349,7 +349,7 @@ public extension UIScrollView {
 			content_w = f
 		}
 	}
-	@IBInspectable var content_height: CGFloat {
+	@IBInspectable var contentHeight: CGFloat {
 		get {
 			return content_h
 		}
@@ -360,7 +360,7 @@ public extension UIScrollView {
 }
 
 public extension UIBarItem {
-	@IBInspectable var title_localized: String? {
+	@IBInspectable var titleLocalized: String? {
 		get {
 			return self.title
 		}
@@ -368,7 +368,7 @@ public extension UIBarItem {
 			self.title = SATheme.localization.Str(s!)
 		}
 	}
-	@IBInspectable var auto_localized: Bool {
+	@IBInspectable var autoLocalized: Bool {
 		get {
 			return false
 		}
@@ -383,7 +383,7 @@ public extension UIBarItem {
 }
 
 public extension UIButton {
-	@IBInspectable var title_align_center: Bool {
+	@IBInspectable var titleAlignCenter: Bool {
 		get {
 			if let label = titleLabel {
 				return label.textAlignment == .Center
@@ -396,7 +396,7 @@ public extension UIButton {
 			}
 		}
 	}
-	@IBInspectable var highlighted_background_color: UIColor {
+	@IBInspectable var highlightedBackgroundColor: UIColor {
 		get {
 			return UIColor.blackColor()		//	TODO
 		}
@@ -406,7 +406,7 @@ public extension UIButton {
 			setBackgroundImage(image, forState: .Highlighted)
 		}
 	}
-	@IBInspectable var selected_background_color: UIColor {
+	@IBInspectable var selectedBackgroundColor: UIColor {
 		get {
 			return UIColor.blackColor()		//	TODO
 		}
@@ -415,7 +415,7 @@ public extension UIButton {
 			setBackgroundImage(image, forState: .Selected)
 		}
 	}
-	@IBInspectable var disabled_background_color: UIColor {
+	@IBInspectable var disabledBackgroundColor: UIColor {
 		get {
 			return UIColor.blackColor()		//	TODO
 		}
@@ -425,7 +425,7 @@ public extension UIButton {
 		}
 	}
 	//	TODO: @IBInspectable var selected_title_localized: String? { }
-	@IBInspectable var normal_title_localized: String? {
+	@IBInspectable var normalTitleLocalized: String? {
 		get {
 			return titleForState(.Normal)
 		}
@@ -433,7 +433,7 @@ public extension UIButton {
 			setTitle(SATheme.localization.Str(s!), forState:.Normal)
 		}
 	}
-	@IBInspectable var normal_text_auto_localized: Bool {
+	@IBInspectable var normalTextAutoLocalized: Bool {
 		get {
 			SA.log("WARNING: getter not implemented")
 			return false
@@ -446,7 +446,7 @@ public extension UIButton {
 			}
 		}
 	}
-	@IBInspectable var highlighted_title_localized: String? {
+	@IBInspectable var highlightedTitleLocalized: String? {
 		get {
 			return titleForState(.Highlighted)
 		}
@@ -454,7 +454,7 @@ public extension UIButton {
 			setTitle(SATheme.localization.Str(s!), forState:.Highlighted)
 		}
 	}
-	@IBInspectable var highlighted_text_auto_localized: Bool {
+	@IBInspectable var highlightedTextAutoLocalized: Bool {
 		get {
 			SA.log("WARNING: getter not implemented")
 			return false
@@ -467,7 +467,7 @@ public extension UIButton {
 			}
 		}
 	}
-	@IBInspectable var label_font_name: String? {
+	@IBInspectable var labelFontName: String? {
 		get {
 			if let label = titleLabel {
 				return label.font.fontName
@@ -483,7 +483,7 @@ public extension UIButton {
 }
 
 public extension UITextView {
-	@IBInspectable var align_middle_vertical: Bool {
+	@IBInspectable var alignMiddleVertical: Bool {
 		get {
 			return false	//	TODO
 		}
@@ -545,7 +545,7 @@ public extension UITextView {
             //self.textColor = .grayColor()
 		}
 	}
-	@IBInspectable var text_localized: String? {
+	@IBInspectable var textLocalized: String? {
 		get {
 			return self.text
 		}
@@ -553,7 +553,7 @@ public extension UITextView {
 			self.text = SATheme.localization.Str(s!)
 		}
 	}
-	@IBInspectable var text_auto_localized: Bool {
+	@IBInspectable var textAutoLocalized: Bool {
 		get {
 			SA.log("WARNING: getter not implemented")
 			return false
@@ -566,7 +566,7 @@ public extension UITextView {
 			}
 		}
 	}
-	@IBInspectable var text_font_name: String? {
+	@IBInspectable var textFontName: String? {
 		get {
 			return font?.fontName
 		}

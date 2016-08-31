@@ -156,20 +156,6 @@ extension SACellTitleDetail {
 extension SAKeychain {
 }
 // Pod/Classes/SAFoundation//SAThemeManager.swift {
-extension UITabBarController {
-}
-extension UIView {
-}
-extension UILabel {
-}
-extension UITextField {
-}
-extension UIScrollView {
-}
-extension UIBarItem {
-}
-extension UIButton {
-}
 extension UITextView {
 }
 // Pod/Classes/SAFoundation//SATime.swift {
