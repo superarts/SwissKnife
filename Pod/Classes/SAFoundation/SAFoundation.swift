@@ -187,6 +187,9 @@ public extension String {
 			let words = self.componentsSeparatedByCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
 			return words.count
 		}
+		set(v) {
+			SA.log("WARNING no setter for String.word_count")
+		}
 	}
 	public func sub_range(head: Int, _ tail: Int) -> String {
 		//return self.substringWithRange(Range<String.Index>(start: self.startIndex.advancedBy(head), end: self.endIndex.advancedBy(tail)))

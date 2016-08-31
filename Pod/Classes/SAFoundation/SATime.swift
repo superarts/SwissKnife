@@ -71,13 +71,13 @@ public extension Int {
     }
 }
 
-public func - (let left:NSDate, let right:SATimeInterval) -> NSDate {
+public func - (left:NSDate, right:SATimeInterval) -> NSDate {
     let calendar = NSCalendar.currentCalendar()
     let components = right.unit.dateComponents(-right.interval)
     return calendar.dateByAddingComponents(components, toDate: left, options: [])!
 }
 
-public func + (let left:NSDate, let right:SATimeInterval) -> NSDate {
+public func + (left:NSDate, right:SATimeInterval) -> NSDate {
     let calendar = NSCalendar.currentCalendar()
     let components = right.unit.dateComponents(right.interval)
     return calendar.dateByAddingComponents(components, toDate: left, options: [])!
@@ -87,7 +87,7 @@ var test1 = 2.years.ago
 var test2 = NSDate() - 4.days
 var test3 = NSDate() + 5.months
 
-public func < (let left:NSDate, let right: NSDate) -> Bool {
+public func < (left:NSDate, right: NSDate) -> Bool {
     let result:NSComparisonResult = left.compare(right)
     var isEarlier = false
     if (result == NSComparisonResult.OrderedAscending) {
@@ -96,7 +96,7 @@ public func < (let left:NSDate, let right: NSDate) -> Bool {
     return isEarlier
 }
 
-public func > (let left:NSDate, let right: NSDate) -> Bool {
+public func > (left:NSDate, right: NSDate) -> Bool {
     let result:NSComparisonResult = left.compare(right)
     var isLater = false
     if (result == NSComparisonResult.OrderedDescending) {
@@ -105,7 +105,7 @@ public func > (let left:NSDate, let right: NSDate) -> Bool {
     return isLater
 }
 
-public func == (let left:NSDate, let right: NSDate) -> Bool {
+public func == (left:NSDate, right: NSDate) -> Bool {
     let result:NSComparisonResult = left.compare(right)
     var isEqual = false
     if (result == NSComparisonResult.OrderedSame) {
@@ -123,7 +123,7 @@ public extension NSDate {
         return NSDate() - 1.days
     }
     
-    public func to_string(let format:String) -> String? {
+    public func to_string(format:String) -> String? {
         let formatter:NSDateFormatter = NSDateFormatter()
         formatter.locale = NSLocale(localeIdentifier: "en_US_POSIX")
         formatter.timeZone = NSTimeZone()
@@ -141,7 +141,7 @@ var test7 = NSDate.yesterday().to_string("MM/dd")
 public extension String {
    
 	//	the original one - we're not going to use it
-    public func to_date(let format:String = "dd/MM/yyyy") -> NSDate? {
+    public func to_date(format:String = "dd/MM/yyyy") -> NSDate? {
         let formatter:NSDateFormatter = NSDateFormatter()
         formatter.locale = NSLocale(localeIdentifier: "en_US_POSIX")
         formatter.timeZone = NSTimeZone()
