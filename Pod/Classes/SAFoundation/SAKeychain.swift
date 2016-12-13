@@ -26,22 +26,22 @@ let kSASecMatchLimitValue			= NSString(format:kSecMatchLimit)
 let kSASecReturnDataValue			= NSString(format:kSecReturnData)
 let kSASecMatchLimitOneValue		= NSString(format:kSecMatchLimitOne)
 
-public class SAKeychain: NSObject {
+open class SAKeychain: NSObject {
 
-  public class func save(key: String, _ data: NSString) {
-    let dataFromString: NSData = data.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)!
+  open class func save(_ key: String, _ data: NSString) {
+    let dataFromString: Data = data.data(using: String.Encoding.utf8.rawValue, allowLossyConversion: false)!
 
     // Instantiate a new default keychain query
     let keychainQuery: NSMutableDictionary = NSMutableDictionary(objects: [kSASecClassGenericPasswordValue, key, userAccount, dataFromString], forKeys: [kSASecClassValue, kSASecAttrServiceValue, kSASecAttrAccountValue, kSASecValueDataValue])
 
     // Delete any existing items
-    SecItemDelete(keychainQuery as CFDictionaryRef)
+    SecItemDelete(keychainQuery as CFDictionary)
 
     // Add the new keychain item
     //var status: OSStatus = SecItemAdd(keychainQuery as CFDictionaryRef, nil)
   }
 
-  public class func load(key: String) -> String? {
+  open class func load(_ key: String) -> String? {
     // Instantiate a new default keychain query
     // Tell the query to return a result
     // Limit our results to one item
@@ -62,8 +62,8 @@ public class SAKeychain: NSObject {
 
     var contentsOfKeychain: NSString?
 
-    if let data = obj as? NSData where status == errSecSuccess {
-      contentsOfKeychain = NSString(data: data, encoding: NSUTF8StringEncoding)
+    if let data = obj as? Data , status == errSecSuccess {
+      contentsOfKeychain = NSString(data: data, encoding: String.Encoding.utf8.rawValue)
     } else {
       print("Nothing was retrieved from the keychain. Status code \(status)", terminator: "")
     }

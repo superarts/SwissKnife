@@ -14,9 +14,9 @@ public struct SATheme {
 			case Spanish				= "es"
 			case SpanishMexico			= "es-MX"
 		}
-		public static var language = Language(rawValue: NSLocale.preferredLanguages()[0] )
+		public static var language = Language(rawValue: Locale.preferredLanguages[0] )
 		public static func language_reload() {
-			language = Language(rawValue: NSLocale.preferredLanguages()[0] )
+			language = Language(rawValue: Locale.preferredLanguages[0] )
 		}
 		public static var language_default: Language? = Language.English
 		public static var languages = [
@@ -66,14 +66,14 @@ public struct SATheme {
 			}
 		}
 		*/
-		public static func strings_append(dict: SADictStrObj) {//[String:[String]]) {
+		public static func strings_append(_ dict: SADictStrObj) {//[String:[String]]) {
 			for (key, value) in dict {
 				if let dict = value as? [String] {
 					strings[key] = dict
 				}
 			}
 		}
-		public static func language_current(index: Int? = nil) -> Int? {
+		public static func language_current(_ index: Int? = nil) -> Int? {
 			var i = index
 			if i == nil {
 				//	if system language is not supported, default language is used
@@ -84,12 +84,12 @@ public struct SATheme {
 				if lang == nil {
 					return nil
 				}
-				i = languages.indexOf(lang)
+				i = languages.index(of: lang)
 
 				//	if language is not supported directly, check alias
 				if i == nil {
 					if let lang = languages_alias[lang.rawValue] {
-						i = languages.indexOf(lang)
+						i = languages.index(of: lang)
 					}
 				}
 			}
@@ -98,14 +98,14 @@ public struct SATheme {
 			}
 			return i
 		}
-		public static func STR(key:String, index: Int? = nil) -> String {
-			return str(key, index:index).uppercaseString
+		public static func STR(_ key:String, index: Int? = nil) -> String {
+			return str(key, index:index).uppercased()
 		}
-		public static func Str(key:String, index: Int? = nil) -> String {
+		public static func Str(_ key:String, index: Int? = nil) -> String {
 			let s = str(key, index:index)
-			return s[0].uppercaseString + s[1...s.length]
+			return s[0].uppercased() + s[1...s.length]
 		}
-		public static func str(key:String, index: Int? = nil) -> String {
+		public static func str(_ key:String, index: Int? = nil) -> String {
 			/*
 			var i = index
 			if i == nil {
@@ -135,7 +135,7 @@ public struct SATheme {
 			}
 			*/
 			if let i = language_current(index) {
-				if let array = strings[key] where i < array.count {
+				if let array = strings[key] , i < array.count {
 					return array[i]
 				}
 			}
@@ -193,11 +193,11 @@ public extension UIView {
 			} else if self is UISegmentedControl {
 				let segment = self as! UISegmentedControl
 				var font_size: CGFloat = 13
-				if let attr = segment.titleTextAttributesForState(.Normal), let font = attr[NSFontAttributeName] as? UIFont {
+				if let attr = segment.titleTextAttributes(for: UIControlState()), let font = attr[NSFontAttributeName] as? UIFont {
 					font_size = font.pointSize
 				}
 				let attr = [NSFontAttributeName: UIFont(name: name!, size: font_size)!]
-				segment.setTitleTextAttributes(attr, forState: .Normal)
+				segment.setTitleTextAttributes(attr, for: UIControlState())
 			} else {
 				SA.log("WARNING unknown type for fontName in Interface Builder", self)
 			}
@@ -250,8 +250,8 @@ public extension UIView {
 		}
 		set (c) {
 			insert_gradient([c, backgroundColor], 
-					point1:CGPointMake(0, 0),
-					point2:CGPointMake(0, 1))
+					point1:CGPoint(x: 0, y: 0),
+					point2:CGPoint(x: 0, y: 1))
 		}
 	}
 	@IBInspectable var shadowDown: CGFloat {
@@ -261,7 +261,7 @@ public extension UIView {
 		}
 		set (f) {
             SA.dispatch_delay(0.1, {
-                self.add_shadow(CGSizeMake(0, f))
+                self.add_shadow(CGSize(width: 0, height: f))
             })
 		}
 	}
@@ -386,51 +386,51 @@ public extension UIButton {
 	@IBInspectable var titleAlignCenter: Bool {
 		get {
 			if let label = titleLabel {
-				return label.textAlignment == .Center
+				return label.textAlignment == .center
 			}
 			return false
 		}
 		set (f) {
 			if let label = titleLabel {
-				label.textAlignment = .Center
+				label.textAlignment = .center
 			}
 		}
 	}
 	@IBInspectable var highlightedBackgroundColor: UIColor {
 		get {
-			return UIColor.blackColor()		//	TODO
+			return UIColor.black		//	TODO
 		}
 		set (color) {
 			//let image = UIImage(CIImage: CIImage(color: CIColor(color: color)))	//why not working?
 			let image = UIImage(color: color)
-			setBackgroundImage(image, forState: .Highlighted)
+			setBackgroundImage(image, for: .highlighted)
 		}
 	}
 	@IBInspectable var selectedBackgroundColor: UIColor {
 		get {
-			return UIColor.blackColor()		//	TODO
+			return UIColor.black		//	TODO
 		}
 		set (color) {
 			let image = UIImage(color: color)
-			setBackgroundImage(image, forState: .Selected)
+			setBackgroundImage(image, for: .selected)
 		}
 	}
 	@IBInspectable var disabledBackgroundColor: UIColor {
 		get {
-			return UIColor.blackColor()		//	TODO
+			return UIColor.black		//	TODO
 		}
 		set (color) {
 			let image = UIImage(color: color)
-			setBackgroundImage(image, forState: .Disabled)
+			setBackgroundImage(image, for: .disabled)
 		}
 	}
 	//	TODO: @IBInspectable var selected_title_localized: String? { }
 	@IBInspectable var normalTitleLocalized: String? {
 		get {
-			return titleForState(.Normal)
+			return title(for: UIControlState())
 		}
 		set (s) {
-			setTitle(SATheme.localization.Str(s!), forState:.Normal)
+			setTitle(SATheme.localization.Str(s!), for:UIControlState())
 		}
 	}
 	@IBInspectable var normalTextAutoLocalized: Bool {
@@ -440,18 +440,18 @@ public extension UIButton {
 		}
 		set (b) {
 			if b {
-				if let title = titleForState(.Normal) {
-					setTitle(SATheme.localization.Str(title), forState:.Normal)
+				if let title = title(for: UIControlState()) {
+					setTitle(SATheme.localization.Str(title), for:UIControlState())
 				}
 			}
 		}
 	}
 	@IBInspectable var highlightedTitleLocalized: String? {
 		get {
-			return titleForState(.Highlighted)
+			return title(for: .highlighted)
 		}
 		set (s) {
-			setTitle(SATheme.localization.Str(s!), forState:.Highlighted)
+			setTitle(SATheme.localization.Str(s!), for:.highlighted)
 		}
 	}
 	@IBInspectable var highlightedTextAutoLocalized: Bool {
@@ -461,8 +461,8 @@ public extension UIButton {
 		}
 		set (b) {
 			if b {
-				if let title = titleForState(.Highlighted) {
-					setTitle(SATheme.localization.Str(title), forState:.Highlighted)
+				if let title = title(for: .highlighted) {
+					setTitle(SATheme.localization.Str(title), for:.highlighted)
 				}
 			}
 		}
@@ -489,8 +489,8 @@ public extension UITextView {
 		}
 		set (b) {
 			if b {
-				self.addObserver(self, forKeyPath:"frame", options:.New, context:nil)
-				self.addObserver(self, forKeyPath:"contentSize", options:.New, context:nil)
+				self.addObserver(self, forKeyPath:"frame", options:.new, context:nil)
+				self.addObserver(self, forKeyPath:"contentSize", options:.new, context:nil)
 			}
 		}
 	}
@@ -503,8 +503,8 @@ public extension UITextView {
 			//associate(&SA.keys.text_color, object:textColor!)
 			self.text = s
 			//NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("sa_text_changed:"), name:UITextViewTextDidChangeNotification, object: nil);
-			NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(UITextView.sa_text_edit_began(_:)), name:UITextViewTextDidBeginEditingNotification, object: nil);
-			NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(UITextView.sa_text_edit_ended(_:)), name:UITextViewTextDidEndEditingNotification, object: nil);
+			NotificationCenter.default.addObserver(self, selector: #selector(UITextView.sa_text_edit_began(_:)), name:NSNotification.Name.UITextViewTextDidBeginEditing, object: nil);
+			NotificationCenter.default.addObserver(self, selector: #selector(UITextView.sa_text_edit_ended(_:)), name:NSNotification.Name.UITextViewTextDidEndEditing, object: nil);
 		}
 	}
 
@@ -516,11 +516,11 @@ public extension UITextView {
 	}
 	public func remove_observer_placeholder() {
 		//NSNotificationCenter.defaultCenter().removeObserver(self, name:UITextViewTextDidChangeNotification, object: nil);
-		NSNotificationCenter.defaultCenter().removeObserver(self, name:UITextViewTextDidBeginEditingNotification, object: nil);
-		NSNotificationCenter.defaultCenter().removeObserver(self, name:UITextViewTextDidEndEditingNotification, object: nil);
+		NotificationCenter.default.removeObserver(self, name:NSNotification.Name.UITextViewTextDidBeginEditing, object: nil);
+		NotificationCenter.default.removeObserver(self, name:NSNotification.Name.UITextViewTextDidEndEditing, object: nil);
 	}
 
-	override public func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String:AnyObject]?, context: UnsafeMutablePointer<Void>) {
+	override open func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey:Any]?, context: UnsafeMutableRawPointer?) {
 		if let _ = object as? UITextView {
 			sa_reload_align_middle_vertical()
 		}
@@ -533,13 +533,13 @@ public extension UITextView {
 		self.content_y = -y
 	}
 	//func sa_text_changed(notification: NSNotification) { }
-	public func sa_text_edit_began(notification: NSNotification) {
+	public func sa_text_edit_began(_ notification: Notification) {
 		if self.text == self.placeholder {
 			self.text = ""
             //self.textColor = associated(&SA.keys.text_color) as? UIColor
 		}
 	}
-	public func sa_text_edit_ended(notification: NSNotification) {
+	public func sa_text_edit_ended(_ notification: Notification) {
 		if self.text == "" {
 			self.text = self.placeholder
             //self.textColor = .grayColor()
@@ -576,28 +576,28 @@ public extension UITextView {
 	}
 }
 
-public class SAAlertSegue: UIStoryboardSegue {
-    public override func perform() {
-        let source = sourceViewController 
+open class SAAlertSegue: UIStoryboardSegue {
+    open override func perform() {
+        //let source = source
         if let navigation = source.navigationController {
-		    let alert = UIAlertController(title: "Message", message: identifier, preferredStyle: .Alert)
-			alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: {
+		    let alert = UIAlertController(title: "Message", message: identifier, preferredStyle: .alert)
+			alert.addAction(UIAlertAction(title: "OK", style: .default, handler: {
 				(action: UIAlertAction) -> Void in
 			}))
-			navigation.presentViewController(alert, animated: true, completion: nil)
+			navigation.present(alert, animated: true, completion: nil)
         }
     }
 }
 
-public class SAActionSheetSegue: UIStoryboardSegue {
-    public override func perform() {
-        let source = sourceViewController 
+open class SAActionSheetSegue: UIStoryboardSegue {
+    open override func perform() {
+        //let source = source
         if let navigation = source.navigationController {
-		    let alert = UIAlertController(title: "Message", message: identifier, preferredStyle: .ActionSheet)
-			alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: {
+		    let alert = UIAlertController(title: "Message", message: identifier, preferredStyle: .actionSheet)
+			alert.addAction(UIAlertAction(title: "OK", style: .default, handler: {
 				(action: UIAlertAction) -> Void in
 			}))
-			navigation.presentViewController(alert, animated: true, completion: nil)
+			navigation.present(alert, animated: true, completion: nil)
             //navigation.pushViewController(destinationViewController as UIViewController, animated: false)
         }
     }

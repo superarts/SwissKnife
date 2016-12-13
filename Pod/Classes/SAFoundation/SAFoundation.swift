@@ -4,8 +4,8 @@ public struct SAKit {
 	public static let domain = "LFramework"
 	public static var version: String {
 		get {
-			if let ver = NSBundle.mainBundle().infoDictionary?["CFBundleShortVersionString"] as? String {
-				if let build = NSBundle.mainBundle().infoDictionary?["CFBundleVersion"] as? String {
+			if let ver = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
+				if let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String {
 					return "\(ver).\(build)"
 				}
 				return ver
@@ -14,14 +14,14 @@ public struct SAKit {
 		}
 	}
 
-	public static func log(message: String) -> String {
+	public static func log(_ message: String) -> String {
 #if RELEASE
 #else
 		print(message, terminator: "\n")
 #endif
 		return message
 	}
-	public static func log(message: String, _ obj: AnyObject?) -> String {
+	public static func log(_ message: String, _ obj: AnyObject?) -> String {
 		var log = message + ": nil"
 		if let s = obj as? String {
 			log = message + ": '" + s + "'"
@@ -34,29 +34,29 @@ public struct SAKit {
 #endif
 		return log
 	}
-	public static func alert(message: String, _ obj: AnyObject?) -> String {
+	public static func alert(_ message: String, _ obj: AnyObject?) -> String {
 		//	TODO: use UIAlertController instead
 		let alert = UIAlertView(title: message, message: obj?.description, delegate: nil, cancelButtonTitle: "OK")
 		alert.show()
 		return message
 	}
-	public static func dispatch(block: dispatch_block_t) {
-		dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), block)
+	public static func dispatch(_ block: @escaping ()->()) {
+		DispatchQueue.global(priority: DispatchQueue.GlobalQueuePriority.default).async(execute: block)
 	}
-	public static func dispatch_delay(delay: Double, _ block: dispatch_block_t) {
-		let time = dispatch_time(DISPATCH_TIME_NOW, Int64(delay * Double(NSEC_PER_SEC)))
-		dispatch_after(time, dispatch_get_main_queue(), block)
+	public static func dispatch_delay(_ delay: Double, _ block: ()->()) {
+		let time = DispatchTime.now() + Double(Int64(delay * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+		DispatchQueue.main.asyncAfter(deadline: time, execute: block)
 	}
-	public static func dispatch_main(block: dispatch_block_t) {
-		dispatch_async(dispatch_get_main_queue(), block)
+	public static func dispatch_main(_ block: ()->()) {
+		DispatchQueue.main.async(execute: block)
 	}
-	public static func smaller<T: Comparable>(a: T, _ b: T) -> T {
+	public static func smaller<T: Comparable>(_ a: T, _ b: T) -> T {
 		if a < b {
 			return a
 		}
 		return b
 	}
-	public static func greater<T: Comparable>(a: T, _ b: T) -> T {
+	public static func greater<T: Comparable>(_ a: T, _ b: T) -> T {
 		if a > b {
 			return a
 		}
@@ -80,23 +80,23 @@ public struct SAKit {
  */
 
 public extension NSObject {
-	public func associated(p: UnsafePointer<Void>) -> AnyObject {
+	public func associated(_ p: UnsafeRawPointer) -> AnyObject {
 		return objc_getAssociatedObject(self, p)
 	}
-	public func associate(p: UnsafePointer<Void>, object: AnyObject) {
+	public func associate(_ p: UnsafeRawPointer, object: AnyObject) {
 		objc_setAssociatedObject(self, p, object, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN_NONATOMIC)
 	}
-	public func perform(key: String, value: AnyObject? = nil) {
-		if respondsToSelector(Selector(key)) {
+	public func perform(_ key: String, value: AnyObject? = nil) {
+		if responds(to: Selector(key)) {
 			setValue(value, forKey:key)
 		}
 	}
 }
 
 public extension UIApplication {
-	public class func open_string(str: String) {
-		if let url = NSURL(string: str) {
-			UIApplication.sharedApplication().openURL(url)
+	public class func open_string(_ str: String) {
+		if let url = URL(string: str) {
+			UIApplication.shared.openURL(url)
 		}
 	}
 }
@@ -109,11 +109,11 @@ public extension Array {
 		}
 	}
 	*/
-	public mutating func remove<U: Equatable>(object: U) -> Bool {
-		for (idx, objectToCompare) in self.enumerate() {
+	public mutating func remove<U: Equatable>(_ object: U) -> Bool {
+		for (idx, objectToCompare) in self.enumerated() {
 			if let to = objectToCompare as? U {
 				if object == to {
-					self.removeAtIndex(idx)
+					self.remove(at: idx)
 						return true
 				}
 			}
@@ -140,7 +140,7 @@ public extension String {
 	}
 	*/
 	public subscript(integerIndex: Int) -> String {
-		let index = startIndex.advancedBy(integerIndex)
+		let index = characters.index(startIndex, offsetBy: integerIndex)
 		return String(self[index])
 	}
 	
@@ -163,10 +163,10 @@ public extension String {
 */
 	public subscript (r: Range<Int>) -> String {
 		get {
-			let startIndex = self.startIndex.advancedBy(r.startIndex)
-			let endIndex = self.startIndex.advancedBy(r.endIndex)
+			let startIndex = self.characters.index(self.startIndex, offsetBy: r.startIndex)
+			let endIndex = self.characters.index(self.startIndex, offsetBy: r.endIndex)
 			
-			return self[Range(start: startIndex, end: endIndex)]
+			return self[(startIndex ..< endIndex)]
 		}
 	}
 	/*
@@ -184,29 +184,29 @@ public extension String {
 	}
 	public var word_count: Int {
 		get {
-			let words = self.componentsSeparatedByCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
+			let words = self.components(separatedBy: CharacterSet.whitespacesAndNewlines)
 			return words.count
 		}
 		set(v) {
 			SA.log("WARNING no setter for String.word_count")
 		}
 	}
-	public func sub_range(head: Int, _ tail: Int) -> String {
+	public func sub_range(_ head: Int, _ tail: Int) -> String {
 		//return self.substringWithRange(Range<String.Index>(start: self.startIndex.advancedBy(head), end: self.endIndex.advancedBy(tail)))
 		return self[head...(tail - 1)]
 	}
-	public func sub_before(sub: String) -> String {
-		if let range = self.rangeOfString(sub), let index: Int = self.startIndex.distanceTo(range.startIndex) {
+	public func sub_before(_ sub: String) -> String {
+		if let range = self.range(of: sub), let index: Int = self.characters.distance(from: self.startIndex, to: range.startIndex) {
 			return sub_range(0, index)
 		}
 		return ""
 	}
-	public func include(find: String, case_sensitive: Bool = true) -> Bool {
+	public func include(_ find: String, case_sensitive: Bool = true) -> Bool {
 		if case_sensitive == false {
-			if self.lowercaseString.rangeOfString(find.lowercaseString) == nil {
+			if self.lowercased().range(of: find.lowercased()) == nil {
 				return false
 			}
-		} else if self.rangeOfString(find) == nil {
+		} else if self.range(of: find) == nil {
 			return false
 		}
 		return true
@@ -216,30 +216,30 @@ public extension String {
 		let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}"
 		let emailTest = NSPredicate(format:"SELF MATCHES %@", emailRegEx)
 		let predicate = emailTest
-		return predicate.evaluateWithObject(self)
+		return predicate.evaluate(with: self)
 	}
 	public func remove_whitespace() -> String {
-		return self.stringByReplacingOccurrencesOfString(" ", withString:"")
+		return self.replacingOccurrences(of: " ", with:"")
 	}
 	public func decode_html() -> String {
 		var s = self
-		s = s.stringByReplacingOccurrencesOfString("&amp;", withString:"&")
-		s = s.stringByReplacingOccurrencesOfString("&quot;", withString:"\"")
-		s = s.stringByReplacingOccurrencesOfString("&#039;", withString:"'")
-		s = s.stringByReplacingOccurrencesOfString("&#39;", withString:"'")
-		s = s.stringByReplacingOccurrencesOfString("&lt;", withString:"<")
-		s = s.stringByReplacingOccurrencesOfString("&gt;", withString:">")
+		s = s.replacingOccurrences(of: "&amp;", with:"&")
+		s = s.replacingOccurrences(of: "&quot;", with:"\"")
+		s = s.replacingOccurrences(of: "&#039;", with:"'")
+		s = s.replacingOccurrences(of: "&#39;", with:"'")
+		s = s.replacingOccurrences(of: "&lt;", with:"<")
+		s = s.replacingOccurrences(of: "&gt;", with:">")
 		return s
 	}
 	public func escape() -> String {
-		if let ret = self.stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet()) {
+		if let ret = self.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed()) {
 			return ret
 		} else {
 			return self
 		}
 	}
 	public func to_filename() -> String {
-		if let ret = self.stringByAddingPercentEncodingWithAllowedCharacters(.lowercaseLetterCharacterSet()) {
+		if let ret = self.addingPercentEncoding(withAllowedCharacters: .lowercaseLetters()) {
 			return ret
 		} else {
 			return self
@@ -268,7 +268,7 @@ public extension Int {
 	}
 }
 
-public extension NSUserDefaults {
+public extension UserDefaults {
 	/*
 	public class func object<T: AnyObject>(key: String, _ v: T? = nil) -> T? {
 		if let obj: T = v {
@@ -281,43 +281,43 @@ public extension NSUserDefaults {
 	}
 	*/
 	public class func reset() {
-		if let domain = NSBundle.mainBundle().bundleIdentifier {
-			NSUserDefaults.standardUserDefaults().removePersistentDomainForName(domain)
+		if let domain = Bundle.main.bundleIdentifier {
+			UserDefaults.standard.removePersistentDomain(forName: domain)
 		}
 	}
-	public class func object(key: String, _ v: AnyObject? = nil) -> AnyObject? {
+	public class func object(_ key: String, _ v: AnyObject? = nil) -> AnyObject? {
 		if let obj: AnyObject = v {
-			NSUserDefaults.standardUserDefaults().setObject(obj, forKey: key)
-			NSUserDefaults.standardUserDefaults().synchronize()
+			UserDefaults.standard.set(obj, forKey: key)
+			UserDefaults.standard.synchronize()
 		} else {
-			return NSUserDefaults.standardUserDefaults().objectForKey(key)
+			return UserDefaults.standard.object(forKey: key)
 		}
 		return v
 	}
-	public class func bool(key: String, _ v: Bool? = nil) -> Bool? {
+	public class func bool(_ key: String, _ v: Bool? = nil) -> Bool? {
 		if let obj: Bool = v {
-			NSUserDefaults.standardUserDefaults().setBool(obj, forKey: key)
-			NSUserDefaults.standardUserDefaults().synchronize()
+			UserDefaults.standard.set(obj, forKey: key)
+			UserDefaults.standard.synchronize()
 		} else {
-			return NSUserDefaults.standardUserDefaults().boolForKey(key)
+			return UserDefaults.standard.bool(forKey: key)
 		}
 		return v
 	}
-	public class func integer(key: String, _ v: Int? = nil) -> Int? {
+	public class func integer(_ key: String, _ v: Int? = nil) -> Int? {
 		if let obj: Int = v {
-			NSUserDefaults.standardUserDefaults().setInteger(obj, forKey: key)
-			NSUserDefaults.standardUserDefaults().synchronize()
+			UserDefaults.standard.set(obj, forKey: key)
+			UserDefaults.standard.synchronize()
 		} else {
-			return NSUserDefaults.standardUserDefaults().integerForKey(key)
+			return UserDefaults.standard.integer(forKey: key)
 		}
 		return v
 	}
-	public class func string(key: String, _ v: String? = nil) -> String? {
+	public class func string(_ key: String, _ v: String? = nil) -> String? {
 		if let obj: String = v {
-			NSUserDefaults.standardUserDefaults().setObject(obj, forKey: key)
-			NSUserDefaults.standardUserDefaults().synchronize()
+			UserDefaults.standard.set(obj, forKey: key)
+			UserDefaults.standard.synchronize()
 		} else {
-			return NSUserDefaults.standardUserDefaults().stringForKey(key)
+			return UserDefaults.standard.string(forKey: key)
 		}
 		return v
 	}
@@ -341,7 +341,7 @@ public extension UIView {
 			layer.borderWidth = border_width
 		}
 		if color != nil {
-			layer.borderColor = color!.CGColor
+			layer.borderColor = color!.cgColor
 		}
 		layer.masksToBounds = true
 	}
@@ -357,15 +357,15 @@ public extension UIView {
 	}
 	*/
 	//	it supports more than 2 colors, and more color formats (UIColor, rgb, name)
-	public func insert_gradient(colors:[AnyObject?], point1:CGPoint, point2:CGPoint) {
+	public func insert_gradient(_ colors:[AnyObject?], point1:CGPoint, point2:CGPoint) {
 		var cg_colors: [CGColor] = []
 		for obj in colors {
 			if let name = obj as? String, let rgb = SAConst.rgb[name] {
-				cg_colors.append(UIColor(rgb: rgb).CGColor)
+				cg_colors.append(UIColor(rgb: rgb).cgColor)
 			} else if let rgb = obj as? UInt {
-				cg_colors.append(UIColor(rgb: rgb).CGColor)
+				cg_colors.append(UIColor(rgb: rgb).cgColor)
 			} else if let color = obj as? UIColor {
-				cg_colors.append(color.CGColor)
+				cg_colors.append(color.cgColor)
 			//} else if let color = obj as? CGColor {
 			//	cg_colors.append(color)
 			} else {
@@ -378,15 +378,15 @@ public extension UIView {
 		gradient.colors = cg_colors
 		gradient.startPoint = point1
 		gradient.endPoint = point2
-		layer.insertSublayer(gradient, atIndex:0)
+		layer.insertSublayer(gradient, at:0)
 	}
-	public func add_shadow(size:CGSize) {
+	public func add_shadow(_ size:CGSize) {
 		let path = UIBezierPath(rect:bounds)
 		layer.masksToBounds = false
-		layer.shadowColor = UIColor.blackColor().CGColor
+		layer.shadowColor = UIColor.black.cgColor
 		layer.shadowOffset = size
 		layer.shadowOpacity = 0.2
-		layer.shadowPath = path.CGPath
+		layer.shadowPath = path.cgPath
 	}
 }
 
@@ -405,21 +405,21 @@ public extension UIColor {
 
 //  TODO: make a script to create wrapper classes as above
 public extension NSString {
-	public func filename_doc(namespace: String? = nil) -> String {
-		return self.to_filename(namespace, directory:.DocumentDirectory)
+	public func filename_doc(_ namespace: String? = nil) -> String {
+		return self.to_filename(namespace, directory:.documentDirectory)
 	}
-	public func filename_lib(namespace: String? = nil) -> String {
-		return self.to_filename(namespace, directory:.LibraryDirectory)
+	public func filename_lib(_ namespace: String? = nil) -> String {
+		return self.to_filename(namespace, directory:.libraryDirectory)
 	}
-	public func to_filename(namespace: String? = nil, directory: NSSearchPathDirectory) -> String {
+	public func to_filename(_ namespace: String? = nil, directory: FileManager.SearchPathDirectory) -> String {
 		var filename = self
 		if namespace != nil {
 			filename = namespace! + "-" + (self as String)
 		}
 
 		//let paths = NSSearchPathForDirectoriesInDomains(directory, .AllDomainsMask, true)
-		if let dir = NSSearchPathForDirectoriesInDomains(directory, .UserDomainMask, true).first {
-			let url = NSURL(fileURLWithPath: dir).URLByAppendingPathComponent(filename as String)
+		if let dir = NSSearchPathForDirectoriesInDomains(directory, .userDomainMask, true).first {
+			let url = URL(fileURLWithPath: dir).appendingPathComponent(filename as String)
 			if let path = url.path {
 				return path
 			}
@@ -428,26 +428,26 @@ public extension NSString {
 		return ""
 		//return url.absoluteString
 	}
-	public func file_exists_doc(namespace: String? = nil) -> Bool {
-		let manager = NSFileManager.defaultManager()
-		return manager.fileExistsAtPath(self.filename_doc(namespace))
+	public func file_exists_doc(_ namespace: String? = nil) -> Bool {
+		let manager = FileManager.default
+		return manager.fileExists(atPath: self.filename_doc(namespace))
 	}
-	public func file_exists_lib(namespace: String? = nil) -> Bool {
-		let manager = NSFileManager.defaultManager()
-		return manager.fileExistsAtPath(self.filename_lib(namespace))
+	public func file_exists_lib(_ namespace: String? = nil) -> Bool {
+		let manager = FileManager.default
+		return manager.fileExists(atPath: self.filename_lib(namespace))
 	}
 }
 
 //  TODO: it is a temporary solution. I'm going to find a good swift friendly library to do this.
 public extension UIImageView {
-	public func image_load(url: String?, clear: Bool = false) {
+	public func image_load(_ url: String?, clear: Bool = false) {
 		if clear == true {
 			image = nil
 		}
 		if url == nil {
 			return
 		}
-		let filename = url!.stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet.URLHostAllowedCharacterSet())!	//.lowercaseString
+		let filename = url!.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlHostAllowed)!	//.lowercaseString
 		//filename = filename.stringByReplacingOccurrencesOfString(".", withString:"")
 		//filename = filename.stringByReplacingOccurrencesOfString("jpeg", withString:"")
 		//filename = filename.stringByReplacingOccurrencesOfString("jpg", withString:"")
@@ -464,27 +464,27 @@ public extension UIImageView {
 			//dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), {
 			SA.dispatch_delay(0, {
 				//SA.log(url!)
-				if let data = NSData(contentsOfURL: NSURL(string: url!)!) {
+				if let data = try? Data(contentsOf: URL(string: url!)!) {
 					//SA.log(url!, data.length)
 					self.image = UIImage(data: data)
-					data.writeToFile(filename.filename_doc(), atomically: true)
+					try? data.write(to: URL(fileURLWithPath: filename.filename_doc()), options: [.atomic])
 				}
 			})
 		}
 	}
 }
 
-public extension NSData {
-	public func to_string(encoding:UInt = NSUTF8StringEncoding) -> String? {
+public extension Data {
+	public func to_string(_ encoding:UInt = String.Encoding.utf8) -> String? {
 		return NSString(data:self, encoding:encoding) as? String
 	}
 }
 
 public extension NSMutableData {
-	public func append_string(string: String) {
+	public func append_string(_ string: String) {
 		//let data = string.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)
-		if let data = (string as NSString).dataUsingEncoding(NSUTF8StringEncoding) {
-			appendData(data)
+		if let data = (string as NSString).data(using: String.Encoding.utf8) {
+			append(data)
 		}
 	}
 }
@@ -495,13 +495,13 @@ public extension UIImage {
 	convenience init?(color: UIColor) {
 		self.init(data: UIImagePNGRepresentation(UIImage.imageWithColor(color))!)
 	}
-	public class func imageWithColor(color: UIColor) -> UIImage {
-		let rect = CGRectMake(0, 0, 1, 1)
+	public class func imageWithColor(_ color: UIColor) -> UIImage {
+		let rect = CGRect(x: 0, y: 0, width: 1, height: 1)
 		UIGraphicsBeginImageContext(rect.size)
 		let context = UIGraphicsGetCurrentContext()
 
-		CGContextSetFillColorWithColor(context, color.CGColor)
-		CGContextFillRect(context, rect)
+		context.setFillColor(color.CGColor)
+		context.fill(rect)
 
 		let image = UIGraphicsGetImageFromCurrentImageContext()
 		UIGraphicsEndImageContext()
@@ -513,23 +513,23 @@ public extension UIImage {
 public extension UIScreen {
 	public class var w: CGFloat {
 		get {
-			return UIScreen.mainScreen().bounds.width
+			return UIScreen.main.bounds.width
 		}
 	}
 	public class var h: CGFloat {
 		get {
-			return UIScreen.mainScreen().bounds.height
+			return UIScreen.main.bounds.height
 		}
 	}
 }
 
 public extension UIFont {
 	public class func print_all() {
-		let fontFamilyNames = UIFont.familyNames()
+		let fontFamilyNames = UIFont.familyNames
 		for familyName in fontFamilyNames {
 			print("------------------------------", terminator: "\n")
 			print("Font Family Name = [\(familyName)]", terminator: "\n")
-			let names = UIFont.fontNamesForFamilyName(familyName)
+			let names = UIFont.fontNames(forFamilyName: familyName)
 			print("Font Names = [\(names)]", terminator: "\n")
 		}
 	}
@@ -554,7 +554,7 @@ public extension UIScrollView {
 	}
 	public var animate_x: CGFloat {
 		set(f) {
-			setContentOffset(CGPointMake(f, contentOffset.y), animated: true)
+			setContentOffset(CGPoint(x: f, y: contentOffset.y), animated: true)
 		}
 		get {
 			return content_x
@@ -562,7 +562,7 @@ public extension UIScrollView {
 	}
 	public var animate_y: CGFloat {
 		set(f) {
-			setContentOffset(CGPointMake(contentOffset.x, f), animated: true)
+			setContentOffset(CGPoint(x: contentOffset.x, y: f), animated: true)
 		}
 		get {
 			return content_y
@@ -606,17 +606,17 @@ public extension UIScrollView {
 			page.numberOfPages = Int(self.contentSize.width / self.frame.size.width)
 			page.currentPage = Int(self.contentOffset.x / self.frame.size.width)
 			page.hidesForSinglePage = false
-			page.addTarget(self, action:#selector(UIScrollView.page_changed(_:)), forControlEvents:.ValueChanged)
+			page.addTarget(self, action:#selector(UIScrollView.page_changed(_:)), for:.valueChanged)
 		} else {
 			SA.log("WARNING: pageControl not found")
 		}
 	}
-	public func page_changed(page: UIPageControl) {
-		UIView.animateWithDuration(0.3) {
-			self.contentOffset = CGPointMake(self.frame.size.width * CGFloat(page.currentPage), 0)
-		}
+	public func page_changed(_ page: UIPageControl) {
+		UIView.animate(withDuration: 0.3, animations: {
+			self.contentOffset = CGPoint(x: self.frame.size.width * CGFloat(page.currentPage), y: 0)
+		}) 
 	}
-	public func scrollViewDidScroll(scroll: UIScrollView) {
+	public func scrollViewDidScroll(_ scroll: UIScrollView) {
 		page_reload()
 	}
 }
@@ -654,7 +654,7 @@ public extension UIView {
 			return frame.size.height
 		}
 	}
-	public func below(view: UIView, offset: CGFloat = 0) {
+	public func below(_ view: UIView, offset: CGFloat = 0) {
 		y = view.y + view.h + offset
 	}
 }
@@ -705,18 +705,18 @@ public class SAViewController: UIViewController, SAViewControllerDelegate {
 
 public extension UIViewController {
 	@IBAction public func sakitActionPop() {
-		navigationController?.popViewControllerAnimated(true)
+		navigationController?.popViewController(animated: true)
 	}
 	@IBAction public func sakitActionPopToRoot() {
-		navigationController?.popToRootViewControllerAnimated(true)
+		navigationController?.popToRootViewController(animated: true)
 	}
 	@IBAction public func sakitActionDismiss() {
-		dismissViewControllerAnimated(true, completion: nil)
+		dismiss(animated: true, completion: nil)
 	}
 	@IBAction public func sakitActionEndEditing() {
 		view.endEditing(true)
 	}
-	public func pop_to(level:Int, animated:Bool = true) {
+	public func pop_to(_ level:Int, animated:Bool = true) {
 		if let controllers = navigationController?.viewControllers {
 			var index = level
 			if index < 0 {
@@ -727,11 +727,11 @@ public extension UIViewController {
 		}
 	}
   
-	public func pushIdentifier(controllerIdentifier: String, animated: Bool = true) -> UIViewController? {
+	public func pushIdentifier(_ controllerIdentifier: String, animated: Bool = true) -> UIViewController? {
 		return push_identifier(controllerIdentifier, animated:animated)
 	}
-	public func push_identifier(controllerIdentifier: String, animated: Bool = true, hide_bottom: Bool? = nil) -> UIViewController? {
-		if let controller = storyboard?.instantiateViewControllerWithIdentifier(controllerIdentifier) {
+	public func push_identifier(_ controllerIdentifier: String, animated: Bool = true, hide_bottom: Bool? = nil) -> UIViewController? {
+		if let controller = storyboard?.instantiateViewController(withIdentifier: controllerIdentifier) {
 			if let hide = hide_bottom {
 				controller.hidesBottomBarWhenPushed = hide
 			}
@@ -740,9 +740,9 @@ public extension UIViewController {
 		}
 		return nil
 	}
-	public func present_identifier(controllerIdentifier: String, animated: Bool = true) -> UIViewController? {
-		if let controller = storyboard?.instantiateViewControllerWithIdentifier(controllerIdentifier) {
-			self.presentViewController(controller, animated:animated, completion:nil)
+	public func present_identifier(_ controllerIdentifier: String, animated: Bool = true) -> UIViewController? {
+		if let controller = storyboard?.instantiateViewController(withIdentifier: controllerIdentifier) {
+			self.present(controller, animated:animated, completion:nil)
 			return controller
 		}
 		return nil
@@ -750,10 +750,10 @@ public extension UIViewController {
 }
 
 public extension UISearchBar {
-	public func set_text_image(text: NSString, icon:UISearchBarIcon, attribute:SADictStrObj? = nil, state:UIControlState = .Normal) {
-		let textColor: UIColor = UIColor.whiteColor()
+	public func set_text_image(_ text: NSString, icon:UISearchBarIcon, attribute:SADictStrObj? = nil, state:UIControlState = UIControlState()) {
+		let textColor: UIColor = UIColor.white
 		let textFont: UIFont = UIFont(name: "FontAwesome", size: 15)!
-		UIGraphicsBeginImageContext(CGSizeMake(15, 15))
+		UIGraphicsBeginImageContext(CGSize(width: 15, height: 15))
 		var attr = attribute
 		if attr == nil {
 			attr = [
@@ -761,48 +761,48 @@ public extension UISearchBar {
 				NSForegroundColorAttributeName: textColor,
 			]
 		}
-		text.drawInRect(CGRectMake(0, 0, 15, 15), withAttributes: attr)
+		text.draw(in: CGRect(x: 0, y: 0, width: 15, height: 15), withAttributes: attr)
 		let image: UIImage = UIGraphicsGetImageFromCurrentImageContext()
 		UIGraphicsEndImageContext()
 
-		self.setImage(image, forSearchBarIcon:icon, state:state)
+		self.setImage(image, for:icon, state:state)
 	}
 }
 
 public extension UIWebView {
-	public func load_string(str:String) {
-		if let url = NSURL(string:str) {
-			let request = NSURLRequest(URL:url)
+	public func load_string(_ str:String) {
+		if let url = URL(string:str) {
+			let request = URLRequest(url:url)
 			loadRequest(request)
 		}
 	}
 }
 
 public extension UIDevice {
-	public class func version_at_least(version: String) -> Bool {
-		let version_system = UIDevice.currentDevice().systemVersion + ".0.0.0"
-		return version_system.compare(version, options: NSStringCompareOptions.NumericSearch) == .OrderedDescending
+	public class func version_at_least(_ version: String) -> Bool {
+		let version_system = UIDevice.current.systemVersion + ".0.0.0"
+		return version_system.compare(version, options: NSString.CompareOptions.numeric) == .orderedDescending
 	}
 }
 
-public class SAViewController: UIViewController {
+open class SAViewController: UIViewController {
 	var containers: Dictionary<String, UIViewController> = [:]
 	
-	override public func viewWillAppear(animated:Bool) {
+	override open func viewWillAppear(_ animated:Bool) {
 		super.viewWillAppear(animated)
-		NSNotificationCenter.defaultCenter().removeObserver(self, name:UIKeyboardWillShowNotification, object: nil);
-		NSNotificationCenter.defaultCenter().removeObserver(self, name:UIKeyboardWillHideNotification, object: nil);
-		NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(SAViewController.sa_keyboard_will_show(_:)), name:UIKeyboardWillShowNotification, object: nil);
-		NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(SAViewController.sa_keyboard_will_hide(_:)), name:UIKeyboardWillHideNotification, object: nil);
+		NotificationCenter.default.removeObserver(self, name:NSNotification.Name.UIKeyboardWillShow, object: nil);
+		NotificationCenter.default.removeObserver(self, name:NSNotification.Name.UIKeyboardWillHide, object: nil);
+		NotificationCenter.default.addObserver(self, selector: #selector(SAViewController.sa_keyboard_will_show(_:)), name:NSNotification.Name.UIKeyboardWillShow, object: nil);
+		NotificationCenter.default.addObserver(self, selector: #selector(SAViewController.sa_keyboard_will_hide(_:)), name:NSNotification.Name.UIKeyboardWillHide, object: nil);
 	}
-	override public func viewWillDisappear(animated:Bool) {
+	override open func viewWillDisappear(_ animated:Bool) {
 		super.viewWillDisappear(animated)
 		//NSNotificationCenter.defaultCenter().removeObserver(self)
-		NSNotificationCenter.defaultCenter().removeObserver(self, name:UIKeyboardWillShowNotification, object: nil);
-		NSNotificationCenter.defaultCenter().removeObserver(self, name:UIKeyboardWillHideNotification, object: nil);
+		NotificationCenter.default.removeObserver(self, name:NSNotification.Name.UIKeyboardWillShow, object: nil);
+		NotificationCenter.default.removeObserver(self, name:NSNotification.Name.UIKeyboardWillHide, object: nil);
 	}
-	override public func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject!) {
-		super.prepareForSegue(segue, sender:sender)
+	override open func prepare(for segue: UIStoryboardSegue, sender: Any!) {
+		super.prepare(for: segue, sender:sender)
 		//  SA.log("SAViewController controller", segue.destinationViewController)
 		/*
 		if let controller = segue.destinationViewController as? UIViewController {
@@ -814,28 +814,28 @@ public class SAViewController: UIViewController {
 			SA.log("SAViewController nil destination", segue.identifier)
 		}
 		*/
-		let controller = segue.destinationViewController
+		let controller = segue.destination
 		if let identifier = segue.identifier {
 			containers[identifier] = controller
 		}
 	}
 
-	public func sa_keyboard_will_show(notification: NSNotification) {
-		if let info: NSDictionary = notification.userInfo {
-			let value: NSValue = info.valueForKey(UIKeyboardFrameEndUserInfoKey) as! NSValue
-			let rect: CGRect = value.CGRectValue()
+	open func sa_keyboard_will_show(_ notification: Notification) {
+		if let info: NSDictionary = (notification as NSNotification).userInfo {
+			let value: NSValue = info.value(forKey: UIKeyboardFrameEndUserInfoKey) as! NSValue
+			let rect: CGRect = value.CGRectValue
 			sa_keyboard_height_changed(rect.height)
 		}
 	}
-	public func sa_keyboard_will_hide(notification: NSNotification) {
+	open func sa_keyboard_will_hide(_ notification: Notification) {
 		sa_keyboard_height_changed(0)
 	}
-	public func sa_keyboard_height_changed(height: CGFloat) {
+	open func sa_keyboard_height_changed(_ height: CGFloat) {
 	}
 }
 
 
-public class SAHorizontalScrollController: UIViewController, UIScrollViewDelegate {
+open class SAHorizontalScrollController: UIViewController, UIScrollViewDelegate {
 
 	var font_active: UIFont?
 	var font_inactive: UIFont!
@@ -844,27 +844,27 @@ public class SAHorizontalScrollController: UIViewController, UIScrollViewDelegat
 	var page_width: CGFloat = 0.5
 	var margin: CGFloat = 20
 	var index: Int = 0
-	var func_scroll: ((index1: Int, index2: Int, offset: CGFloat) -> Void)?
+	var func_scroll: ((_ index1: Int, _ index2: Int, _ offset: CGFloat) -> Void)?
 	//var width_total: CGFloat!
 
-	public var delegate_scroll: UIScrollViewDelegate? {
+	open var delegate_scroll: UIScrollViewDelegate? {
 		didSet {
 			//scroll.delegate = delegate_scroll
 		}
 	}
 	
-	public var titles: Array<String> = [] {
+	open var titles: Array<String> = [] {
 		didSet {
 			reload()
 		}
 	}
 	
-	public override func viewDidLoad() {
+	open override func viewDidLoad() {
 		super.viewDidLoad()
 		view.remove_all_subviews()		//	clean up if it's from storyboard
 
 		//width_total = UIScreen.w
-		font_inactive = UIFont.systemFontOfSize(16)
+		font_inactive = UIFont.systemFont(ofSize: 16)
 
 		//scroll = UIScrollView(frame: CGRectMake(view.w * (1 - page_width) / 2, 0, view.w * page_width, view.h))
 		scroll = UIScrollView(frame: view.bounds)
@@ -884,22 +884,22 @@ public class SAHorizontalScrollController: UIViewController, UIScrollViewDelegat
 		//view.backgroundColor = .clearColor()
 	}
   
-	public func get_width(index: Int) -> CGFloat {
+	open func get_width(_ index: Int) -> CGFloat {
 		let title = titles[index]
-		let frame = title.boundingRectWithSize(CGSizeMake(0, 0),
-				options: NSStringDrawingOptions.UsesLineFragmentOrigin,
+		let frame = title.boundingRect(with: CGSize(width: 0, height: 0),
+				options: NSStringDrawingOptions.usesLineFragmentOrigin,
 				attributes: [NSFontAttributeName: font_inactive],
 				context: nil)
 		return margin * 2 + frame.size.width		//	margin is included in label
 	}
-	public func get_total() -> CGFloat {
+	open func get_total() -> CGFloat {
 		var w_total: CGFloat = 0
 		for i in 0 ... titles.count - 1 {
 			w_total += get_width(i)
 		}
 		return w_total
 	}
-	public func reload() {
+	open func reload() {
 		let w_total = get_total()
 		let repeat_count = Int(view.w * 2 / w_total + 1)
 		//SA.log("width", w_total)
@@ -920,7 +920,7 @@ public class SAHorizontalScrollController: UIViewController, UIScrollViewDelegat
 				let w = get_width(i)
 				//let label = UILabel(frame: CGRectMake(w * 0.25 + w * 0.5 * fi, 0, w * 0.5, view.h))
 				//let label = UILabel(frame: CGRectMake(w * page_width * fi, 0, w * page_width, view.h))
-				let label = UILabel(frame: CGRectMake(w_offset, 0, w, view.h))
+				let label = UILabel(frame: CGRect(x: w_offset, y: 0, width: w, height: view.h))
 				w_offset += w
 
 				if ii == 0 && i == index {
@@ -929,20 +929,20 @@ public class SAHorizontalScrollController: UIViewController, UIScrollViewDelegat
 				}
 
 				label.text = title
-				label.textColor = UIColor.whiteColor()
+				label.textColor = UIColor.white
 				//label.backgroundColor = UIColor.grayColor()
-				label.textAlignment = NSTextAlignment.Center
+				label.textAlignment = NSTextAlignment.center
 				label.font = font_inactive!
 				scroll.addSubview(label)
 				labels.append(label)
 			}
 		}
-		scroll.contentSize = CGSizeMake(w_offset, view.h)
-		scroll.contentOffset = CGPointMake(w_total + w_delta - view.w / 2, 0)
+		scroll.contentSize = CGSize(width: w_offset, height: view.h)
+		scroll.contentOffset = CGPoint(x: w_total + w_delta - view.w / 2, y: 0)
 	   
 		//view.backgroundColor = UIColor.blueColor()
 	}
-	public func scrollViewDidScroll(scroll: UIScrollView) {
+	open func scrollViewDidScroll(_ scroll: UIScrollView) {
 		if scroll.content_x <= 0 {
 			scroll.content_x = get_total()
 		} else if scroll.content_x >= scroll.content_w - view.w {
@@ -977,35 +977,35 @@ public class SAHorizontalScrollController: UIViewController, UIScrollViewDelegat
 			func_scroll!(index1: index1, index2: index2, offset: d)
 		}
 	}
-	public func scrollViewDidEndDragging(scroll: UIScrollView, willDecelerate decelerate: Bool) {
+	open func scrollViewDidEndDragging(_ scroll: UIScrollView, willDecelerate decelerate: Bool) {
 		scrollViewWillBeginDecelerating(scroll)
 	}
-	public func scrollViewWillBeginDecelerating(scroll: UIScrollView) {
+	open func scrollViewWillBeginDecelerating(_ scroll: UIScrollView) {
 		let label = labels[get_label_index()]
 		scroll.animate_x = label.x + label.w / 2 - view.w / 2
 	}
-	public func get_label_index() -> Int {
+	open func get_label_index() -> Int {
 		var index = 0
 		var d: CGFloat = view.w		//	a bigger value, perhaps FLT_MAX?
 		for label in labels {
 			let dd = abs(label.x + label.w / 2 - scroll.content_x - view.w / 2)
 			if dd < d {
 				d = dd
-				index = labels.indexOf(label)!
+				index = labels.index(of: label)!
 			}
 		}
 		return index
 	}
 }
 
-public class SALabeledScrollController: UIViewController {
+open class SALabeledScrollController: UIViewController {
 	
 }
 
 
-public class SAMultipleTableController: SAViewController {
-	public var sources: [SATableDataSource] = []
-	public var tables: [UITableView]! {
+open class SAMultipleTableController: SAViewController {
+	open var sources: [SATableDataSource] = []
+	open var tables: [UITableView]! {
 		set(array) {
 			sources.removeAll()
 			_tables.removeAll()
@@ -1019,23 +1019,23 @@ public class SAMultipleTableController: SAViewController {
 			return _tables
 		}
 	}
-	private var _tables: [UITableView] = []
+	fileprivate var _tables: [UITableView] = []
 
 	/*
 	public override func viewDidLoad() {
 		super.viewDidLoad()
 	}
 	*/
-	@IBAction public func sakitActionReload() {
+	@IBAction open func sakitActionReload() {
 		for table in tables {
 			table.reloadData()
 		}
 	}
 }
 
-public class SATableController: SAMultipleTableController {
-	@IBOutlet public var table: UITableView!
-	public var source: SATableDataSource! {
+open class SATableController: SAMultipleTableController {
+	@IBOutlet open var table: UITableView!
+	open var source: SATableDataSource! {
 		get {
 			return sources[0]
 		}
@@ -1045,7 +1045,7 @@ public class SATableController: SAMultipleTableController {
 	}
 	//var source: SATableDataSource!
 	
-	public override func viewDidLoad() {
+	open override func viewDidLoad() {
 		super.viewDidLoad()
 		tables = [table]
 		//source = SATableDataSource(table: table)
@@ -1068,20 +1068,20 @@ public class SATableController: SAMultipleTableController {
 	*/
 }
 
-public class SATableDataSource: NSObject, UITableViewDelegate, UITableViewDataSource {
+open class SATableDataSource: NSObject, UITableViewDelegate, UITableViewDataSource {
 
-	public var table: UITableView!
-	public var counts: Array<Int> = []
-	public var headers: Array<String> = []
-	public var header_height: CGFloat = 20
+	open var table: UITableView!
+	open var counts: Array<Int> = []
+	open var headers: Array<String> = []
+	open var header_height: CGFloat = 20
 
-	public var func_cell: ((NSIndexPath) -> UITableViewCell)! = nil
-	public var func_header: ((Int) -> UIView?)? = nil
-	public var func_height: ((NSIndexPath) -> CGFloat)? = nil
-	public var func_select: ((NSIndexPath) -> Void)? = nil
-	public var func_deselect: ((NSIndexPath) -> Void)? = nil
-	public var func_select_source: ((NSIndexPath, SATableDataSource) -> Void)? = nil		//	these 2 will not be called if aboves are not nil
-	public var func_deselect_source: ((NSIndexPath, SATableDataSource) -> Void)? = nil
+	open var func_cell: ((IndexPath) -> UITableViewCell)! = nil
+	open var func_header: ((Int) -> UIView?)? = nil
+	open var func_height: ((IndexPath) -> CGFloat)? = nil
+	open var func_select: ((IndexPath) -> Void)? = nil
+	open var func_deselect: ((IndexPath) -> Void)? = nil
+	open var func_select_source: ((IndexPath, SATableDataSource) -> Void)? = nil		//	these 2 will not be called if aboves are not nil
+	open var func_deselect_source: ((IndexPath, SATableDataSource) -> Void)? = nil
 
 	public init(table a_table: UITableView) {
 		super.init()
@@ -1090,16 +1090,16 @@ public class SATableDataSource: NSObject, UITableViewDelegate, UITableViewDataSo
 		table = a_table
 	}
 
-	public func index_alphabet(array: Array<String>) -> Array<Array<String>> {
+	open func index_alphabet(_ array: Array<String>) -> Array<Array<String>> {
 		var ret: Array<Array<String>> = []
-		let sorted: Array<String> = array.sort { $0.localizedCaseInsensitiveCompare($1) == NSComparisonResult.OrderedAscending }
+		let sorted: Array<String> = array.sorted { $0.localizedCaseInsensitiveCompare($1) == ComparisonResult.orderedAscending }
 		counts.removeAll()
 		headers.removeAll()
 		let alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 		for c in alphabet.characters {
 			var a: Array<String> = []
 			for s in sorted {
-				if String(Array(s.characters)[0]).uppercaseString == String(c) {
+				if String(Array(s.characters)[0]).uppercased() == String(c) {
 					a.append(s)
 				}
 			}
@@ -1112,20 +1112,20 @@ public class SATableDataSource: NSObject, UITableViewDelegate, UITableViewDataSo
 		return ret
 	}
 
-	public func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+	open func numberOfSections(in tableView: UITableView) -> Int {
 		return counts.count
 	}
-	public func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+	open func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 		return counts[section]
 	}
-	public func tableView(tableView: UITableView, heightForRowAtIndexPath path: NSIndexPath) -> CGFloat {
+	open func tableView(_ tableView: UITableView, heightForRowAt path: IndexPath) -> CGFloat {
 		if func_height != nil {
 			return func_height!(path)
 		}
 		return tableView.rowHeight
 	}
 	//	header and index
-	public func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+	open func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
 		if headers.count > section {
 			return headers[section]
 		} else {
@@ -1147,26 +1147,26 @@ public class SATableDataSource: NSObject, UITableViewDelegate, UITableViewDataSo
 	*/
 	//	func tableView(tableView: UITableView, sectionForSectionIndexTitle title: String, atIndex index: Int) -> Int { return index / 2 }
 	//	cell and select
-	public func tableView(tableView: UITableView, cellForRowAtIndexPath path: NSIndexPath) -> UITableViewCell {
+	open func tableView(_ tableView: UITableView, cellForRowAt path: IndexPath) -> UITableViewCell {
 		if func_cell == nil {
 			SA.log("WARNING no func_cell in SATableDataSource", path)
 		}
 		return func_cell(path)
 	}
-	public func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+	open func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
 		if headers.count <= 0 && func_header == nil {
 			return 0
 		}
 		return header_height
 	}
-	public func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+	open func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
 		if func_header != nil {
 			let view = func_header!(section)
 			return view
 		}
 		return nil
 	}
-	public func tableView(tableView: UITableView, didSelectRowAtIndexPath path: NSIndexPath) {
+	open func tableView(_ tableView: UITableView, didSelectRowAt path: IndexPath) {
 		if func_select != nil {
 			func_select!(path)
 		} else if func_select_source != nil {
@@ -1174,7 +1174,7 @@ public class SATableDataSource: NSObject, UITableViewDelegate, UITableViewDataSo
 		}
 		return
 	}
-	public func tableView(tableView: UITableView, didDeselectRowAtIndexPath path: NSIndexPath) {
+	open func tableView(_ tableView: UITableView, didDeselectRowAt path: IndexPath) {
 		if func_deselect != nil {
 			func_deselect!(path)
 		} else if func_deselect_source != nil {
@@ -1182,9 +1182,9 @@ public class SATableDataSource: NSObject, UITableViewDelegate, UITableViewDataSo
 		}
 		return
 	}
-	public func tableView(tableView: UITableView, willDisplayCell cell: UITableViewCell, forRowAtIndexPath indexPath: NSIndexPath) {
+	open func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
 		cell.layoutIfNeeded()
-		cell.backgroundColor = UIColor.clearColor()
+		cell.backgroundColor = UIColor.clear
 	}
 }
 
@@ -1192,16 +1192,16 @@ public struct LFDebug {
 	public static var filename = "LDebug.xml"
 	public static var is_appending = true
 
-	public static func string(namespace: String? = nil) -> String {
-		if let s = try? String(contentsOfFile:filename.filename_doc(namespace), encoding: NSUTF8StringEncoding) {
+	public static func string(_ namespace: String? = nil) -> String {
+		if let s = try? String(contentsOfFile:filename.filename_doc(namespace), encoding: String.Encoding.utf8) {
 			return s
 		}
 		SA.log("LDebug file not found", filename.filename_doc(namespace))
 		return ""
 	}
-	public static func log(msg: String, _ namespace: String? = nil) {
+	public static func log(_ msg: String, _ namespace: String? = nil) {
 		var s = string(namespace)
-		if let date = NSDate().to_string() {
+		if let date = Date().to_string() {
 			if is_appending {
 				s += "\n" + date + ":\t" + msg	
 			} else {
@@ -1209,18 +1209,18 @@ public struct LFDebug {
 			}
 		}
 		do {
-			try s.writeToFile(filename.filename_doc(namespace), atomically:true, encoding:NSUTF8StringEncoding)
+			try s.write(toFile: filename.filename_doc(namespace), atomically:true, encoding:String.Encoding.utf8)
 		} catch _ {
 			//SA.log("LDebug save error", error)
 		}
 	}
-	public static func clear(namespace: String? = nil) {
+	public static func clear(_ namespace: String? = nil) {
 		do {
-			try "".writeToFile(filename.filename_doc(namespace), atomically:true, encoding:NSUTF8StringEncoding)
+			try "".write(toFile: filename.filename_doc(namespace), atomically:true, encoding:String.Encoding.utf8)
 		} catch _ {
 		}
 	}
-	public static func log_show(namespace: String? = nil) {
+	public static func log_show(_ namespace: String? = nil) {
 		let s = string(namespace)
 		SA.log("LDebug", s)
 	}
@@ -1228,7 +1228,7 @@ public struct LFDebug {
 
 //	cell
 
-public class SACellTitleDetail: UITableViewCell {
-	@IBOutlet public var label_title: UILabel!
-	@IBOutlet public var label_detail: UILabel!
+open class SACellTitleDetail: UITableViewCell {
+	@IBOutlet open var label_title: UILabel!
+	@IBOutlet open var label_detail: UILabel!
 }

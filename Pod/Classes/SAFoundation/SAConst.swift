@@ -14,11 +14,11 @@ public typealias SABlockVoidArray = ((SAArrayObj?) -> Void)
 public typealias SABlockVoidArrayError = ((SAArrayObj?, NSError?) -> Void)
 
 public struct SAConst {
-	public static func color(name: String, alpha: CGFloat = 1) -> UIColor {
+	public static func color(_ name: String, alpha: CGFloat = 1) -> UIColor {
 		if let rgb = SAConst.rgb[name] {
 			return UIColor(rgb: rgb, alpha: alpha)
 		}
-		return .clearColor()
+		return .clear
 	}
 	public static let rgb: [String:UInt] = [
 		//	from: http://www.creepyed.com/2012/11/windows-phone-8-theme-colors-hex-rgb/

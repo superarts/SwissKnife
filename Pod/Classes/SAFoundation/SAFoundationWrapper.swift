@@ -35,7 +35,7 @@ extension String {
 		return to_filename()
 	}
 }
-extension NSUserDefaults {
+extension UserDefaults {
 }
 extension UIView {
 	public func removeAllSubviews() {
@@ -58,7 +58,7 @@ extension NSString {
 	public func filenameLib(namespace: String? = nil) -> String {
 		return filename_lib(namespace)
 	}
-	public func toFilename(namespace: String? = nil, directory: NSSearchPathDirectory) -> String {
+	public func toFilename(namespace: String? = nil, directory: FileManager.SearchPathDirectory) -> String {
 		return to_filename(namespace, directory: directory)
 	}
 	public func fileExistsDoc(namespace: String? = nil) -> Bool {
@@ -156,7 +156,7 @@ extension UIViewController {
 	}
 }
 extension UISearchBar {
-	public func setTextImage(text: NSString, icon:UISearchBarIcon, attribute:SADictStrObj? = nil, state:UIControlState = .Normal) {
+	public func setTextImage(text: NSString, icon:UISearchBarIcon, attribute:SADictStrObj? = nil, state:UIControlState = .normal) {
 		set_text_image(text, icon: icon, attribute: attribute, state: state)
 	}
 }

@@ -64,9 +64,9 @@ extension SARESTClient {
 			cache_policy = v
 		}
 	}
-	public var formData: [NSData]? {
+	public var formData: [Data]? {
 		get {
-			return form_data
+			return form_data as [Data]?
 		}
 		set(v) {
 			form_data = v
@@ -97,33 +97,33 @@ extension SARESTClient {
 	public func textHide() {
 		text_hide()
 	}
-	public func errorShow(error: NSError) {
+	public func errorShow(_ error: NSError) {
 		error_show(error)
 	}
 	public func reloadApi() -> String {
 		return reload_api()
 	}
-	public func initRequest(api: String) -> NSMutableURLRequest? {
+	public func initRequest(_ api: String) -> NSMutableURLRequest? {
 		return init_request(api)
 	}
-	public func getFilename(api: String) -> String {
+	public func getFilename(_ api: String) -> String {
 		return get_filename(api)
 	}
-	public func executeData(data: NSData!) {
+	public func executeData(_ data: Data!) {
 		execute_data(data)
 	}
-	public func formAppend(body: NSMutableData, key: String, value: String) {
+	public func formAppend(_ body: NSMutableData, key: String, value: String) {
 		form_append(body, key: key, value: value)
 	}
-	public func formAppendDict(body: NSMutableData, param: SADictStrObj, prefix: String = "") {
+	public func formAppendDict(_ body: NSMutableData, param: SADictStrObj, prefix: String = "") {
 		form_append_dict(body, param: param, prefix: prefix)
 	}
-	public func formBody(parameters: [String: AnyObject]?, array_data: [NSData]?) -> NSData {
+	public func formBody(_ parameters: [String: AnyObject]?, array_data: [Data]?) -> Data {
 		return form_body(parameters, array_data: array_data)
 	}
 }
 extension SARestConnectionDelegate {
-	public var funcDone: ((NSURLResponse?, NSData?, NSError!) -> Void)?    {
+	public var funcDone: ((URLResponse?, Data?, NSError?) -> Void)?    {
 		get {
 			return func_done
 		}
@@ -133,10 +133,10 @@ extension SARestConnectionDelegate {
 	}
 }
 extension SAModel {
-	public func logDescriptionNotFound(value: AnyObject) {
+	public func logDescriptionNotFound(_ value: AnyObject) {
 		log_description_not_found(value)
 	}
-	public func appendIndent(str: String) -> String {
+	public func appendIndent(_ str: String) -> String {
 		return append_indent(str)
 	}
 }
@@ -162,7 +162,7 @@ extension SAAutosaveModel {
 extension SATableClient {
 }
 extension SAArrayClient {
-	public var funcReload: ([T] -> Void)? {
+	public var funcReload: (([T]) -> Void)? {
 		get {
 			return func_reload
 		}
@@ -170,7 +170,7 @@ extension SAArrayClient {
 			func_reload = v
 		}
 	}
-	public var funcDone: (Void -> Void)? {
+	public var funcDone: ((Void) -> Void)? {
 		get {
 			return func_done
 		}
@@ -271,7 +271,7 @@ extension SARESTTableController {
 			pull_up = v
 		}
 	}
-	public var funcDone: (Void -> Void)? {
+	public var funcDone: ((Void) -> Void)? {
 		get {
 			return func_done
 		}

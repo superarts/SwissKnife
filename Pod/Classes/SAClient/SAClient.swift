@@ -25,42 +25,42 @@ public struct SAREST {
 		public static let delete = HTTPMethod.Delete
 	}
 	public enum ConnectionClass {
-		case NSURLSession
-		case NSURLConnection
+		case nsurlSession
+		case nsurlConnection
 	}
 	public struct cache {
 		public enum Policy {
-			case None
-			case CacheThenNetwork
+			case none
+			case cacheThenNetwork
 		}
 	}
 	public struct pagination {
 		public enum Method {
-			case None
-			case LastID
-			case Page
+			case none
+			case lastID
+			case page
 		}
 	}
 	public struct ui {
 		public enum Load {
-			case None
-			case Reload
-			case More
+			case none
+			case reload
+			case more
 		}
 		public enum Reload {
-			case None
-			case First
-			case Always
+			case none
+			case first
+			case always
 		}
 	}
 }
 
-public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURLSessionTaskDelegate {
-	public var paths: [String]?		//	to support results like ["user": ["username"="1"], "succuss" = 1]
-	public var subpaths: [String]?		//	to support ["users": [ [_source: ["username"="1"] ] ], "success" = 1]
-	public var path: String? {			
+open class SARESTClient<T: SAModel>: NSObject, URLSessionDataDelegate, URLSessionTaskDelegate {
+	open var paths: [String]?		//	to support results like ["user": ["username"="1"], "succuss" = 1]
+	open var subpaths: [String]?		//	to support ["users": [ [_source: ["username"="1"] ] ], "success" = 1]
+	open var path: String? {			
 		get {
-			if let paths = paths where paths.count > 0 {
+			if let paths = paths , paths.count > 0 {
 				return paths[0]
 			}
 			return nil
@@ -73,24 +73,24 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
 			}
 		}
 	}
-	public var text: String?
-	public var show_error = false
-	public var content_type: String = SAREST.content.json
-	public var connection_class: SAREST.ConnectionClass = .NSURLSession
-	public var method: SAREST.HTTPMethod = .Get
-	public var root: String!
-	public var api: String!
-	public var parameters: SADictStrObj?
-	public var func_error: ((NSError) -> Void)?					//	generic error handler
-	public var func_model: ((T?, NSError?) -> Void)?				//	parse to model
-	public var func_array: ((Array<T>?, NSError?) -> Void)?		//	parse to array
-	public var func_dict: ((SADictStrObj?, NSError?) -> Void)?		//	raw dictionary
-	public var response: NSHTTPURLResponse?
-	public var credential: NSURLCredential?
-	public var cache_policy: SAREST.cache.Policy = .None
-	public var form_data: [NSData]?
-	public var form_keys: SAArrayStr = ["file", "file1", "file2"]
-	public var form_boundary: String = "---------------------------14737809831466499882746641449"		//"Boundary-\(NSUUID().UUID().UUIDString)"
+	open var text: String?
+	open var show_error = false
+	open var content_type: String = SAREST.content.json
+	open var connection_class: SAREST.ConnectionClass = .nsurlSession
+	open var method: SAREST.HTTPMethod = .Get
+	open var root: String!
+	open var api: String!
+	open var parameters: SADictStrObj?
+	open var func_error: ((NSError) -> Void)?					//	generic error handler
+	open var func_model: ((T?, NSError?) -> Void)?				//	parse to model
+	open var func_array: ((Array<T>?, NSError?) -> Void)?		//	parse to array
+	open var func_dict: ((SADictStrObj?, NSError?) -> Void)?		//	raw dictionary
+	open var response: HTTPURLResponse?
+	open var credential: URLCredential?
+	open var cache_policy: SAREST.cache.Policy = .none
+	open var form_data: [Data]?
+	open var form_keys: SAArrayStr = ["file", "file1", "file2"]
+	open var form_boundary: String = "---------------------------14737809831466499882746641449"		//"Boundary-\(NSUUID().UUID().UUIDString)"
 
 	public init(api url: String, parameters param: SADictStrObj? = nil) {
 		api = url
@@ -98,55 +98,55 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
 	}
 
 	//	TODO: create a protocol
-	public func reload_authentication() {
+	open func reload_authentication() {
 		//	override me
 	}
-	public func text_show() {
+	open func text_show() {
 		//	override mes
 	}
-	public func text_hide() {
+	open func text_hide() {
 		//	override me
 	}
-	public func error_show(error: NSError) {
+	open func error_show(_ error: NSError) {
 		//	override mes
 	}
-	public func reload_api() -> String {
+	open func reload_api() -> String {
 		var api_reloaded = api
 		if method.rawValue == "GET" && parameters != nil {
-			if api_reloaded.include("?") {
-				api_reloaded = api_reloaded + "&"
+			if (api_reloaded?.include("?"))! {
+				api_reloaded = api_reloaded! + "&"
 			} else {
-				api_reloaded = api_reloaded + "?"
+				api_reloaded = api_reloaded! + "?"
 			}
 
 			//	TODO: encoding
 			for (key, value) in parameters! {
 				if value is String {
-					api_reloaded = api_reloaded + key + "=" + String(value as! String) + "&"
+					api_reloaded = api_reloaded! + key + "=" + String(value as! String) + "&"
 				} else if value is Int {
-					api_reloaded = api_reloaded + key + "=" + String(value as! Int) + "&"
+					api_reloaded = api_reloaded! + key + "=" + String(value as! Int) + "&"
 				} else {
 					SA.log("WARNING unknown parameter type", value)
 				}
 			}
-			api_reloaded = api_reloaded.sub_range(0, -1)
+			api_reloaded = api_reloaded?.sub_range(0, -1)
 			//SA.log(api_reloaded, parameters)
 		}
-		return api_reloaded
+		return api_reloaded!
 	}
-	public func init_request(api: String) -> NSMutableURLRequest? {
-		let url = NSURL(string: root + api)!
-		let request = NSMutableURLRequest(URL: url)
-		request.HTTPMethod = method.rawValue
+	open func init_request(_ api: String) -> NSMutableURLRequest? {
+		let url = URL(string: root + api)!
+		let request = NSMutableURLRequest(url: url)
+		request.httpMethod = method.rawValue
 		if content_type == SAREST.content.form {
 			let boundary = form_boundary
-			request.HTTPBody = form_body(parameters, array_data:form_data)
+			request.httpBody = form_body(parameters, array_data:form_data)
 			request.setValue(SAREST.content.json, forHTTPHeaderField:"Accept")
 			request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-			if let data = request.HTTPBody {
-				request.setValue(String(data.length), forHTTPHeaderField: "Content-Length")
+			if let data = request.httpBody {
+				request.setValue(String(data.count), forHTTPHeaderField: "Content-Length")
 			}
-			SA.log("body length", request.HTTPBody?.length)
+			SA.log("body length", request.httpBody?.count as AnyObject?)
 			//SA.log("request", request)
 			//SA.log("headers", request.allHTTPHeaderFields)
 			//SA.log("method", request.HTTPMethod)
@@ -159,9 +159,9 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
 			if method != SAREST.method.get && parameters != nil {
 
 				var error_ret: NSError?
-				let body: NSData?
+				let body: Data?
 				do {
-					body = try NSJSONSerialization.dataWithJSONObject(parameters!, options: [])
+					body = try JSONSerialization.data(withJSONObject: parameters!, options: [])
 				} catch let error as NSError {
 					error_ret = error
 					body = nil
@@ -186,10 +186,10 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
 					}
 					return nil
 				}
-				request.HTTPBody = body
+				request.httpBody = body
 			}
 		} else {
-			SA.log("WARNING unknown content type", content_type)
+			SA.log("WARNING unknown content type", content_type as AnyObject?)
 		}
         //  add credential manually
         /*
@@ -200,14 +200,14 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
         */
         return request
 	}
-	public var connection: NSURLConnection?
-	public var task: NSURLSessionDataTask?
-	public func execute() {
+	open var connection: NSURLConnection?
+	open var task: URLSessionDataTask?
+	open func execute() {
         var cache_loaded = false
 		let api_reloaded = reload_api()
-		if self.cache_policy == .CacheThenNetwork {
+		if self.cache_policy == .cacheThenNetwork {
 			let filename = self.get_filename(api_reloaded)
-			if let data = NSData(contentsOfFile:filename) {
+			if let data = try? Data(contentsOf: URL(fileURLWithPath: filename)) {
 				//SA.log("CACHE loaded")
 				//SA.dispatch() { }
                 cache_loaded = true
@@ -223,14 +223,14 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
 			}
 			//	TODO: change data and error to optional - done, need more debugging
 			let func_done = {
-				(response: NSURLResponse?, data: NSData?, error: NSError?) -> Void in
+				(response: URLResponse?, data: Data?, error: NSError?) -> Void in
 
 				var error_ret: NSError? = error
 				if self.text != nil && !cache_loaded {
 					self.text_hide()
 				}
 
-				let resp = response as! NSHTTPURLResponse?
+				let resp = response as! HTTPURLResponse?
 				self.response = resp
 				if error != nil {
 					//	SA.log("CLIENT error", error)
@@ -240,16 +240,16 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
 				} else if resp!.statusCode < 200 || resp!.statusCode >= 300 {
 					//	SA.log("url failed", data?.to_string())
 					let code = resp!.statusCode
-					var info = [NSLocalizedDescriptionKey: NSHTTPURLResponse.localizedStringForStatusCode(code)]
+					var info = [NSLocalizedDescriptionKey: HTTPURLResponse.localizedString(forStatusCode: code)]
 					if let str = data?.to_string() {
 						//	TODO: this is a temporary solution
 						info["LRestClientResponseData"] = str
 					}
 					error_ret = NSError(domain: SAREST.domain, code: code, userInfo:info)
 				} else {
-					if self.cache_policy != .None {
+					if self.cache_policy != .none {
 						let filename = self.get_filename(api_reloaded)
-						data?.writeToFile(filename, atomically:true)
+						try? data?.write(to: URL(fileURLWithPath: filename), options: [.atomic])
 						SA.log("CACHE saved")
 					}
 					self.execute_data(data!)
@@ -273,26 +273,26 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
 				}
 			}
 
-			if connection_class == .NSURLSession {
-				let config = NSURLSessionConfiguration.defaultSessionConfiguration()
-				let session = NSURLSession(configuration:config, delegate:self, delegateQueue:NSOperationQueue.mainQueue())
+			if connection_class == .nsurlSession {
+				let config = URLSessionConfiguration.default
+				let session = Foundation.URLSession(configuration:config, delegate:self, delegateQueue:OperationQueue.main)
 				//task = session.dataTaskWithRequest(request, completionHandler:nil)
-				task = session.dataTaskWithRequest(request) {
+				task = session.dataTask(with: request, completionHandler: {
 					(data, response, error) -> Void in
 					//SA.log("SESSION response", response)
-					if let error = error where error.code == -999 {
+					if let error = error , error.code == -999 {
 						//SA.log("SESSION cancelled")
 					} else {
 						func_done(response, data, error)
 					}
-				}
+				}) 
 				task!.resume()
-			} else if connection_class == .NSURLConnection {
+			} else if connection_class == .nsurlConnection {
 				let delegate = SARestConnectionDelegate()
 				delegate.credential = credential
 				delegate.func_done = func_done
 				//	XXX: NSURLConnection support will be removed when iOS 8 support is stopped
-				connection = NSURLConnection(request:request, delegate:delegate, startImmediately:true)
+				connection = NSURLConnection(request:request as URLRequest, delegate:delegate, startImmediately:true)
 			}
 
 			//SA.log("CONNECTION started", connection!)
@@ -308,30 +308,30 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
                 forProtectionSpace:space)
             */
 		} else {
-			SA.log("WARNING SARESTClient", "empty request")
+			SA.log("WARNING SARESTClient", "empty request" as AnyObject?)
 		}
 	}
-	public func URLSession(session: NSURLSession, didBecomeInvalidWithError error: NSError?) {
-		SA.log("SESSION invalid", error)
+	open func urlSession(_ session: URLSession, didBecomeInvalidWithError error: Error?) {
+		SA.log("SESSION invalid", error as AnyObject?)
 	}
-	public func URLSession(session: NSURLSession, didReceiveChallenge challenge: NSURLAuthenticationChallenge, completionHandler handler: (NSURLSessionAuthChallengeDisposition, NSURLCredential?) -> Void) {
+	open func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler handler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
 		//SA.log("SESSION challenge", challenge)
 		if let crt = credential {
-			handler(.UseCredential, crt)
+			handler(.useCredential, crt)
 		} else {
-			handler(.PerformDefaultHandling, nil)
+			handler(.performDefaultHandling, nil)
 		}
 	}
-	public func URLSessionDidFinishEventsForBackgroundURLSession(session: NSURLSession) {
+	open func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
 		SA.log("SESSION finished")
 	}
-    public func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, didReceiveData data: NSData) {
+    open func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
 		SA.log("TASK data received")
 	}
-	public func URLSession(session: NSURLSession, task: NSURLSessionTask, didReceiveChallenge challenge: NSURLAuthenticationChallenge, completionHandler handler: (NSURLSessionAuthChallengeDisposition, NSURLCredential?) -> Void) {
+	open func urlSession(_ session: URLSession, task: URLSessionTask, didReceive challenge: URLAuthenticationChallenge, completionHandler handler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
 		SA.log("TASK challenge", challenge)
 		if let crt = credential {
-			handler(.UseCredential, crt)
+			handler(.useCredential, crt)
 		}
 		return
 		/*
@@ -346,10 +346,10 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
 		}
 		*/
 	}
-	public func URLSession(session: NSURLSession, task: NSURLSessionTask, didCompleteWithError error: NSError?) {
-		SA.log("TASK error", error)
+	open func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+		SA.log("TASK error", error as AnyObject?)
 	}
-	public func cancel() {
+	open func cancel() {
 		connection?.cancel()
 		task?.cancel()
 	}
@@ -357,16 +357,16 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
         //SA.log("CLIENT deinit", self)
     }
 
-	public func get_filename(api: String) -> String {
+	open func get_filename(_ api: String) -> String {
 		var param_hash = self.parameters?.description.hash
 		if param_hash == nil {
 			param_hash = 0
 		}
 		let filename = String(format:"%@-%@-%i.xml", 
 			self.root.to_filename(), api.to_filename(), param_hash!)
-		return filename.to_filename(directory: .CachesDirectory)
+		return filename.to_filename(directory: .cachesDirectory)
 	}
-	public func execute_data(data: NSData!) {
+	open func execute_data(_ data: Data!) {
 		var error: NSError?
 		//let s = NSString(data: data, encoding: NSUTF8StringEncoding)
 		let cls = T.self
@@ -376,7 +376,7 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
 		if let func_model = func_model {
 			var obj: T?
 			do {
-    			var dict = try NSJSONSerialization.JSONObjectWithData(data, options: []) as? SADictStrObj
+    			var dict = try JSONSerialization.jsonObject(with: data, options: []) as? SADictStrObj
     			//	TODO: support multi-layer path (already implemented in func_array)
     			if let path = self.path {
     				if let dict_tmp = dict?[path] as? SADictStrObj {
@@ -393,7 +393,7 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
 			var array: [SADictStrObj]?
 			if let paths = self.paths {
 				do {
-					var obj: AnyObject = try NSJSONSerialization.JSONObjectWithData(data, options: [])
+					var obj: Any = try JSONSerialization.jsonObject(with: data, options: [])
 					for path in paths {
 						if let obj_new: AnyObject = (obj as? SADictStrObj)?[path] {
 							obj = obj_new	//(obj as! SADictStrObj)[path]!
@@ -405,7 +405,7 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
 				}
 			} else {
 				do {
-					let array_json = try NSJSONSerialization.JSONObjectWithData(data, options: []) as? Array<SADictStrObj>
+					let array_json = try JSONSerialization.jsonObject(with: data, options: []) as? Array<SADictStrObj>
     				array = array_json
 				} catch let e as NSError {
 					error = e
@@ -433,7 +433,7 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
 			//let dict = NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments, error: &error) as SADictStrObj
 			var dict: SADictStrObj?
 			do {
-				dict = try NSJSONSerialization.JSONObjectWithData(data, options: []) as? SADictStrObj
+				dict = try JSONSerialization.jsonObject(with: data, options: []) as? SADictStrObj
 			} catch let e as NSError {
 				error = e
 			}
@@ -441,13 +441,13 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
 		}
 	}
 
-	public func form_append(body: NSMutableData, key: String, value: String) {
+	open func form_append(_ body: NSMutableData, key: String, value: String) {
 		let boundary = form_boundary
 		body.append_string("--\(boundary)\r\n")
 		body.append_string("Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n")
 		body.append_string("\(value)\r\n")
 	}
-	public func form_append_dict(body: NSMutableData, param: SADictStrObj, prefix: String = "") {
+	open func form_append_dict(_ body: NSMutableData, param: SADictStrObj, prefix: String = "") {
 		for (key, value) in param {
 			var key_nested = key
 			if prefix != "" {
@@ -467,7 +467,7 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
 			//SA.log(key, value.description)
 		}
 	}
-	public func form_body(parameters: [String: AnyObject]?, array_data: [NSData]?) -> NSData {
+	open func form_body(_ parameters: [String: AnyObject]?, array_data: [Data]?) -> Data {
 		let boundary = form_boundary
 		let body = NSMutableData()
 
@@ -487,7 +487,7 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
 				body.append_string("\r\n--\(boundary)\r\n")
 				body.append_string("Content-Disposition: form-data; name=\"\(filePathKey)\"; filename=\"\(filename)\"\r\n")
 				body.append_string("Content-Type: \(mimetype)\r\n\r\n")
-				body.appendData(data)
+				body.append(data)
 				body.append_string("\r\n")
 				index += 1
 			}
@@ -495,47 +495,47 @@ public class SARESTClient<T: SAModel>: NSObject, NSURLSessionDataDelegate, NSURL
 
 		body.append_string("--\(boundary)--\r\n")
 		SA.log("body", body.to_string())
-		return body
+		return body as Data
 	}
 }
 
-public class SARestConnectionDelegate: NSObject {
+open class SARestConnectionDelegate: NSObject {
 
-	public var func_done: ((NSURLResponse?, NSData?, NSError!) -> Void)?   //  TODO: make response/data non-nullable
-	public var credential: NSURLCredential?
-	public var response: NSURLResponse?
-	public var data: NSMutableData = NSMutableData()
+	open var func_done: ((URLResponse?, Data?, NSError?) -> Void)?   //  TODO: make response/data non-nullable
+	open var credential: URLCredential?
+	open var response: URLResponse?
+	open var data: NSMutableData = NSMutableData()
 
-	public func connection(connection: NSURLConnection, willSendRequestForAuthenticationChallenge challenge: NSURLAuthenticationChallenge) {
+	open func connection(_ connection: NSURLConnection, willSendRequestForAuthenticationChallenge challenge: URLAuthenticationChallenge) {
 		if challenge.previousFailureCount > 0, let sender = challenge.sender {
 			SA.log("challenge cancelled")
-			sender.cancelAuthenticationChallenge(challenge)
+			sender.cancel(challenge)
 		} else if let credential = credential, let sender = challenge.sender {
 			SA.log("challenge added")
-			sender.useCredential(credential, forAuthenticationChallenge:challenge)
+			sender.use(credential, for:challenge)
 		} else {
 			SA.log("REST connection will challenge", connection)
 		}
 	}
-	public func connection(connection: NSURLConnection, didReceiveResponse a_response: NSURLResponse) {
+	open func connection(_ connection: NSURLConnection, didReceiveResponse a_response: URLResponse) {
 		//SA.log("CONNECTION response", response)
 		response = a_response
 	}
-	public func connection(connection: NSURLConnection, didReceiveData data_received: NSData) {
+	open func connection(_ connection: NSURLConnection, didReceiveData data_received: Data) {
 		//SA.log("CONNECTION data", data.length)
-		data.appendData(data_received)
+		data.append(data_received)
 	}
-	public func connectionDidFinishLoading(connection: NSURLConnection) {
+	open func connectionDidFinishLoading(_ connection: NSURLConnection) {
 		//SA.log("CONNECTION finished", connection)
 		//SA.log("CONNECTION finished", data.to_string())
 		if func_done != nil {
-			func_done!(response, data, nil)
+			func_done!(response, data as Data, nil)
 		}
 	}
-	public func connection(connection: NSURLConnection, didFailWithError error: NSError) {
+	open func connection(_ connection: NSURLConnection, didFailWithError error: NSError) {
 		//SA.log("CONNECTION failed", error)
 		if let func_done = func_done {
-			func_done(response, data, error)
+			func_done(response, data as Data, error)
 		}
 	}
 	deinit {
@@ -545,19 +545,19 @@ public class SARestConnectionDelegate: NSObject {
 
 //	model
 
-public class SAModel: NSObject {
+open class SAModel: NSObject {
   
 	//	public & reserved
     //public var id: Int = 0
-    public var id: String = ""
-	public var raw: SADictStrObj?
+    open var id: String = ""
+	open var raw: SADictStrObj?
 
 	public struct prototype {
 		public static var indent: Int = 0
 	}
 
 	//	override this function to disable this log. TODO: find a better way.
-	public func log_description_not_found(value: AnyObject) {
+	open func log_description_not_found(_ value: AnyObject) {
 		SA.log("WARNING name 'description' is a reserved word", value)
 	}
     required public init(dict: Dictionary<String, AnyObject>?) {
@@ -572,20 +572,20 @@ public class SAModel: NSObject {
 					//SA.log("WARNING null value", key)
 				} else {
 					//	TODO: not working for Int? and Int! in 6.0 GM
-					if respondsToSelector(NSSelectorFromString(key)) && key != "keys" {
+					if responds(to: NSSelectorFromString(key)) && key != "keys" {
 						//SA.log(key, value)
 						if value is [String: AnyObject] || value is [AnyObject] {
 							//	SA.log("reload", key)
 							let type: Mirror = Mirror(reflecting:self)
 							for child in type.children {
-								if let label = child.label where label == key
+								if let label = child.label , label == key
 								{
-									var type = String(child.value.dynamicType)
-									type = type.stringByReplacingOccurrencesOfString("Optional<", withString: "", options: NSStringCompareOptions.LiteralSearch, range: nil)
-									type = type.stringByReplacingOccurrencesOfString("Array<", withString: "", options: NSStringCompareOptions.LiteralSearch, range: nil)
-									type = type.stringByReplacingOccurrencesOfString(">", withString: "", options: NSStringCompareOptions.LiteralSearch, range: nil)
+									var type = String(describing: type(of: (child.value) as AnyObject))
+									type = type.replacingOccurrences(of: "Optional<", with: "", options: NSString.CompareOptions.literal, range: nil)
+									type = type.replacingOccurrences(of: "Array<", with: "", options: NSString.CompareOptions.literal, range: nil)
+									type = type.replacingOccurrences(of: ">", with: "", options: NSString.CompareOptions.literal, range: nil)
 
-									let bundle = NSBundle(forClass: self.dynamicType)
+									let bundle = Bundle(for: type(of: self))
 									if let name = bundle.infoDictionary?[kCFBundleNameKey as String] as? String {
 										type = name + "." + type
 									}
@@ -619,7 +619,7 @@ public class SAModel: NSObject {
 		//SA.log(filename, dict)
 		self.init(dict: dict as? SADictStrObj)
 	}
-	public func save(filename: String, atomically: Bool = true) -> Bool {
+	open func save(_ filename: String, atomically: Bool = true) -> Bool {
 		/*
 		let data = NSKeyedArchiver.archivedDataWithRootObject(dictionary)
 		do {
@@ -636,11 +636,11 @@ public class SAModel: NSObject {
 		}
 		SA.log("saving success failed: not valid dictionary")
 		*/
-		let success = (dictionary as NSDictionary).writeToFile(filename, atomically: atomically)
+		let success = (dictionary as NSDictionary).write(toFile: filename, atomically: atomically)
 		//SA.log("saving success", success)
 		return success
 	}
-	public func reload(key: String, type: String) {
+	open func reload(_ key: String, type: String) {
 		for (a_key, value) in dictionary {
 			if let dict_parameter = value as? Dictionary<String, AnyObject> {
 				if a_key == key {
@@ -666,15 +666,15 @@ public class SAModel: NSObject {
 		}
 	}
 
-	override public func valueForUndefinedKey(key: String) -> AnyObject? {
+	override open func value(forUndefinedKey key: String) -> Any? {
 		return nil
 	}
-    public func dictionary(keys: [String]) -> Dictionary<String, AnyObject> {
+    open func dictionary(_ keys: [String]) -> Dictionary<String, AnyObject> {
         var dict: Dictionary<String, AnyObject> = [:]
         for key in keys {
-            if let value: AnyObject = valueForKeyPath(key) {
+            if let value: AnyObject = value(forKeyPath: key) as AnyObject? {
 				if let v = value as? SAModel {
-					dict[key] = v.dictionary
+					dict[key] = v.dictionary as AnyObject?
 				} else {
 					dict[key] = value
 				}
@@ -683,7 +683,7 @@ public class SAModel: NSObject {
         return dict
     }
 	//	TODO: refactor me - should be method instead of property
-	public var keys: [String] {
+	open var keys: [String] {
         var array = [String]()
         var count: CUnsignedInt = 0
 		let properties: UnsafeMutablePointer<objc_property_t> = class_copyPropertyList(object_getClass(self), &count)
@@ -694,7 +694,7 @@ public class SAModel: NSObject {
 			var ct: CUnsignedInt = 0
 			let prop: UnsafeMutablePointer<objc_property_t> = class_copyPropertyList(c, &ct)
 			for i in 0 ..< Int(ct) {
-                if let key = NSString(CString: property_getName(prop[i]), encoding: NSUTF8StringEncoding) {
+                if let key = NSString(cString: property_getName(prop[i]), encoding: String.Encoding.utf8.rawValue) {
     				if key == "dictionary" {
     					//SA.log("WARNING model: this condition is not ideal")
     					break loop
@@ -720,9 +720,9 @@ public class SAModel: NSObject {
 		}
 
         for i in 0 ..< Int(count) {
-            if let key = NSString(CString: property_getName(properties[i]), encoding: NSUTF8StringEncoding) as? String {
+            if let key = NSString(cString: property_getName(properties[i]), encoding: String.Encoding.utf8.rawValue) as? String {
 				//SA.log(key, valueForKey(key))
-				if let _ = valueForKey(key) {
+				if let _ = value(forKey: key) {
 					array.append(key)
 				}
 			}
@@ -730,7 +730,7 @@ public class SAModel: NSObject {
         return array
 	}
     //  Nesting is supported. You can also use dictionary(keys) to make dictionary from selected keys.
-    public var dictionary: Dictionary<String, AnyObject> {
+    open var dictionary: Dictionary<String, AnyObject> {
         var dict: Dictionary<String, AnyObject> = [:]
         var count: CUnsignedInt = 0
 		let properties: UnsafeMutablePointer<objc_property_t> = class_copyPropertyList(object_getClass(self), &count)
@@ -741,12 +741,12 @@ public class SAModel: NSObject {
 			var ct: CUnsignedInt = 0
 			let prop: UnsafeMutablePointer<objc_property_t> = class_copyPropertyList(c, &ct)
 			for i in 0 ..< Int(ct) {
-                if let key = NSString(CString: property_getName(prop[i]), encoding: NSUTF8StringEncoding) {
+                if let key = NSString(cString: property_getName(prop[i]), encoding: String.Encoding.utf8.rawValue) {
 					if key == "dictionary" || key == "keys" || key == "description" {
     					//SA.log("WARNING model: this condition is not ideal")
 						break loop
     				}
-					if let value: AnyObject? = valueForKey(key as String) where key != "raw" {
+					if let value: AnyObject? = value(forKey: key as String) as AnyObject?? , key != "raw" {
 						dict[key as String] = value
     				}
                 }
@@ -764,19 +764,19 @@ public class SAModel: NSObject {
 		}
 
         for i in 0 ..< Int(count) {
-            if let key = NSString(CString: property_getName(properties[i]), encoding: NSUTF8StringEncoding) as? String {
+            if let key = NSString(cString: property_getName(properties[i]), encoding: String.Encoding.utf8.rawValue) as? String {
 				if key == "description" || key == "keys" || key == "dictionary" {
 					continue
 				}
-				if let value: AnyObject? = valueForKey(key) {
+				if let value: AnyObject? = value(forKey: key) as AnyObject?? {
 					if let v = value as? SAModel {
-						dict[key] = v.dictionary
+						dict[key] = v.dictionary as AnyObject?
 					} else if let a = value as? [SAModel] {
 						var array = [AnyObject]()
 						for v in a {
-							array.append(v.dictionary)
+							array.append(v.dictionary as AnyObject)
 						}
-						dict[key] = array
+						dict[key] = array as AnyObject?
 					} else {
 						dict[key] = value
 					}
@@ -786,8 +786,8 @@ public class SAModel: NSObject {
         return dict
     }
    
-    override public var description: String {
-        var s = NSStringFromClass(self.dynamicType)
+    override open var description: String {
+        var s = NSStringFromClass(type(of: self))
         s = NSString(format: "%@ (%p): [\r", s, self) as String
 		SAModel.prototype.indent += 1
         for (key, value) in dictionary {
@@ -796,47 +796,47 @@ public class SAModel: NSObject {
 			}
 			s = append_indent(s)
 			if let array = value as? Array<AnyObject> {
-				s = s.stringByAppendingFormat("%@: [\r", key)
+				s = s.appendingFormat("%@: [\r", key)
 				SAModel.prototype.indent += 1
 				for obj in array {
 					s = append_indent(s)
-					s = s.stringByAppendingFormat("%@\r", obj.description)
+					s = s.appendingFormat("%@\r", obj.description)
 				}
 				SAModel.prototype.indent -= 1
 				s = append_indent(s)
-				s = s.stringByAppendingString("]\r")
+				s = s + "]\r"
 			}
 			else if value is Int || value is Float {
-				s = s.stringByAppendingFormat("%@: %@\r", key, value.description)
+				s = s.appendingFormat("%@: %@\r", key, value.description)
 			} else {
-				s = s.stringByAppendingFormat("%@: '%@'\r", key, value.description)
+				s = s.appendingFormat("%@: '%@'\r", key, value.description)
 			}
         }
 		SAModel.prototype.indent -= 1
 		s = append_indent(s)
-        s = s.stringByAppendingString("]")
+        s = s + "]"
         return s
     }
 
-	public func append_indent(str: String) -> String {
+	open func append_indent(_ str: String) -> String {
 		var s = str
 		for _ in 0 ..< SAModel.prototype.indent {
 			//s = s.stringByAppendingString("\t")
-			s = s.stringByAppendingString("    ")
+			s = s + "    "
 		}
 		return s
 	}
 }
 
-public class SAAutosaveModel: SAModel {
+open class SAAutosaveModel: SAModel {
 	//	autosave only makes sense when a back-end service is enabled e.g. Parse, see LFProfile
 
-	public var lf_version: String? = NSBundle.mainBundle().infoDictionary?["CFBundleVersion"] as? String
+	open var lf_version: String? = Bundle.main.infoDictionary?["CFBundleVersion"] as? String
 
-	public static let autosave_prefix = "Autosave_"		//	TODO
-	public func autosave_filename() -> String {
-        var filename = NSStringFromClass(self.dynamicType)
-		filename = filename.stringByReplacingOccurrencesOfString(".", withString: "_", options:[], range: nil)
+	open static let autosave_prefix = "Autosave_"		//	TODO
+	open func autosave_filename() -> String {
+        var filename = NSStringFromClass(type(of: self))
+		filename = filename.replacingOccurrences(of: ".", with: "_", options:[], range: nil)
 		filename = SAAutosaveModel.autosave_prefix + filename + ".xml"
 		return filename.filename_doc()
 	}
@@ -848,8 +848,8 @@ public class SAAutosaveModel: SAModel {
 	//		false: profile will be available from next app launch (not implemented)
 	convenience init(publish: Bool, reload_immediately: Bool = true) {
 		//	TODO: how to call autosave_filename() instead? is double-init a must?
-        var filename = NSStringFromClass(self.dynamicType)
-		filename = filename.stringByReplacingOccurrencesOfString(".", withString: "_", options:[], range: nil)
+        var filename = NSStringFromClass(type(of: self))
+		filename = filename.replacingOccurrences(of: ".", with: "_", options:[], range: nil)
 		filename = SAAutosaveModel.autosave_prefix + filename + ".xml"
 		filename = filename.filename_doc()
 
@@ -860,10 +860,10 @@ public class SAAutosaveModel: SAModel {
 			autosave_reload()
 		}
 	}
-	public func autosave_publish() {
+	open func autosave_publish() {
 		SA.log("TODO save", "override me")
 	}
-	public func autosave_reload() {
+	open func autosave_reload() {
 		SA.log("TODO load", "override me")
 	}
 }
@@ -881,46 +881,46 @@ public protocol SATableClient {
 	//func reload_table()
 	//var func_reload: ([SAModel] -> Void)? { get set }
 	//var func_error: (NSError -> Void)? { get set }
-	var func_done: (Void -> Void)? { get set }		//	rename me
+	var func_done: ((Void) -> Void)? { get set }		//	rename me
 	var last_loaded: Int { get set }
 	var pagination_index: Int { get set }
 }
 
-public class SAArrayClient<T: SAModel>: SARESTClient<T>, SATableClient {
-	public var items: Array<T> = Array<T>()
-	public var func_reload: ([T] -> Void)?
+open class SAArrayClient<T: SAModel>: SARESTClient<T>, SATableClient {
+	open var items: Array<T> = Array<T>()
+	open var func_reload: (([T]) -> Void)?
 	//var func_error: (NSError -> Void)?
-	public var func_done: (Void -> Void)?
-	public var is_loaded = false
-	public var is_loading = false
+	open var func_done: ((Void) -> Void)?
+	open var is_loaded = false
+	open var is_loading = false
 
-	public var last_loaded = 0
-	public var pagination_method: SAREST.pagination.Method = .None
-	public var pagination_key: String!
-	public var pagination_index = 0
+	open var last_loaded = 0
+	open var pagination_method: SAREST.pagination.Method = .none
+	open var pagination_key: String!
+	open var pagination_index = 0
 
 	public override init(api url: String, parameters param: SADictStrObj? = nil) {
 		super.init(api:url, parameters:param)
 		show_error = true
 	}
-	public func reload() {
+	open func reload() {
 		pagination_index = 0
-		parameters?.removeValueForKey(pagination_key)
+		parameters?.removeValue(forKey: pagination_key)
 		items.removeAll()
 		load_more()
 	}
-	public func load_more() {
+	open func load_more() {
 		if is_loading {
 			return
 		}
-		if pagination_method == .LastID {
+		if pagination_method == .lastID {
 			if pagination_index != 0 {
 				if let last = items.last {
 					SA.log("last", last.id)
 					if parameters != nil {
-						parameters![pagination_key] = last.id
+						parameters![pagination_key] = last.id as AnyObject?
 					} else {
-						parameters = [pagination_key: last.id]
+						parameters = [pagination_key: last.id as AnyObject]
 					}
 				}
 			}
@@ -963,16 +963,16 @@ public class SAArrayClient<T: SAModel>: SARESTClient<T>, SATableClient {
 	*/
 }
 
-public class SARESTTableController: SATableController {
-	public var client: SATableClient!
-	public var reload_table: SAREST.ui.Reload = .First
-	public var refresh_reload: UIRefreshControl?
-	public var refresh_more: UIRefreshControl?
-	public var pull_down: SAREST.ui.Load = .None
-	public var pull_up: SAREST.ui.Load = .None
-	public var func_done: (Void -> Void)?
+open class SARESTTableController: SATableController {
+	open var client: SATableClient!
+	open var reload_table: SAREST.ui.Reload = .first
+	open var refresh_reload: UIRefreshControl?
+	open var refresh_more: UIRefreshControl?
+	open var pull_down: SAREST.ui.Load = .none
+	open var pull_up: SAREST.ui.Load = .none
+	open var func_done: ((Void) -> Void)?
 
-	public override func awakeFromNib() {
+	open override func awakeFromNib() {
 		super.awakeFromNib()
 		/*
 		let c = ICMyComplaintClient<ICComplaintModel>()
@@ -983,21 +983,21 @@ public class SARESTTableController: SATableController {
 		client = c
 		*/
 	}
-	public override func viewDidLoad() {
+	open override func viewDidLoad() {
 		super.viewDidLoad()
 		reload_refresh()
-		if reload_table != .None {
+		if reload_table != .none {
 			client_reload()
 		}
 	}
-	public override func viewWillAppear(animated: Bool) {
+	open override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
-		if reload_table == .Always {
+		if reload_table == .always {
 			client_reload()
 		}
 	}
 
-	public func reload_refresh() {
+	open func reload_refresh() {
 		//	TODO: refactor
 		if refresh_reload != nil {
 			refresh_reload!.removeFromSuperview()
@@ -1007,22 +1007,22 @@ public class SARESTTableController: SATableController {
 			table.perform("bottomRefreshControl", value:nil)
 			refresh_more = nil
 		}
-		if pull_down == .Reload {
+		if pull_down == .reload {
 			refresh_reload = UIRefreshControl()
 			refresh_reload!.perform("triggerVerticalOffset", value:60)
-			refresh_reload!.addTarget(self, action: #selector(SARESTTableController.client_reload), forControlEvents: .ValueChanged)
+			refresh_reload!.addTarget(self, action: #selector(SARESTTableController.client_reload), for: .valueChanged)
 			table.addSubview(refresh_reload!)
-		} else if pull_down == .More {
+		} else if pull_down == .more {
 			refresh_reload = UIRefreshControl()
 			refresh_reload!.perform("triggerVerticalOffset", value:60)
-			refresh_reload!.addTarget(self, action: #selector(SARESTTableController.client_more), forControlEvents: .ValueChanged)
+			refresh_reload!.addTarget(self, action: #selector(SARESTTableController.client_more), for: .valueChanged)
 			table.addSubview(refresh_reload!)
 		}
 		//	XXX: pod integration
-		if pull_up == .More && table.respondsToSelector(Selector("bottomRefreshControl")) {
+		if pull_up == .more && table.responds(to: Selector("bottomRefreshControl")) {
 			refresh_more = UIRefreshControl()
 			refresh_more!.perform("triggerVerticalOffset", value:60)
-			refresh_more!.addTarget(self, action:#selector(SARESTTableController.client_more), forControlEvents:.ValueChanged)
+			refresh_more!.addTarget(self, action:#selector(SARESTTableController.client_more), for:.valueChanged)
 			table.perform("bottomRefreshControl", value:refresh_more!)
 		}
 		client.func_done = {
@@ -1035,51 +1035,51 @@ public class SARESTTableController: SATableController {
 			}
 		}
 	}
-	public func refresh_end() {
-		if let refresh = refresh_reload where self.pull_down != .None {
+	open func refresh_end() {
+		if let refresh = refresh_reload , self.pull_down != .none {
 			refresh.endRefreshing()
 		}
-		if let refresh = refresh_more where self.pull_up != .None {
+		if let refresh = refresh_more , self.pull_up != .none {
 			refresh.endRefreshing()
 		}
 	}
-	public func client_reload() {
+	open func client_reload() {
 		client.reload()
 	}
-	public func client_more() {
+	open func client_more() {
 		client.load_more()
 	}
-	public func clear() {
+	open func clear() {
 		source.counts = [0]
 		source.table.reloadData()
 	}
-	public func show_no_more_items() {
+	open func show_no_more_items() {
 		//	override me
 	}
 }
 
-public class SALocalizable: SAAutosaveModel {
-	public var lf_language: Item = Item()
+open class SALocalizable: SAAutosaveModel {
+	open var lf_language: Item = Item()
 
-	public class Item: NSObject {
+	open class Item: NSObject {
 		var array = [String]()
-		public var str: String {
+		open var str: String {
 			if let index = SATheme.localization.language_current(nil) {
 				return array[index]
 			}
 			return ""
 		}
-		public var STR: String {
-			return str.uppercaseString
+		open var STR: String {
+			return str.uppercased()
 		}
-		public var Str: String {
+		open var Str: String {
 			let s = str
-			return s[0].uppercaseString + s[1...s.length]
+			return s[0].uppercased() + s[1...s.length]
 		}
-		public var s: String {
+		open var s: String {
 			return str
 		}
-		public var S: String {
+		open var S: String {
 			return STR
 		}
 	}
@@ -1089,17 +1089,17 @@ public class SALocalizable: SAAutosaveModel {
 			lf_language += language.rawValue
 		}
 	}
-    public override var dictionary: Dictionary<String, AnyObject> {
+    open override var dictionary: Dictionary<String, AnyObject> {
 		var dict = [String: AnyObject]()
 		for key in keys {
-			if let item = valueForKey(key) as? Item {
-				dict[key] = item.array
+			if let item = value(forKey: key) as? Item {
+				dict[key] = item.array as AnyObject?
 			}
 		}
 		return dict
 	}
 }
 
-public func += (inout left: SALocalizable.Item, right: String) {
+public func += (left: inout SALocalizable.Item, right: String) {
 	left.array.append(right)
 }
