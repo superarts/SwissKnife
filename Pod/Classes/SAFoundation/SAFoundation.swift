@@ -21,12 +21,14 @@ public struct SAKit {
 #endif
 		return message
 	}
-	public static func log(_ message: String, _ obj: AnyObject?) -> String {
+	public static func log(_ message: String, _ obj: Any?) -> String {
 		var log = message + ": nil"
 		if let s = obj as? String {
 			log = message + ": '" + s + "'"
-		} else if let desc = obj?.description {
-			log = message + ": '" + desc + "'"
+		} else if let o = obj as? AnyObject {
+			log = message + ": '" + o.description + "'"
+		} else {
+			var log = message + ": Any"
 		}
 #if RELEASE
 #else
@@ -43,11 +45,11 @@ public struct SAKit {
 	public static func dispatch(_ block: @escaping ()->()) {
 		DispatchQueue.global(priority: DispatchQueue.GlobalQueuePriority.default).async(execute: block)
 	}
-	public static func dispatch_delay(_ delay: Double, _ block: ()->()) {
+	public static func dispatch_delay(_ delay: Double, _ block: @escaping ()->()) {
 		let time = DispatchTime.now() + Double(Int64(delay * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
 		DispatchQueue.main.asyncAfter(deadline: time, execute: block)
 	}
-	public static func dispatch_main(_ block: ()->()) {
+	public static func dispatch_main(_ block: @escaping ()->()) {
 		DispatchQueue.main.async(execute: block)
 	}
 	public static func smaller<T: Comparable>(_ a: T, _ b: T) -> T {
@@ -81,7 +83,7 @@ public struct SAKit {
 
 public extension NSObject {
 	public func associated(_ p: UnsafeRawPointer) -> AnyObject {
-		return objc_getAssociatedObject(self, p)
+		return objc_getAssociatedObject(self, p) as AnyObject
 	}
 	public func associate(_ p: UnsafeRawPointer, object: AnyObject) {
 		objc_setAssociatedObject(self, p, object, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN_NONATOMIC)
@@ -161,15 +163,22 @@ public extension String {
 		}
 	}
 */
+	public subscript (r: CountableClosedRange<Int>) -> String {
+		get {
+			let startIndex =  self.index(self.startIndex, offsetBy: r.lowerBound)
+			let endIndex = self.index(startIndex, offsetBy: r.upperBound - r.lowerBound)
+			return self[startIndex...endIndex]
+		}
+	}
+	/*
 	public subscript (r: Range<Int>) -> String {
 		get {
-			let startIndex = self.characters.index(self.startIndex, offsetBy: r.startIndex)
-			let endIndex = self.characters.index(self.startIndex, offsetBy: r.endIndex)
+			let startIndex = self.characters.index(self.startIndex, offsetBy: r.lowerBound)
+			let endIndex = self.characters.index(self.startIndex, offsetBy: r.upperBound)
 			
 			return self[(startIndex ..< endIndex)]
 		}
 	}
-	/*
 	subscript(integerRange: Range<Int>) -> String {
 		let start = startIndex.advancedBy(integerRange.startIndex)
 		let end = startIndex.advancedBy(integerRange.endIndex)
@@ -196,7 +205,7 @@ public extension String {
 		return self[head...(tail - 1)]
 	}
 	public func sub_before(_ sub: String) -> String {
-		if let range = self.range(of: sub), let index: Int = self.characters.distance(from: self.startIndex, to: range.startIndex) {
+		if let range = self.range(of: sub), let index: Int = self.characters.distance(from: self.startIndex, to: range.lowerBound) {
 			return sub_range(0, index)
 		}
 		return ""
@@ -232,14 +241,14 @@ public extension String {
 		return s
 	}
 	public func escape() -> String {
-		if let ret = self.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed()) {
+		if let ret = self.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) {
 			return ret
 		} else {
 			return self
 		}
 	}
 	public func to_filename() -> String {
-		if let ret = self.addingPercentEncoding(withAllowedCharacters: .lowercaseLetters()) {
+		if let ret = self.addingPercentEncoding(withAllowedCharacters: .lowercaseLetters) {
 			return ret
 		} else {
 			return self
@@ -290,7 +299,7 @@ public extension UserDefaults {
 			UserDefaults.standard.set(obj, forKey: key)
 			UserDefaults.standard.synchronize()
 		} else {
-			return UserDefaults.standard.object(forKey: key)
+			return UserDefaults.standard.object(forKey: key) as AnyObject?
 		}
 		return v
 	}
@@ -414,17 +423,15 @@ public extension NSString {
 	public func to_filename(_ namespace: String? = nil, directory: FileManager.SearchPathDirectory) -> String {
 		var filename = self
 		if namespace != nil {
-			filename = namespace! + "-" + (self as String)
+			filename = namespace! + "-" + (self as String) as NSString
 		}
 
 		//let paths = NSSearchPathForDirectoriesInDomains(directory, .AllDomainsMask, true)
 		if let dir = NSSearchPathForDirectoriesInDomains(directory, .userDomainMask, true).first {
 			let url = URL(fileURLWithPath: dir).appendingPathComponent(filename as String)
-			if let path = url.path {
-				return path
-			}
+			return url.path
 		}
-		SA.log("WARNING: failed to get filename", namespace)
+		SA.log("WARNING: failed to get filename", namespace as AnyObject?)
 		return ""
 		//return url.absoluteString
 	}
@@ -475,15 +482,15 @@ public extension UIImageView {
 }
 
 public extension Data {
-	public func to_string(_ encoding:UInt = String.Encoding.utf8) -> String? {
-		return NSString(data:self, encoding:encoding) as? String
+	public func to_string(_ encoding:String.Encoding = String.Encoding.utf8) -> String? {
+		return NSString(data:self as Data, encoding:encoding.rawValue) as? String
 	}
 }
 
 public extension NSMutableData {
 	public func append_string(_ string: String) {
 		//let data = string.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)
-		if let data = (string as NSString).data(using: String.Encoding.utf8) {
+		if let data = (string as NSString).data(using: String.Encoding.utf8.rawValue) {
 			append(data)
 		}
 	}
@@ -500,13 +507,13 @@ public extension UIImage {
 		UIGraphicsBeginImageContext(rect.size)
 		let context = UIGraphicsGetCurrentContext()
 
-		context.setFillColor(color.CGColor)
-		context.fill(rect)
+		context?.setFillColor(color.cgColor)
+		context?.fill(rect)
 
 		let image = UIGraphicsGetImageFromCurrentImageContext()
 		UIGraphicsEndImageContext()
 
-		return image
+		return image!
 	}
 }
 
@@ -762,7 +769,7 @@ public extension UISearchBar {
 			]
 		}
 		text.draw(in: CGRect(x: 0, y: 0, width: 15, height: 15), withAttributes: attr)
-		let image: UIImage = UIGraphicsGetImageFromCurrentImageContext()
+		let image: UIImage = UIGraphicsGetImageFromCurrentImageContext()!
 		UIGraphicsEndImageContext()
 
 		self.setImage(image, for:icon, state:state)
@@ -821,9 +828,9 @@ open class SAViewController: UIViewController {
 	}
 
 	open func sa_keyboard_will_show(_ notification: Notification) {
-		if let info: NSDictionary = (notification as NSNotification).userInfo {
+		if let info: NSDictionary = (notification as? NSNotification)?.userInfo as NSDictionary? {
 			let value: NSValue = info.value(forKey: UIKeyboardFrameEndUserInfoKey) as! NSValue
-			let rect: CGRect = value.CGRectValue
+			let rect: CGRect = value.cgRectValue
 			sa_keyboard_height_changed(rect.height)
 		}
 	}
@@ -974,7 +981,7 @@ open class SAHorizontalScrollController: UIViewController, UIScrollViewDelegate 
 				d /= labels[index1].w
 				d = d - 1
 			}
-			func_scroll!(index1: index1, index2: index2, offset: d)
+			func_scroll!(index1, index2, d)
 		}
 	}
 	open func scrollViewDidEndDragging(_ scroll: UIScrollView, willDecelerate decelerate: Bool) {
@@ -1090,6 +1097,7 @@ open class SATableDataSource: NSObject, UITableViewDelegate, UITableViewDataSour
 		table = a_table
 	}
 
+/*
 	open func index_alphabet(_ array: Array<String>) -> Array<Array<String>> {
 		var ret: Array<Array<String>> = []
 		let sorted: Array<String> = array.sorted { $0.localizedCaseInsensitiveCompare($1) == ComparisonResult.orderedAscending }
@@ -1111,6 +1119,7 @@ open class SATableDataSource: NSObject, UITableViewDelegate, UITableViewDataSour
 		}
 		return ret
 	}
+*/
 
 	open func numberOfSections(in tableView: UITableView) -> Int {
 		return counts.count
@@ -1149,7 +1158,7 @@ open class SATableDataSource: NSObject, UITableViewDelegate, UITableViewDataSour
 	//	cell and select
 	open func tableView(_ tableView: UITableView, cellForRowAt path: IndexPath) -> UITableViewCell {
 		if func_cell == nil {
-			SA.log("WARNING no func_cell in SATableDataSource", path)
+			SA.log("WARNING no func_cell in SATableDataSource", path as AnyObject?)
 		}
 		return func_cell(path)
 	}
@@ -1196,7 +1205,7 @@ public struct LFDebug {
 		if let s = try? String(contentsOfFile:filename.filename_doc(namespace), encoding: String.Encoding.utf8) {
 			return s
 		}
-		SA.log("LDebug file not found", filename.filename_doc(namespace))
+		SA.log("LDebug file not found", filename.filename_doc(namespace) as AnyObject?)
 		return ""
 	}
 	public static func log(_ msg: String, _ namespace: String? = nil) {
@@ -1222,7 +1231,7 @@ public struct LFDebug {
 	}
 	public static func log_show(_ namespace: String? = nil) {
 		let s = string(namespace)
-		SA.log("LDebug", s)
+		SA.log("LDebug", s as AnyObject?)
 	}
 }
 

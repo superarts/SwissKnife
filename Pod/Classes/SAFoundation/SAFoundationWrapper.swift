@@ -73,8 +73,8 @@ extension UIImageView {
 		image_load(url, clear: clear)
 	}
 }
-extension NSData {
-	public func toString(encoding:UInt = NSUTF8StringEncoding) -> String? {
+extension Data {
+	public func toString(encoding: String.Encoding = .utf8) -> String? {
 		return to_string(encoding)
 	}
 }
@@ -172,10 +172,10 @@ extension UIDevice {
 }
 extension SAViewController {
 	public func saKeyboardWillShow(notification: NSNotification) {
-		sa_keyboard_will_show(notification)
+		sa_keyboard_will_show(notification as Notification)
 	}
 	public func saKeyboardWillHide(notification: NSNotification) {
-		sa_keyboard_will_hide(notification)
+		sa_keyboard_will_hide(notification as Notification)
 	}
 	public func saKeyboardHeightChanged(height: CGFloat) {
 		sa_keyboard_height_changed(height)
@@ -211,7 +211,7 @@ extension SATableDataSource {
 			header_height = v
 		}
 	}
-	public var funcCell: ((NSIndexPath) -> UITableViewCell)!  {
+	public var funcCell: ((IndexPath) -> UITableViewCell)!  {
 		get {
 			return func_cell
 		}
@@ -227,7 +227,7 @@ extension SATableDataSource {
 			func_header = v
 		}
 	}
-	public var funcHeight: ((NSIndexPath) -> CGFloat)?  {
+	public var funcHeight: ((IndexPath) -> CGFloat)?  {
 		get {
 			return func_height
 		}
@@ -235,7 +235,7 @@ extension SATableDataSource {
 			func_height = v
 		}
 	}
-	public var funcSelect: ((NSIndexPath) -> Void)?  {
+	public var funcSelect: ((IndexPath) -> Void)?  {
 		get {
 			return func_select
 		}
@@ -243,7 +243,7 @@ extension SATableDataSource {
 			func_select = v
 		}
 	}
-	public var funcDeselect: ((NSIndexPath) -> Void)?  {
+	public var funcDeselect: ((IndexPath) -> Void)?  {
 		get {
 			return func_deselect
 		}
@@ -251,7 +251,7 @@ extension SATableDataSource {
 			func_deselect = v
 		}
 	}
-	public var funcSelectSource: ((NSIndexPath, SATableDataSource) -> Void)?  {
+	public var funcSelectSource: ((IndexPath, SATableDataSource) -> Void)?  {
 		get {
 			return func_select_source
 		}
@@ -259,7 +259,7 @@ extension SATableDataSource {
 			func_select_source = v
 		}
 	}
-	public var funcDeselectSource: ((NSIndexPath, SATableDataSource) -> Void)?  {
+	public var funcDeselectSource: ((IndexPath, SATableDataSource) -> Void)?  {
 		get {
 			return func_deselect_source
 		}
@@ -267,9 +267,11 @@ extension SATableDataSource {
 			func_deselect_source = v
 		}
 	}
+	/*
 	public func indexAlphabet(array: Array<String>) -> Array<Array<String>> {
 		return index_alphabet(array)
 	}
+*/
 }
 extension LFDebug {
 }
@@ -313,14 +315,14 @@ extension UITextView {
 		sa_reload_align_middle_vertical()
 	}
 	public func saTextEditBegan(notification: NSNotification) {
-		sa_text_edit_began(notification)
+		sa_text_edit_began(notification as Notification)
 	}
 	public func saTextEditEnded(notification: NSNotification) {
-		sa_text_edit_ended(notification)
+		sa_text_edit_ended(notification as Notification)
 	}
 }
 // Pod/Classes/SAFoundation//SATime.swift {
-extension NSDate {
+extension Date {
 	public func toString(format:String) -> String? {
 		return to_string(format)
 	}
@@ -329,7 +331,7 @@ extension NSDate {
 	}
 }
 extension String {
-	public func toDate(format:String = "dd/MM/yyyy") -> NSDate? {
+	public func toDate(format:String = "dd/MM/yyyy") -> Date? {
 		return to_date(format)
 	}
 }

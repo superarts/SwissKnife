@@ -114,9 +114,11 @@ public func == (left:Date, right: Date) -> Bool {
     return isEqual
 }
 
+/*
 var test4 = test2 < test3
 var test5 = test3 > test1
 var test6 = Date() == test1
+*/
 
 public extension Date {
     public static func yesterday() -> Date {
@@ -126,7 +128,7 @@ public extension Date {
     public func to_string(_ format:String) -> String? {
         let formatter:DateFormatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.timeZone = TimeZone()
+        formatter.timeZone = NSTimeZone.local
         formatter.dateFormat = format
        
         return formatter.string(from: self)
@@ -144,7 +146,7 @@ public extension String {
     public func to_date(_ format:String = "dd/MM/yyyy") -> Date? {
         let formatter:DateFormatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.timeZone = TimeZone()
+        formatter.timeZone = NSTimeZone.local
         formatter.dateFormat = format
         
         return formatter.date(from: self)

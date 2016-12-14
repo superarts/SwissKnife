@@ -217,7 +217,7 @@ open class SARESTClient<T: SAModel>: NSObject, URLSessionDataDelegate, URLSessio
 			}
 		}
 		if let request = init_request(api_reloaded) {
-
+			print(request)
 			if text != nil && !cache_loaded {
 				text_show()
 			}
@@ -277,15 +277,16 @@ open class SARESTClient<T: SAModel>: NSObject, URLSessionDataDelegate, URLSessio
 				let config = URLSessionConfiguration.default
 				let session = Foundation.URLSession(configuration:config, delegate:self, delegateQueue:OperationQueue.main)
 				//task = session.dataTaskWithRequest(request, completionHandler:nil)
-				task = session.dataTask(with: request, completionHandler: {
+				task = session.dataTask(with: request as URLRequest) {
 					(data, response, error) -> Void in
-					//SA.log("SESSION response", response)
-					if let error = error , error.code == -999 {
+					SA.log("SESSION response", response)
+					SA.log("SESSION error", data?.toString())
+					if let error = error as? NSError, error.code == -999 {
 						//SA.log("SESSION cancelled")
-					} else {
+					} else if let error = error as? NSError {
 						func_done(response, data, error)
 					}
-				}) 
+				}
 				task!.resume()
 			} else if connection_class == .nsurlConnection {
 				let delegate = SARestConnectionDelegate()
@@ -475,7 +476,7 @@ open class SARESTClient<T: SAModel>: NSObject, URLSessionDataDelegate, URLSessio
 		if let param = parameters {
 			form_append_dict(body, param:param)
 		}
-		SA.log("body", body.to_string())
+		//SA.log("body", body.toString() as? AnyObject)
 
 		if let array = array_data {
 			var index = 0
@@ -494,7 +495,7 @@ open class SARESTClient<T: SAModel>: NSObject, URLSessionDataDelegate, URLSessio
 		}
 
 		body.append_string("--\(boundary)--\r\n")
-		SA.log("body", body.to_string())
+		//SA.log("body", body.toString() as? AnyObject)
 		return body as Data
 	}
 }
@@ -686,13 +687,13 @@ open class SAModel: NSObject {
 	open var keys: [String] {
         var array = [String]()
         var count: CUnsignedInt = 0
-		let properties: UnsafeMutablePointer<objc_property_t> = class_copyPropertyList(object_getClass(self), &count)
+		let properties: UnsafeMutablePointer<objc_property_t?> = class_copyPropertyList(object_getClass(self), &count)
   
 		var c: AnyClass! = object_getClass(self)
 		loop: while c != nil {
 			//SA.log("---- class", NSStringFromClass(c))
 			var ct: CUnsignedInt = 0
-			let prop: UnsafeMutablePointer<objc_property_t> = class_copyPropertyList(c, &ct)
+			let prop: UnsafeMutablePointer<objc_property_t?> = class_copyPropertyList(c, &ct)
 			for i in 0 ..< Int(ct) {
                 if let key = NSString(cString: property_getName(prop[i]), encoding: String.Encoding.utf8.rawValue) {
     				if key == "dictionary" {
@@ -733,13 +734,13 @@ open class SAModel: NSObject {
     open var dictionary: Dictionary<String, AnyObject> {
         var dict: Dictionary<String, AnyObject> = [:]
         var count: CUnsignedInt = 0
-		let properties: UnsafeMutablePointer<objc_property_t> = class_copyPropertyList(object_getClass(self), &count)
+		let properties: UnsafeMutablePointer<objc_property_t?> = class_copyPropertyList(object_getClass(self), &count)
    
 		var c: AnyClass! = object_getClass(self)
 		loop: while c != nil {
 			//	SA.log("---- class", NSStringFromClass(c))
 			var ct: CUnsignedInt = 0
-			let prop: UnsafeMutablePointer<objc_property_t> = class_copyPropertyList(c, &ct)
+			let prop: UnsafeMutablePointer<objc_property_t?> = class_copyPropertyList(c, &ct)
 			for i in 0 ..< Int(ct) {
                 if let key = NSString(cString: property_getName(prop[i]), encoding: String.Encoding.utf8.rawValue) {
 					if key == "dictionary" || key == "keys" || key == "description" {
@@ -861,10 +862,10 @@ open class SAAutosaveModel: SAModel {
 		}
 	}
 	open func autosave_publish() {
-		SA.log("TODO save", "override me")
+		SA.log("TODO save", "override me" as AnyObject?)
 	}
 	open func autosave_reload() {
-		SA.log("TODO load", "override me")
+		SA.log("TODO load", "override me" as AnyObject?)
 	}
 }
 
@@ -916,7 +917,7 @@ open class SAArrayClient<T: SAModel>: SARESTClient<T>, SATableClient {
 		if pagination_method == .lastID {
 			if pagination_index != 0 {
 				if let last = items.last {
-					SA.log("last", last.id)
+					SA.log("last", last.id as AnyObject?)
 					if parameters != nil {
 						parameters![pagination_key] = last.id as AnyObject?
 					} else {
@@ -1009,19 +1010,19 @@ open class SARESTTableController: SATableController {
 		}
 		if pull_down == .reload {
 			refresh_reload = UIRefreshControl()
-			refresh_reload!.perform("triggerVerticalOffset", value:60)
+			refresh_reload!.perform("triggerVerticalOffset", value:60 as AnyObject?)
 			refresh_reload!.addTarget(self, action: #selector(SARESTTableController.client_reload), for: .valueChanged)
 			table.addSubview(refresh_reload!)
 		} else if pull_down == .more {
 			refresh_reload = UIRefreshControl()
-			refresh_reload!.perform("triggerVerticalOffset", value:60)
+			refresh_reload!.perform("triggerVerticalOffset", value:60 as AnyObject?)
 			refresh_reload!.addTarget(self, action: #selector(SARESTTableController.client_more), for: .valueChanged)
 			table.addSubview(refresh_reload!)
 		}
 		//	XXX: pod integration
 		if pull_up == .more && table.responds(to: Selector("bottomRefreshControl")) {
 			refresh_more = UIRefreshControl()
-			refresh_more!.perform("triggerVerticalOffset", value:60)
+			refresh_more!.perform("triggerVerticalOffset", value:60 as AnyObject?)
 			refresh_more!.addTarget(self, action:#selector(SARESTTableController.client_more), for:.valueChanged)
 			table.perform("bottomRefreshControl", value:refresh_more!)
 		}
@@ -1072,10 +1073,12 @@ open class SALocalizable: SAAutosaveModel {
 		open var STR: String {
 			return str.uppercased()
 		}
+		/*
 		open var Str: String {
 			let s = str
 			return s[0].uppercased() + s[1...s.length]
 		}
+		*/
 		open var s: String {
 			return str
 		}

@@ -103,7 +103,8 @@ public struct SATheme {
 		}
 		public static func Str(_ key:String, index: Int? = nil) -> String {
 			let s = str(key, index:index)
-			return s[0].uppercased() + s[1...s.length]
+			return s
+			//return s[0].uppercased() + s[1...s.length]
 		}
 		public static func str(_ key:String, index: Int? = nil) -> String {
 			/*
@@ -499,7 +500,7 @@ public extension UITextView {
             return associated(&SA.keys.text_placeholder) as! String     //  TODO: make sure it's nil.. for now
 		}
 		set (s) {
-			associate(&SA.keys.text_placeholder, object:s)
+			associate(&SA.keys.text_placeholder, object:s as AnyObject)
 			//associate(&SA.keys.text_color, object:textColor!)
 			self.text = s
 			//NSNotificationCenter.defaultCenter().addObserver(self, selector: Selector("sa_text_changed:"), name:UITextViewTextDidChangeNotification, object: nil);
