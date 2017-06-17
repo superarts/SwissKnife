@@ -51,7 +51,7 @@ extension UIView {
 		add_shadow(size)
 	}
 }
-extension NSString {
+extension String {
 	public func filenameDoc(namespace: String? = nil) -> String {
 		return filename_doc(namespace)
 	}

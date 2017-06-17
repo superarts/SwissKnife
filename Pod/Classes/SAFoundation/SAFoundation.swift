@@ -1,4 +1,5 @@
 import UIKit
+import MessageUI
 
 public struct SAKit {
 	public static let domain = "LFramework"
@@ -14,36 +15,72 @@ public struct SAKit {
 		}
 	}
 
-	public static func log(_ message: String) -> String {
+	@discardableResult public static func log(_ message: String) -> String {
 #if RELEASE
 #else
 		print(message, terminator: "\n")
 #endif
 		return message
 	}
-	public static func log(_ message: String, _ obj: Any?) -> String {
-		var log = message + ": nil"
-		if let s = obj as? String {
-			log = message + ": '" + s + "'"
-		} else if let o = obj as? AnyObject {
-			log = message + ": '" + o.description + "'"
-		} else {
-			var log = message + ": Any"
+	@discardableResult public static func log(_ message: String, _ objs: Any?..., separator: String = ", ") -> String {
+		var log = ""
+		var index = 0
+		for obj in objs {
+			if obj == nil {
+				log += "nil"
+			} else if let s = obj as? String {
+				log += "\"" + s + "\""
+			} else if let s = (obj as AnyObject).description {
+				log += s
+			} else {
+				log += "Any"
+			}
+			if index < objs.count - 1 {
+				log += separator
+			}
+			index += 1
 		}
+		log = message + ": " + log
 #if RELEASE
 #else
 		print(log, terminator: "\n")
 #endif
 		return log
 	}
-	public static func alert(_ message: String, _ obj: AnyObject?) -> String {
-		//	TODO: use UIAlertController instead
-		let alert = UIAlertView(title: message, message: obj?.description, delegate: nil, cancelButtonTitle: "OK")
-		alert.show()
-		return message
+
+    @discardableResult public static func alert(_ title: String, _ obj: Any?, style: UIAlertControllerStyle = .alert, parent: UIViewController? = nil) -> String {
+		var root = parent
+		if root == nil, let r = UIApplication.shared.delegate?.window??.rootViewController {
+			root = r
+		}
+        if let root = root {
+			var message = ""
+			//	TODO: func anyToString
+			if obj == nil {
+				message = "nil"
+			} else if let s = obj as? String {
+				message = s
+			} else if let s = (obj as AnyObject).description {
+				message = s
+			} else {
+				message = "Any"
+			}
+            let controller = UIAlertController(title: title, message: message, preferredStyle: .alert)
+			let action = UIAlertAction(title: "OK", style: .default) { action in
+			}
+			controller.addAction(action)
+            root.present(controller, animated: true, completion: nil)
+			return message
+        } else {
+            SA.log("WARNING: UIAlertController cannot find rootViewController to present", title)
+        }
+		//let alert = UIAlertView(title: message, message: obj?.description, delegate: nil, cancelButtonTitle: "OK")
+		//alert.show()
+		return title
 	}
 	public static func dispatch(_ block: @escaping ()->()) {
-		DispatchQueue.global(priority: DispatchQueue.GlobalQueuePriority.default).async(execute: block)
+		//DispatchQueue.global(priority: DispatchQueue.GlobalQueuePriority.default).async(execute: block)
+        DispatchQueue.main.async(execute: block)
 	}
 	public static func dispatch_delay(_ delay: Double, _ block: @escaping ()->()) {
 		let time = DispatchTime.now() + Double(Int64(delay * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
@@ -82,8 +119,8 @@ public struct SAKit {
  */
 
 public extension NSObject {
-	public func associated(_ p: UnsafeRawPointer) -> AnyObject {
-		return objc_getAssociatedObject(self, p) as AnyObject
+	public func associated(_ p: UnsafeRawPointer) -> AnyObject? {
+		return objc_getAssociatedObject(self, p) as AnyObject?
 	}
 	public func associate(_ p: UnsafeRawPointer, object: AnyObject) {
 		objc_setAssociatedObject(self, p, object, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN_NONATOMIC)
@@ -116,7 +153,7 @@ public extension Array {
 			if let to = objectToCompare as? U {
 				if object == to {
 					self.remove(at: idx)
-						return true
+					return true
 				}
 			}
 		}
@@ -205,8 +242,16 @@ public extension String {
 		return self[head...(tail - 1)]
 	}
 	public func sub_before(_ sub: String) -> String {
-		if let range = self.range(of: sub), let index: Int = self.characters.distance(from: self.startIndex, to: range.lowerBound) {
+        if let range = self.range(of: sub) {
+            let index: Int = self.characters.distance(from: self.startIndex, to: range.lowerBound)
 			return sub_range(0, index)
+		}
+		return ""
+	}
+	public func sub_after(_ sub: String) -> String {
+        if let range = self.range(of: sub) {
+            let index: Int = self.characters.distance(from: self.startIndex, to: range.lowerBound)
+			return sub_range(index + 1, self.length)
 		}
 		return ""
 	}
@@ -255,6 +300,14 @@ public extension String {
 		}
 	}
 }
+extension String {
+    public func boundingSize(width: CGFloat, font: UIFont) -> CGSize {
+        let constraintRect = CGSize(width: width, height: .greatestFiniteMagnitude)
+        let boundingBox = self.boundingRect(with: constraintRect, options: .usesLineFragmentOrigin, attributes: [NSFontAttributeName: font], context: nil)
+		//boundingBox.height += 1
+        return boundingBox.size
+    }
+}
 
 public extension Int {
 	public var ordinal: String {
@@ -294,7 +347,7 @@ public extension UserDefaults {
 			UserDefaults.standard.removePersistentDomain(forName: domain)
 		}
 	}
-	public class func object(_ key: String, _ v: AnyObject? = nil) -> AnyObject? {
+	@discardableResult public class func object(_ key: String, _ v: AnyObject? = nil) -> AnyObject? {
 		if let obj: AnyObject = v {
 			UserDefaults.standard.set(obj, forKey: key)
 			UserDefaults.standard.synchronize()
@@ -303,7 +356,7 @@ public extension UserDefaults {
 		}
 		return v
 	}
-	public class func bool(_ key: String, _ v: Bool? = nil) -> Bool? {
+	@discardableResult public class func bool(_ key: String, _ v: Bool? = nil) -> Bool? {
 		if let obj: Bool = v {
 			UserDefaults.standard.set(obj, forKey: key)
 			UserDefaults.standard.synchronize()
@@ -312,7 +365,7 @@ public extension UserDefaults {
 		}
 		return v
 	}
-	public class func integer(_ key: String, _ v: Int? = nil) -> Int? {
+	@discardableResult public class func integer(_ key: String, _ v: Int? = nil) -> Int? {
 		if let obj: Int = v {
 			UserDefaults.standard.set(obj, forKey: key)
 			UserDefaults.standard.synchronize()
@@ -321,7 +374,7 @@ public extension UserDefaults {
 		}
 		return v
 	}
-	public class func string(_ key: String, _ v: String? = nil) -> String? {
+	@discardableResult public class func string(_ key: String, _ v: String? = nil) -> String? {
 		if let obj: String = v {
 			UserDefaults.standard.set(obj, forKey: key)
 			UserDefaults.standard.synchronize()
@@ -410,10 +463,40 @@ public extension UIColor {
 			alpha: CGFloat(alpha)
 		)
 	}
+	//func rgb() -> (red:Int, green:Int, blue:Int, alpha:Int)?
+	func rgb() -> (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat)? {
+        var fRed : CGFloat = 0
+        var fGreen : CGFloat = 0
+        var fBlue : CGFloat = 0
+        var fAlpha: CGFloat = 0
+        if self.getRed(&fRed, green: &fGreen, blue: &fBlue, alpha: &fAlpha) {
+            return (red:fRed, green:fGreen, blue:fBlue, alpha:fAlpha)
+			/*
+            let iRed = Int(fRed * 255.0)
+            let iGreen = Int(fGreen * 255.0)
+            let iBlue = Int(fBlue * 255.0)
+            let iAlpha = Int(fAlpha * 255.0)
+            return (red:iRed, green:iGreen, blue:iBlue, alpha:iAlpha)
+			*/
+        } else {
+            // Could not extract RGBA components:
+            return nil
+        }
+    }
+	static func interpolate(from color1: UIColor, to color2: UIColor, progress fraction: CGFloat) -> UIColor {
+		if let v1 = color1.rgb(), let v2 = color2.rgb() {
+			let r = (1 - fraction) * v1.red		+ fraction * v2.red
+			let g = (1 - fraction) * v1.green	+ fraction * v2.green
+			let b = (1 - fraction) * v1.blue	+ fraction * v2.blue
+			let a = (1 - fraction) * v1.alpha	+ fraction * v2.alpha
+			return UIColor(red: r, green: g, blue: b, alpha: a)
+		}
+		return color1
+	}
 }
 
 //  TODO: make a script to create wrapper classes as above
-public extension NSString {
+public extension String {
 	public func filename_doc(_ namespace: String? = nil) -> String {
 		return self.to_filename(namespace, directory:.documentDirectory)
 	}
@@ -423,7 +506,7 @@ public extension NSString {
 	public func to_filename(_ namespace: String? = nil, directory: FileManager.SearchPathDirectory) -> String {
 		var filename = self
 		if namespace != nil {
-			filename = namespace! + "-" + (self as String) as NSString
+			filename = namespace! + "-" + (self as String)
 		}
 
 		//let paths = NSSearchPathForDirectoriesInDomains(directory, .AllDomainsMask, true)
@@ -483,7 +566,7 @@ public extension UIImageView {
 
 public extension Data {
 	public func to_string(_ encoding:String.Encoding = String.Encoding.utf8) -> String? {
-		return NSString(data:self as Data, encoding:encoding.rawValue) as? String
+		return NSString(data:self as Data, encoding:encoding.rawValue) as String?
 	}
 }
 
@@ -615,7 +698,7 @@ public extension UIScrollView {
 			page.hidesForSinglePage = false
 			page.addTarget(self, action:#selector(UIScrollView.page_changed(_:)), for:.valueChanged)
 		} else {
-			SA.log("WARNING: pageControl not found")
+			//SA.log("WARNING: pageControl not found")
 		}
 	}
 	public func page_changed(_ page: UIPageControl) {
@@ -828,7 +911,7 @@ open class SAViewController: UIViewController {
 	}
 
 	open func sa_keyboard_will_show(_ notification: Notification) {
-		if let info: NSDictionary = (notification as? NSNotification)?.userInfo as NSDictionary? {
+		if let info: NSDictionary = (notification as NSNotification).userInfo as NSDictionary? {
 			let value: NSValue = info.value(forKey: UIKeyboardFrameEndUserInfoKey) as! NSValue
 			let rect: CGRect = value.cgRectValue
 			sa_keyboard_height_changed(rect.height)
@@ -839,6 +922,18 @@ open class SAViewController: UIViewController {
 	}
 	open func sa_keyboard_height_changed(_ height: CGFloat) {
 	}
+	
+	/*
+	override var shouldAutorotate: Bool {
+		return false
+	}
+	override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
+		return .portrait
+	}
+	override var preferredInterfaceOrientationForPresentation: UIInterfaceOrientation {
+		return .portrait
+	}
+	*/
 }
 
 
@@ -1077,7 +1172,17 @@ open class SATableController: SAMultipleTableController {
 
 open class SATableDataSource: NSObject, UITableViewDelegate, UITableViewDataSource {
 
-	open var table: UITableView!
+	private var _table: UITableView!
+	open var table: UITableView! {
+		get {
+			return _table
+		}
+		set(t) {
+			_table = t
+			t.dataSource = self
+			t.delegate = self
+		}
+	}
 	open var counts: Array<Int> = []
 	open var headers: Array<String> = []
 	open var header_height: CGFloat = 20
@@ -1090,11 +1195,17 @@ open class SATableDataSource: NSObject, UITableViewDelegate, UITableViewDataSour
 	open var func_select_source: ((IndexPath, SATableDataSource) -> Void)? = nil		//	these 2 will not be called if aboves are not nil
 	open var func_deselect_source: ((IndexPath, SATableDataSource) -> Void)? = nil
 
+	override public init() {
+		super.init()
+	}
 	public init(table a_table: UITableView) {
 		super.init()
+		table = a_table
+		/*
 		a_table.dataSource = self
 		a_table.delegate = self
 		table = a_table
+		*/
 	}
 
 /*
@@ -1141,6 +1252,11 @@ open class SATableDataSource: NSObject, UITableViewDelegate, UITableViewDataSour
 			return nil
 		}
 	}
+	/*
+	open func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+	}
+	*/
+
 	/*
 	public func sectionIndexTitlesForTableView(tableView: UITableView) -> [AnyObject]! {
 		var array: Array = []
@@ -1240,4 +1356,26 @@ public struct LFDebug {
 open class SACellTitleDetail: UITableViewCell {
 	@IBOutlet open var label_title: UILabel!
 	@IBOutlet open var label_detail: UILabel!
+}
+
+open class SAMailComposer: NSObject, MFMailComposeViewControllerDelegate {
+	open func present(parent controller: UIViewController, to recipients: [String]? = nil, subject: String = "", body: String = "", isHtml: Bool = false) {
+		if MFMailComposeViewController.canSendMail() {
+			let mail = MFMailComposeViewController()
+			mail.mailComposeDelegate = self
+			if let recipients = recipients {
+				mail.setToRecipients(recipients)
+			}
+			mail.setSubject(subject)
+			mail.setMessageBody(body, isHTML: isHtml)
+			controller.present(mail, animated: true)
+		} else {
+			//SA.alert("Email Not Available", "Please check your email account")
+			SA.alert("电子邮件不可用", "请检查您的电子邮件设置")
+		}
+	}
+
+	open func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
+		controller.dismiss(animated: true)
+	}
 }

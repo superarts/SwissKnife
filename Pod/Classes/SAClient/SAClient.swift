@@ -281,9 +281,9 @@ open class SARESTClient<T: SAModel>: NSObject, URLSessionDataDelegate, URLSessio
 					(data, response, error) -> Void in
 					SA.log("SESSION response", response)
 					SA.log("SESSION error", data?.toString())
-					if let error = error as? NSError, error.code == -999 {
+					if let error = error as NSError?, error.code == -999 {
 						//SA.log("SESSION cancelled")
-					} else if let error = error as? NSError {
+					} else if let error = error as NSError? {
 						func_done(response, data, error)
 					}
 				}
@@ -721,7 +721,7 @@ open class SAModel: NSObject {
 		}
 
         for i in 0 ..< Int(count) {
-            if let key = NSString(cString: property_getName(properties[i]), encoding: String.Encoding.utf8.rawValue) as? String {
+            if let key = NSString(cString: property_getName(properties[i]), encoding: String.Encoding.utf8.rawValue) as String? {
 				//SA.log(key, valueForKey(key))
 				if let _ = value(forKey: key) {
 					array.append(key)
@@ -747,7 +747,8 @@ open class SAModel: NSObject {
     					//SA.log("WARNING model: this condition is not ideal")
 						break loop
     				}
-					if let value: AnyObject? = value(forKey: key as String) as AnyObject?? , key != "raw" {
+					if key != "raw" {
+                        let value = self.value(forKey: key as String) as AnyObject
 						dict[key as String] = value
     				}
                 }
@@ -765,22 +766,21 @@ open class SAModel: NSObject {
 		}
 
         for i in 0 ..< Int(count) {
-            if let key = NSString(cString: property_getName(properties[i]), encoding: String.Encoding.utf8.rawValue) as? String {
+            if let key = NSString(cString: property_getName(properties[i]), encoding: String.Encoding.utf8.rawValue) as String? {
 				if key == "description" || key == "keys" || key == "dictionary" {
 					continue
 				}
-				if let value: AnyObject? = value(forKey: key) as AnyObject?? {
-					if let v = value as? SAModel {
-						dict[key] = v.dictionary as AnyObject?
-					} else if let a = value as? [SAModel] {
-						var array = [AnyObject]()
-						for v in a {
-							array.append(v.dictionary as AnyObject)
-						}
-						dict[key] = array as AnyObject?
-					} else {
-						dict[key] = value
+                let value = self.value(forKey: key) as AnyObject
+				if let v = value as? SAModel {
+					dict[key] = v.dictionary as AnyObject?
+				} else if let a = value as? [SAModel] {
+					var array = [AnyObject]()
+					for v in a {
+						array.append(v.dictionary as AnyObject)
 					}
+					dict[key] = array as AnyObject?
+				} else {
+					dict[key] = value
 				}
 			}
         }
@@ -1020,7 +1020,7 @@ open class SARESTTableController: SATableController {
 			table.addSubview(refresh_reload!)
 		}
 		//	XXX: pod integration
-		if pull_up == .more && table.responds(to: Selector("bottomRefreshControl")) {
+		if pull_up == .more && table.responds(to: Selector(("bottomRefreshControl"))) {
 			refresh_more = UIRefreshControl()
 			refresh_more!.perform("triggerVerticalOffset", value:60 as AnyObject?)
 			refresh_more!.addTarget(self, action:#selector(SARESTTableController.client_more), for:.valueChanged)

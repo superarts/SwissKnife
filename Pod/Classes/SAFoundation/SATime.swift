@@ -87,34 +87,36 @@ var test1 = 2.years.ago
 var test2 = Date() - 4.days
 var test3 = Date() + 5.months
 
-public func < (left:Date, right: Date) -> Bool {
-    let result:ComparisonResult = left.compare(right)
-    var isEarlier = false
-    if (result == ComparisonResult.orderedAscending) {
-        isEarlier = true
-    }
-    return isEarlier
-}
-
-public func > (left:Date, right: Date) -> Bool {
-    let result:ComparisonResult = left.compare(right)
-    var isLater = false
-    if (result == ComparisonResult.orderedDescending) {
-        isLater = true
-    }
-    return isLater
-}
-
-public func == (left:Date, right: Date) -> Bool {
-    let result:ComparisonResult = left.compare(right)
-    var isEqual = false
-    if (result == ComparisonResult.orderedSame) {
-        isEqual = true
-    }
-    return isEqual
-}
-
 /*
+public extension Date {
+	public static func < (left:Date, right: Date) -> Bool {
+		let result:ComparisonResult = left.compare(right)
+		var isEarlier = false
+		if (result == ComparisonResult.orderedAscending) {
+			isEarlier = true
+		}
+		return isEarlier
+	}
+
+	public static func > (left:Date, right: Date) -> Bool {
+		let result:ComparisonResult = left.compare(right)
+		var isLater = false
+		if (result == ComparisonResult.orderedDescending) {
+			isLater = true
+		}
+		return isLater
+	}
+
+	public static func == (left:Date, right: Date) -> Bool {
+		let result:ComparisonResult = left.compare(right)
+		var isEqual = false
+		if (result == ComparisonResult.orderedSame) {
+			isEqual = true
+		}
+		return isEqual
+	}
+}
+
 var test4 = test2 < test3
 var test5 = test3 > test1
 var test6 = Date() == test1

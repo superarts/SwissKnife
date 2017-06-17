@@ -161,6 +161,7 @@ public extension UITabBarController {
 public extension UIView {
 	//	TODO: add getters when extension property is added - having problem with associating in swift (key cannot be a string variable)
 	//	WARNING: fontName of UIView will be deprecated soon, use textFontName etc. instead.
+	/*
 	@IBInspectable var fontName: String? {
 		get {
 			if self is UILabel {
@@ -204,6 +205,7 @@ public extension UIView {
 			}
 		}
 	}
+	*/
 	@IBInspectable var enableMaskCircle: Bool {
 		get {
 			SA.log("WARNING no getter for UIView.enableMaskCircle")
@@ -301,6 +303,7 @@ public extension UILabel {
 }
 
 public extension UITextField {
+	/*
 	@IBInspectable var paddingLeft: CGFloat {
 		get {
 			SA.log("WARNING no getter for UITextField.paddingLeft")
@@ -310,6 +313,7 @@ public extension UITextField {
 			layer.sublayerTransform = CATransform3DMakeTranslation(f, 0, 0)
 		}
 	}
+	*/
 	@IBInspectable var textLocalized: String? {
 		get {
 			return self.text
@@ -339,6 +343,14 @@ public extension UITextField {
 			font = UIFont(name: name!, size: font!.pointSize)
 		}
 	}
+    @IBInspectable var placeHolderColor: UIColor? {
+        get {
+            return self.placeHolderColor
+        }
+        set {
+            self.attributedPlaceholder = NSAttributedString(string:self.placeholder != nil ? self.placeholder! : "", attributes:[NSForegroundColorAttributeName: newValue!])
+        }
+    }
 }
 
 public extension UIScrollView {
@@ -489,6 +501,7 @@ public extension UITextView {
 			return false	//	TODO
 		}
 		set (b) {
+            SA.log("WARNING: alignMiddleVertical may not work, check SAThemeManager for details")
 			if b {
 				self.addObserver(self, forKeyPath:"frame", options:.new, context:nil)
 				self.addObserver(self, forKeyPath:"contentSize", options:.new, context:nil)
@@ -521,11 +534,14 @@ public extension UITextView {
 		NotificationCenter.default.removeObserver(self, name:NSNotification.Name.UITextViewTextDidEndEditing, object: nil);
 	}
 
-	override open func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey:Any]?, context: UnsafeMutableRawPointer?) {
+    //  TODO: get it work
+    /*
+    open override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
 		if let _ = object as? UITextView {
 			sa_reload_align_middle_vertical()
 		}
 	}
+     */
 	public func sa_reload_align_middle_vertical() {
 		var y: CGFloat = (self.bounds.size.height - self.contentSize.height * self.zoomScale)/2.0;
 		if y < 0 {
