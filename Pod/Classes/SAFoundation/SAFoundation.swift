@@ -383,6 +383,15 @@ public extension UserDefaults {
 		}
 		return v
 	}
+	@discardableResult public class func double(_ key: Double, _ v: Double? = nil) -> Double? {
+		if let obj: Double = v {
+			UserDefaults.standard.set(obj, forKey: key)
+			UserDefaults.standard.synchronize()
+		} else {
+			return UserDefaults.standard.double(forKey: key)
+		}
+		return v
+	}
 }
 
 public extension UIView {
