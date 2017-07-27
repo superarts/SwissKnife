@@ -251,9 +251,13 @@ public extension String {
 	public func sub_after(_ sub: String) -> String {
         if let range = self.range(of: sub) {
             let index: Int = self.characters.distance(from: self.startIndex, to: range.lowerBound)
-			return sub_range(index + 1, self.length)
+			return sub_range(index + sub.length, self.length)
 		}
 		return ""
+	}
+	func subBetween(_ head: String, _ tail: String) -> String? {
+		let s = self.sub_after(head).sub_before(tail)
+		return s != "" ? s : nil
 	}
 	public func include(_ find: String, case_sensitive: Bool = true) -> Bool {
 		if case_sensitive == false {
