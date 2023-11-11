@@ -204,7 +204,7 @@ public extension String {
 		get {
 			let startIndex =  self.index(self.startIndex, offsetBy: r.lowerBound)
 			let endIndex = self.index(startIndex, offsetBy: r.upperBound - r.lowerBound)
-			return String(self[startIndex...endIndex])
+			return self[startIndex...endIndex]
 		}
 	}
 	/*
@@ -307,7 +307,7 @@ public extension String {
 extension String {
     public func boundingSize(width: CGFloat, font: UIFont) -> CGSize {
         let constraintRect = CGSize(width: width, height: .greatestFiniteMagnitude)
-        let boundingBox = self.boundingRect(with: constraintRect, options: .usesLineFragmentOrigin, attributes: [NSAttributedStringKey.font: font], context: nil)
+        let boundingBox = self.boundingRect(with: constraintRect, options: .usesLineFragmentOrigin, attributes: [NSFontAttributeName: font], context: nil)
 		//boundingBox.height += 1
         return boundingBox.size
     }
@@ -714,7 +714,7 @@ public extension UIScrollView {
 			//SA.log("WARNING: pageControl not found")
 		}
 	}
-	@objc public func page_changed(_ page: UIPageControl) {
+	public func page_changed(_ page: UIPageControl) {
 		UIView.animate(withDuration: 0.3, animations: {
 			self.contentOffset = CGPoint(x: self.frame.size.width * CGFloat(page.currentPage), y: 0)
 		}) 
@@ -853,14 +853,17 @@ public extension UIViewController {
 }
 
 public extension UISearchBar {
-	public func set_text_image(_ text: NSString, icon:UISearchBarIcon, attribute: [NSAttributedStringKey: Any]? = nil, state:UIControlState = UIControlState()) {
+	public func set_text_image(_ text: NSString, icon:UISearchBarIcon, attribute:SADictStrObj? = nil, state:UIControlState = UIControlState()) {
 		let textColor: UIColor = UIColor.white
 		let textFont: UIFont = UIFont(name: "FontAwesome", size: 15)!
 		UIGraphicsBeginImageContext(CGSize(width: 15, height: 15))
-		let attr: [NSAttributedStringKey: Any] = attribute ?? [
-				NSAttributedStringKey.font: textFont,
-				NSAttributedStringKey.foregroundColor: textColor,
+		var attr = attribute
+		if attr == nil {
+			attr = [
+				NSFontAttributeName: textFont,
+				NSForegroundColorAttributeName: textColor,
 			]
+		}
 		text.draw(in: CGRect(x: 0, y: 0, width: 15, height: 15), withAttributes: attr)
 		let image: UIImage = UIGraphicsGetImageFromCurrentImageContext()!
 		UIGraphicsEndImageContext()
@@ -920,14 +923,14 @@ open class SAViewController: UIViewController {
 		}
 	}
 
-	@objc open func sa_keyboard_will_show(_ notification: Notification) {
+	open func sa_keyboard_will_show(_ notification: Notification) {
 		if let info: NSDictionary = (notification as NSNotification).userInfo as NSDictionary? {
 			let value: NSValue = info.value(forKey: UIKeyboardFrameEndUserInfoKey) as! NSValue
 			let rect: CGRect = value.cgRectValue
 			sa_keyboard_height_changed(rect.height)
 		}
 	}
-	@objc open func sa_keyboard_will_hide(_ notification: Notification) {
+	open func sa_keyboard_will_hide(_ notification: Notification) {
 		sa_keyboard_height_changed(0)
 	}
 	open func sa_keyboard_height_changed(_ height: CGFloat) {
@@ -1000,7 +1003,7 @@ open class SAHorizontalScrollController: UIViewController, UIScrollViewDelegate 
 		let title = titles[index]
 		let frame = title.boundingRect(with: CGSize(width: 0, height: 0),
 				options: NSStringDrawingOptions.usesLineFragmentOrigin,
-				attributes: [NSAttributedStringKey.font: font_inactive],
+				attributes: [NSFontAttributeName: font_inactive],
 				context: nil)
 		return margin * 2 + frame.size.width		//	margin is included in label
 	}
