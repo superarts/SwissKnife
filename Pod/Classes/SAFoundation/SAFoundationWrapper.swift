@@ -156,7 +156,7 @@ extension UIViewController {
 	}
 }
 extension UISearchBar {
-	public func setTextImage(text: NSString, icon:UISearchBarIcon, attribute: [NSAttributedStringKey: Any]? = nil, state:UIControlState = .normal) {
+	public func setTextImage(text: NSString, icon:UISearchBarIcon, attribute:SADictStrObj? = nil, state:UIControlState = .normal) {
 		set_text_image(text, icon: icon, attribute: attribute, state: state)
 	}
 }
