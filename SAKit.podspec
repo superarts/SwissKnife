@@ -30,6 +30,7 @@ Still in progress.
 
 	s.platform     = :ios, '8.0'
 	s.requires_arc = true
+	# s.pod_target_xcconfig = { 'SWIFT_VERSION' => '4.0' }
 
 	# s.source_files = 'Pod/Classes/**/*'
 	s.resource_bundles = {

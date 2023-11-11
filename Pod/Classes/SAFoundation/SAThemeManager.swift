@@ -348,7 +348,7 @@ public extension UITextField {
             return self.placeHolderColor
         }
         set {
-            self.attributedPlaceholder = NSAttributedString(string:self.placeholder != nil ? self.placeholder! : "", attributes:[NSForegroundColorAttributeName: newValue!])
+            self.attributedPlaceholder = NSAttributedString(string:self.placeholder != nil ? self.placeholder! : "", attributes:[NSAttributedStringKey.foregroundColor: newValue!])
         }
     }
 }
@@ -550,13 +550,13 @@ public extension UITextView {
 		self.content_y = -y
 	}
 	//func sa_text_changed(notification: NSNotification) { }
-	public func sa_text_edit_began(_ notification: Notification) {
+	@objc public func sa_text_edit_began(_ notification: Notification) {
 		if self.text == self.placeholder {
 			self.text = ""
             //self.textColor = associated(&SA.keys.text_color) as? UIColor
 		}
 	}
-	public func sa_text_edit_ended(_ notification: Notification) {
+	@objc public func sa_text_edit_ended(_ notification: Notification) {
 		if self.text == "" {
 			self.text = self.placeholder
             //self.textColor = .grayColor()
