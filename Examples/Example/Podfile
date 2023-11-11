@@ -1,0 +1,22 @@
+source 'https://github.com/CocoaPods/Specs.git'
+use_frameworks!
+
+target 'Example' do
+  pod "SAKit", :path => "../../"
+  pod "SAKit/SAClient", :path => "../../"
+# pod "EVReflection"
+end
+
+target 'ExampleTests' do
+  pod "SAKit", :path => "../../"
+  pod "SAKit/SAClient", :path => "../../"
+# pod "EVReflection"
+
+# pod 'Quick', '~> 0.8.0'
+# pod 'Nimble', '3.0.0'
+# pod 'Quick'
+# pod 'Nimble'
+# pod 'FBSnapshotTestCase'
+# pod 'Nimble-Snapshots'
+end
+

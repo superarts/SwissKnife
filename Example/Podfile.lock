@@ -1,0 +1,41 @@
+PODS:
+  - EVReflection (2.22.0)
+  - FBSnapshotTestCase (2.0.7):
+    - FBSnapshotTestCase/SwiftSupport (= 2.0.7)
+  - FBSnapshotTestCase/Core (2.0.7)
+  - FBSnapshotTestCase/SwiftSupport (2.0.7):
+    - FBSnapshotTestCase/Core
+  - LFramework (0.1.0):
+    - LFramework/LFoundation (= 0.1.0)
+  - LFramework/LClient (0.1.0):
+    - LFramework/LFoundation
+  - LFramework/LFoundation (0.1.0)
+  - Nimble (3.2.0)
+  - Nimble-Snapshots (3.0.0):
+    - FBSnapshotTestCase (~> 2.0.7)
+    - Nimble
+    - Quick
+  - Quick (0.9.1)
+
+DEPENDENCIES:
+  - EVReflection
+  - FBSnapshotTestCase
+  - LFramework (from `../`)
+  - LFramework/LClient (from `../`)
+  - Nimble
+  - Nimble-Snapshots
+  - Quick
+
+EXTERNAL SOURCES:
+  LFramework:
+    :path: ../
+
+SPEC CHECKSUMS:
+  EVReflection: a477e3e8387c720aba2838b0c8efdf62ee15eadb
+  FBSnapshotTestCase: 7e85180d0d141a0cf472352edda7e80d7eaeb547
+  LFramework: 55761168fba986cc359bc777827a50232962bbdf
+  Nimble: 703854335d181df169bbca9c97117b5cf8c47c1d
+  Nimble-Snapshots: ab41dd737dcd33a0b0cb005a30465fef70b7207a
+  Quick: a5221fc21788b6aeda934805e68b061839bc3165
+
+COCOAPODS: 0.39.0

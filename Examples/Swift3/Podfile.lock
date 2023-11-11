@@ -1,0 +1,47 @@
+PODS:
+  - EVReflection (4.8.0):
+    - EVReflection/Core (= 4.8.0)
+  - EVReflection/Core (4.8.0)
+  - FBSnapshotTestCase (2.1.4):
+    - FBSnapshotTestCase/SwiftSupport (= 2.1.4)
+  - FBSnapshotTestCase/Core (2.1.4)
+  - FBSnapshotTestCase/SwiftSupport (2.1.4):
+    - FBSnapshotTestCase/Core
+  - Nimble (6.1.0)
+  - Nimble-Snapshots (4.4.0):
+    - Nimble-Snapshots/Core (= 4.4.0)
+  - Nimble-Snapshots/Core (4.4.0):
+    - FBSnapshotTestCase (~> 2.0)
+    - Nimble
+    - Quick
+  - Quick (1.1.0)
+  - SAKit (0.1.0):
+    - SAKit/SAFoundation (= 0.1.0)
+  - SAKit/SAClient (0.1.0):
+    - SAKit/SAFoundation
+  - SAKit/SAFoundation (0.1.0)
+
+DEPENDENCIES:
+  - EVReflection
+  - FBSnapshotTestCase
+  - Nimble
+  - Nimble-Snapshots
+  - Quick
+  - SAKit (from `../`)
+  - SAKit/SAClient (from `../`)
+
+EXTERNAL SOURCES:
+  SAKit:
+    :path: ../
+
+SPEC CHECKSUMS:
+  EVReflection: 45760b8603c14c3dbb61395a4e77ba797b3b5c69
+  FBSnapshotTestCase: 094f9f314decbabe373b87cc339bea235a63e07a
+  Nimble: c53e6903fee94041b90ded74f135820437d8bf59
+  Nimble-Snapshots: e743439f26c2fa99d8f7e0d7c01c99bcb40aa6f2
+  Quick: dafc587e21eed9f4cab3249b9f9015b0b7a7f71d
+  SAKit: efd6c4ed82f05d94b3d8cddb6358376dbf2813c3
+
+PODFILE CHECKSUM: 0f16c4f797c3b478ef33bb9005c7d0337889f202
+
+COCOAPODS: 1.1.1

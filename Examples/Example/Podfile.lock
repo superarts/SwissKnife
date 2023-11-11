@@ -1,0 +1,21 @@
+PODS:
+  - SAKit (0.1.0):
+    - SAKit/SAFoundation (= 0.1.0)
+  - SAKit/SAClient (0.1.0):
+    - SAKit/SAFoundation
+  - SAKit/SAFoundation (0.1.0)
+
+DEPENDENCIES:
+  - SAKit (from `../../`)
+  - SAKit/SAClient (from `../../`)
+
+EXTERNAL SOURCES:
+  SAKit:
+    :path: ../../
+
+SPEC CHECKSUMS:
+  SAKit: efd6c4ed82f05d94b3d8cddb6358376dbf2813c3
+
+PODFILE CHECKSUM: 6e60f41be05aebf84afd4f8dd544c809ccbe2a5e
+
+COCOAPODS: 1.1.1
