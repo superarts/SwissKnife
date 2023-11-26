@@ -32,16 +32,8 @@ let package = Package(
         ),
         /*
         .package(
-            url: "https://github.com/eneko/MarkdownGenerator.git",
-            .upToNextMinor(from: "1.1.0")
-        ),
-        .package(
             url: "https://github.com/drmohundro/SWXMLHash.git",
             .upToNextMinor(from: "6.0.0")
-        ),
-        .package(
-            url: "https://github.com/nerdishbynature/octokit.swift",
-            .upToNextMinor(from: "0.11.0")
         ),
         */
     ],
@@ -51,9 +43,7 @@ let package = Package(
         .target(
             name: "SwissKnifeCore",
             dependencies: [
-                //"MarkdownGenerator",
                 //"SWXMLHash",
-                //"OctoKit",
             ],
             path: "Sources/Core"
         ),
