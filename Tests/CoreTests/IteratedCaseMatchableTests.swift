@@ -1,6 +1,6 @@
 import Nimble
 import Quick
-import SwissKnife
+import SwissKnifeCore
 
 private enum Direction: String, CaseIterable, IteratedCaseMatchable {
     case north, south, east, west
@@ -8,8 +8,8 @@ private enum Direction: String, CaseIterable, IteratedCaseMatchable {
 
 class IteratedCaseMatchableSpec: QuickSpec {
     override func spec() {
-        context("Enumerations") {
-            describe("IteratedCaseMatchable") {
+        context("IteratedCaseMatchable") {
+            describe("Enum") {
                 it("should match") {
                     expect(Direction.isContained(by: "When you are not sure, always go west.")).to(beTrue())
                 }
