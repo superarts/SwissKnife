@@ -12,7 +12,11 @@ let package = Package(
         // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(
             name: "SwissKnife",
-            targets: ["SwissKnife"]
+            targets: ["SwissKnifeCore"]
+        ),
+        .library(
+            name: "SwissKnifeFoundation",
+            targets: ["SwissKnifeCoreFoundation"]
         ),
     ],
     dependencies: [
@@ -45,17 +49,29 @@ let package = Package(
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
-            name: "SwissKnife",
+            name: "SwissKnifeCore",
             dependencies: [
                 //"MarkdownGenerator",
                 //"SWXMLHash",
                 //"OctoKit",
             ],
-            path: "Sources"
+            path: "Sources/Core"
+        ),
+        .target(
+            name: "SwissKnifeCoreFoundation",
+            dependencies: [
+                "SwissKnifeCore",
+            ],
+            path: "Sources/CoreFoundation"
         ),
         .testTarget(
             name: "SwissKnifeTests",
-            dependencies: ["SwissKnife", "Quick", "Nimble"],
+            dependencies: [
+                "SwissKnifeCore",
+                "SwissKnifeCoreFoundation",
+                "Quick",
+                "Nimble"
+            ],
             path: "Tests"
         ),
     ]

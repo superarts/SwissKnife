@@ -1,6 +1,6 @@
 import Nimble
 import Quick
-import SwissKnife
+import SwissKnifeCore
 
 class EnvironmentSpec: QuickSpec, EnvironmentRequired {
     override func spec() {

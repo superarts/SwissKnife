@@ -1,6 +1,7 @@
 import Nimble
 import Quick
-import SwissKnife
+import SwissKnifeCore
+import SwissKnifeCoreFoundation
 
 class StringUtilitySpec: QuickSpec, StringUtilityRequired {
     override func spec() {

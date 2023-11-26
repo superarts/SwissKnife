@@ -1,6 +1,6 @@
 import Nimble
 import Quick
-import SwissKnife
+import SwissKnifeCore
 
 private enum Direction: String, CaseIterable, IteratedCaseMatchable {
     case north, south, east, west
