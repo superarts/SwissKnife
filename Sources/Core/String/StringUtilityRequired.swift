@@ -1,3 +1,4 @@
+/// StringUtility+DependencyInjection
 public protocol StringUtilityRequired {
     var stringUtility: StringUtility { get }
 }
