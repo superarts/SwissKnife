@@ -6,7 +6,7 @@ private enum Direction: String, CaseIterable, IteratedCaseMatchable {
     case north, south, east, west
 }
 
-class EnumSpec: QuickSpec {
+class IteratedCaseMatchableSpec: QuickSpec {
     override func spec() {
         context("Enumerations") {
             describe("IteratedCaseMatchable") {
@@ -14,7 +14,7 @@ class EnumSpec: QuickSpec {
                     expect(Direction.isContained(by: "When you are not sure, always go west.")).to(beTrue())
                 }
                 it("should not match") {
-                    expect(Direction.isContained(by: "Up is not a direction on compass.")).to(beFalse())
+                    expect(Direction.isContained(by: "Up is not a direction on the compass.")).to(beFalse())
                 }
             }
         }

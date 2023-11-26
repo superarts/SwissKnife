@@ -17,13 +17,20 @@ Please read the next section for the guideline of creating different frameworks 
 
 [Package.swift](./Package.swift) contains the source of truth of our frameworks and their dependencies. The following documents should always reflect the implementation.
 
-### Core
+### `Core`
 
 - Business: common features can be used by any Swift applications.
 - Dependency: Swift only. Due to limited development resources, we only support a specific `Swift` version (and above).
   - A better approach is to create `CoreSwift51`, `CoreSwift55`, `CoreSwift57` etc.
   - `Core` is available on all platforms that `Swift` can compile, just make sure you have the right `Swift` version.
   - Please note that `Foundation` is *NOT* part of Swift itself! Types like `Date` are platform specific. We'll see it in other modules.
+
+### `CoreFoundation`
+
+- Business: common features can be used by any Swift applications that has Foundation implementation.
+- Dependency:
+  - Foundation framework (Linux implementation may be different with Apple's own OSes).
+  - `Core`.
 
 ## Building modular frameworks
 
