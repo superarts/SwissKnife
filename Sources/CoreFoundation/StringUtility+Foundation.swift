@@ -1,22 +1,22 @@
 import Foundation
 import SwissKnifeCore
 
-/// StringUtility+Foundation
-extension StringUtility {
+/// String+Foundation
+public extension StringUtility {
     /// Returns whether a string matches a regex `pattern`.
-    public func matches(_ str: String, pattern: String) -> Bool {
+    func matches(_ str: String, pattern: String) -> Bool {
         return str.range(of: pattern, options: .regularExpression) != nil
     }
 
     /// Trim all whitespaces and new lines line by line
-    public func trimAllWhitespaces(_ str: String) -> String {
+    func trimAllWhitespaces(_ str: String) -> String {
         str.split(whereSeparator: \.isNewline)
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .joined(separator: "\n")
     }
 
     /// For range X ..< Y, get a new string from line X to line Y.
-    public func linesOf(string: String, range: Range<Int>) -> String {
+    func linesOf(string: String, range: Range<Int>) -> String {
         var str = ""
         let array = string.components(separatedBy: "\n")
         for index in range {
@@ -26,7 +26,7 @@ extension StringUtility {
     }
 
     /// Captured `()` groups in pattern
-    public func captured(_ str: String, pattern: String, options: NSRegularExpression.Options = []) -> [String] {
+    func captured(_ str: String, pattern: String, options: NSRegularExpression.Options = []) -> [String] {
         var results = [String]()
 
         var regex: NSRegularExpression
@@ -55,7 +55,7 @@ extension StringUtility {
         return results
     }
 
-    public func groups(_ str: String, pattern: String, options: NSRegularExpression.Options = []) throws -> [[String]] {
+    func groups(_ str: String, pattern: String, options: NSRegularExpression.Options = []) throws -> [[String]] {
         let regex = try NSRegularExpression(pattern: pattern, options: options)
         let matches = regex.matches(in: str, range: NSRange(str.startIndex..., in: str))
         return try matches.map { match throws in
