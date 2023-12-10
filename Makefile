@@ -13,4 +13,5 @@ ifeq ($(UNAME), Darwin)
 endif
 	# --exclude "${SRCROOT}/Pods" 
 	# mkdir -p output
-	swift test
+	# TODO: -q doesn't work with Swift 5.9 / swift test --quiet
+	swift test | grep -e ' error: -\[' -e 'DEBUG '
