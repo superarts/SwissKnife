@@ -15,3 +15,4 @@ endif
 	# mkdir -p output
 	# TODO: -q doesn't work with Swift 5.9 / swift test --quiet
 	swift test | grep -e ' error: -\[' -e 'DEBUG '
+	# done.
