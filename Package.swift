@@ -16,6 +16,10 @@ let package = Package(
             targets: ["SwissKnifeCore"]
         ),
         .library(
+            name: "SwissKnifeLogger",
+            targets: ["SwissKnifeLogger"]
+        ),
+        .library(
             name: "SwissKnifeFoundation",
             targets: ["SwissKnifeCoreFoundation"]
         ),
@@ -49,6 +53,13 @@ let package = Package(
             path: "Sources/Core"
         ),
         .target(
+            name: "SwissKnifeLogger",
+            dependencies: [
+                "SwissKnifeCore",
+            ],
+            path: "Sources/Logger"
+        ),
+        .target(
             name: "SwissKnifeCoreFoundation",
             dependencies: [
                 "SwissKnifeCore",
@@ -59,6 +70,7 @@ let package = Package(
             name: "SwissKnifeTests",
             dependencies: [
                 "SwissKnifeCore",
+                "SwissKnifeLogger",
                 "SwissKnifeCoreFoundation",
                 "Quick",
                 "Nimble"

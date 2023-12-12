@@ -25,6 +25,11 @@ Please read the next section for the guideline of creating different frameworks 
   - `Core` is available on all platforms that `Swift` can compile, just make sure you have the right `Swift` version.
   - Please note that `Foundation` is *NOT* part of Swift itself! Types like `Date` are platform specific. We'll see it in other modules.
 
+### `Logger`
+
+- Business: a WIP logger.
+- Dependency: `Core.Environment`.
+
 ### `CoreFoundation`
 
 - Business: common features can be used by any Swift applications that has Foundation implementation.
